@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/shape_page_background_gradient"
+    tools:context=".activity.Home">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="18sp"
+        android:layout_marginEnd="18sp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/home.linearLayout">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="160sp"
+                android:layout_marginTop="38sp"
+                android:layout_marginBottom="12sp"
+                android:clickable="true"
+                android:background="@drawable/shape_login_page_box">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20sp"
+                    android:gravity="center"
+                    android:text="🍓"
+                    android:textSize="64sp"
+                    android:textColor="#000"
+                    android:id="@+id/home.userinfobox.avatar" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/home.userinfobox.avatar"
+                    android:layout_marginStart="16sp"
+                    android:layout_marginEnd="20sp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#000"
+                            android:textSize="24sp"
+                            android:text="余小庆"
+                            android:id="@+id/home.userinfobox.username" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="6sp"
+                            android:textColor="#000"
+                            android:textSize="24sp"
+                            android:text="2052000"
+                            android:id="@+id/home.userinfobox.uid" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4sp"
+                        android:textColor="#000"
+                        android:textSize="24sp"
+                        android:text="建筑与城市规划学院"
+                        android:id="@+id/home.userinfobox.facultyName" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4sp"
+                        android:textColor="#000"
+                        android:textSize="24sp"
+                        android:text="2020级"
+                        android:id="@+id/home.userinfobox.grade" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="80sp"
+                android:layout_marginBottom="12sp"
+                android:clickable="true"
+                android:background="@drawable/shape_login_page_box">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_centerInParent="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#000"
+                        android:textSize="20sp"
+                        android:text="2020-2021学年度第2学期"
+                        android:id="@+id/home.terminfobox.terminfo" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10sp"
+                        android:textColor="#000"
+                        android:textSize="20sp"
+                        android:text="第1周"
+                        android:id="@+id/home.terminfobox.weeknumber" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="6sp"
+                    android:layout_centerHorizontal="true"
+                    android:textColor="#000"
+                    android:textSize="12sp"
+                    android:text="sessionid: 000"
+                    android:visibility="gone"
+                    android:id="@+id/home.terminfobox.sessionid" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

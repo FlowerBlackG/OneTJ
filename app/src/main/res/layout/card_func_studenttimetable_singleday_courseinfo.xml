@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="132sp"
+    android:layout_marginBottom="12sp"
+    android:background="@drawable/shape_login_page_box"
+    android:clickable="true"
+    android:id="@+id/card.func.studentTimeTable.singleDay.card.layout">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="12sp"
+        android:textColor="#000"
+        android:textSize="48sp"
+        android:text="🍓"
+        android:id="@+id/card.func.studentTimeTable.singleDay.card.icon" />
+
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_toEndOf="@id/card.func.studentTimeTable.singleDay.card.icon"
+        android:layout_marginStart="12sp"
+        android:layout_marginEnd="12sp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="高等代数与解析几何（荣）上"
+            android:textSize="24sp"
+            android:maxEms="12"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:id="@+id/card.func.studentTimeTable.singleDay.card.courseName"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="课号："
+                android:textSize="16sp"
+                android:layout_marginTop="1dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00300502"
+                android:textSize="16sp"
+                android:layout_marginTop="1dp"
+                android:id="@+id/card.func.studentTimeTable.singleDay.card.courseCode"/>
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="教师："
+                android:textSize="16sp"
+                android:layout_marginTop="1dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="陈斌"
+                android:textSize="16sp"
+                android:layout_marginTop="1dp"
+                android:id="@+id/card.func.studentTimeTable.singleDay.card.courseTeacher"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="地点："
+                android:textSize="16sp"
+                android:layout_marginTop="1dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="北129"
+                android:textSize="16sp"
+                android:layout_marginTop="1dp"
+                android:id="@+id/card.func.studentTimeTable.singleDay.card.courseClassRoom"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="24sp"
+        android:layout_marginBottom="18sp"
+        android:textSize="42sp"
+        android:text="10-12"
+        android:id="@+id/card.func.studentTimeTable.singleDay.card.scheduleTime" />
+
+</RelativeLayout>

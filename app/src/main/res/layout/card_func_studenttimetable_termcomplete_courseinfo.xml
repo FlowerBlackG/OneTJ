@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="164sp"
+    android:layout_marginBottom="12sp"
+    android:background="@drawable/shape_login_page_box"
+    android:clickable="true"
+    android:id="@+id/card.func.studentTimeTable.termComplete.card.layout">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="12sp"
+        android:textColor="#000"
+        android:textSize="48sp"
+        android:text="🍓"
+        android:id="@+id/card.func.studentTimeTable.termComplete.card.icon" />
+
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_toEndOf="@id/card.func.studentTimeTable.termComplete.card.icon"
+        android:layout_marginStart="12sp"
+        android:layout_marginEnd="12sp"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="高等代数与解析几何（荣）上"
+            android:textSize="24dp"
+            android:maxEms="12"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:id="@+id/card.func.studentTimeTable.termComplete.card.courseName"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="课号："
+                android:textSize="14dp"
+                android:layout_marginTop="1dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00300502"
+                android:textSize="14dp"
+                android:layout_marginTop="1dp"
+                android:id="@+id/card.func.studentTimeTable.termComplete.card.courseCode"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="教师："
+                android:textSize="14dp"
+                android:layout_marginTop="1dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="陈斌"
+                android:textSize="14dp"
+                android:layout_marginTop="1dp"
+                android:id="@+id/card.func.studentTimeTable.termComplete.card.courseTeacher"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="学分："
+                android:textSize="14dp"
+                android:layout_marginTop="1dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6"
+                android:textSize="14dp"
+                android:layout_marginTop="1dp"
+                android:id="@+id/card.func.studentTimeTable.termComplete.card.courseCredits"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="地点："
+                android:textSize="14dp"
+                android:layout_marginTop="1dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="北129"
+                android:textSize="14dp"
+                android:layout_marginTop="1dp"
+                android:id="@+id/card.func.studentTimeTable.termComplete.card.courseClassRoom"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="时间："
+                android:textSize="14dp"
+                android:layout_marginTop="1dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="星期一 3-4节 [1-17],星期五 3-4节 [1-17],星期四 1-2节 [1-17]"
+                android:textSize="14dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:id="@+id/card.func.studentTimeTable.termComplete.card.courseClassTime"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

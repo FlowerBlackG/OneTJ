@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/shape_page_background_gradient"
+    tools:context=".activity.func.studenttimetable.SingleDay">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="18sp"
+        android:layout_marginEnd="18sp"
+        android:layout_marginBottom="12sp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12sp"
+            android:layout_marginTop="38sp"
+            android:orientation="horizontal"
+            android:id="@+id/func.studentTimeTable.singleDay.bar.weekInfo">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="80sp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6sp"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:text="第12周"
+                android:clickable="true"
+                android:background="@drawable/shape_login_page_box"
+                android:id="@+id/func.studentTimeTable.singleDay.weekNum"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="80sp"
+                android:layout_weight="1"
+                android:layout_marginStart="6sp"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:text="星期三"
+                android:clickable="true"
+                android:background="@drawable/shape_login_page_box"
+                android:id="@+id/func.studentTimeTable.singleDay.dayOfWeek"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="12sp"
+            android:layout_marginTop="12sp"
+            android:orientation="horizontal"
+            android:id="@+id/func.studentTimeTable.singleDay.bar.dir">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="80sp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8sp"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:text="前一天"
+                android:clickable="true"
+                android:background="@drawable/shape_login_page_box"
+                android:id="@+id/func.studentTimeTable.singleDay.dir.prevDay"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="80sp"
+                android:layout_weight="1"
+                android:layout_marginStart="4sp"
+                android:layout_marginEnd="4sp"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:text="今天"
+                android:clickable="true"
+                android:background="@drawable/shape_login_page_box"
+                android:id="@+id/func.studentTimeTable.singleDay.dir.today"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="80sp"
+                android:layout_weight="1"
+                android:layout_marginStart="8sp"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:text="后一天"
+                android:clickable="true"
+                android:background="@drawable/shape_login_page_box"
+                android:id="@+id/func.studentTimeTable.singleDay.dir.nextDay"/>
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/func.studentTimeTable.singleDay.bar.weekInfo"
+            android:layout_above="@id/func.studentTimeTable.singleDay.bar.dir"
+            android:layout_marginBottom="0sp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:animateLayoutChanges="true"
+                android:id="@+id/func.studentTimeTable.singleDay.linearLayout">
+
+            </LinearLayout>
+        </ScrollView>
+
+    </RelativeLayout>
+</RelativeLayout>
