@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+    <attr name="theme_color_accent" format="color" />
+
+    <attr name="background_color_gradient_start" format="color" />
+    <attr name="background_color_gradient_end" format="color" />
+
+</resources>

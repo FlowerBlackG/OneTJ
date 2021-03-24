@@ -1,0 +1,53 @@
+<resources>
+
+    <style name="Theme.OneDotTongjiRefresh.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">?attr/theme_color_accent</item>
+        <item name="colorPrimaryDark">?attr/theme_color_accent</item>
+        <item name="colorOnPrimary">?attr/theme_color_accent</item>
+        <item name="colorAccent">?attr/theme_color_accent</item>
+
+        <item name="windowNoTitle">true</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
+    <style name="Theme.OneDotTongjiRefresh.Main" parent="Theme.OneDotTongjiRefresh.Base">
+        <item name="theme_color_accent">#FF9800</item>
+        <item name="background_color_gradient_start">#f6d365</item>
+        <item name="background_color_gradient_end">#fda085</item>
+    </style>
+
+    <style name="Theme.OneDotTongjiRefresh.Home" parent="Theme.OneDotTongjiRefresh.Base">
+        <item name="theme_color_accent">#2196F3</item>
+        <item name="background_color_gradient_start">#8fd3f4</item>
+        <item name="background_color_gradient_end">#84fab0</item>
+    </style>
+
+    <style name="Theme.OneDotTongjiRefresh.About" parent="Theme.OneDotTongjiRefresh.Base">
+        <item name="theme_color_accent">#FFC107</item>
+        <item name="background_color_gradient_start">#d1fdff</item>
+        <item name="background_color_gradient_end">#fddb92</item>
+    </style>
+
+    <style name="Theme.OneDotTongjiRefresh.func.MyGrades" parent="Theme.OneDotTongjiRefresh.Base">
+        <item name="theme_color_accent">#03A9F4</item>
+        <item name="background_color_gradient_start">#a1c4fd</item>
+        <item name="background_color_gradient_end">#c2e9fb</item>
+    </style>
+
+    <style name="Theme.OneDotTongjiRefresh.func.StudentTimeTable.TermComplete" parent="Theme.OneDotTongjiRefresh.Base">
+        <item name="theme_color_accent">#40C4FF</item>
+        <item name="background_color_gradient_start">#a8edea</item>
+        <item name="background_color_gradient_end">#fed6e3</item>
+    </style>
+
+    <style name="Theme.OneDotTongjiRefresh.func.StudentTimeTable.SingleDay" parent="Theme.OneDotTongjiRefresh.Base">
+        <item name="theme_color_accent">#E040FB</item>
+        <item name="background_color_gradient_start">#fad0c4</item>
+        <item name="background_color_gradient_end">#ffd1ff</item>
+    </style>
+
+</resources>
