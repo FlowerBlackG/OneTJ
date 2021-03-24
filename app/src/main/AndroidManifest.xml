@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gardilily.onedottongji">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/logo"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+        <activity android:name=".activity.Login"
+            android:theme="@style/Theme.OneDotTongjiRefresh.Main">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activity.About"
+            android:theme="@style/Theme.OneDotTongjiRefresh.About"/>
+
+        <activity android:name=".activity.Home"
+            android:theme="@style/Theme.OneDotTongjiRefresh.Home"/>
+
+        <activity android:name=".activity.func.MyGrades"
+            android:theme="@style/Theme.OneDotTongjiRefresh.func.MyGrades" />
+
+        <activity android:name=".activity.func.studenttimetable.TermComplete"
+            android:theme="@style/Theme.OneDotTongjiRefresh.func.StudentTimeTable.TermComplete"/>
+
+        <activity android:name=".activity.func.studenttimetable.SingleDay"
+            android:theme="@style/Theme.OneDotTongjiRefresh.func.StudentTimeTable.SingleDay"/>
+    </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+</manifest>
