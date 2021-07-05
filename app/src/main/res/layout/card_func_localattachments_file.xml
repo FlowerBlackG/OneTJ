@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="84sp"
+    android:layout_marginBottom="12sp"
+    android:background="@drawable/shape_login_page_box"
+    android:clickable="true"
+    android:id="@+id/card.func.localAttachments.fileCard.layout">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12sp"
+            android:layout_marginEnd="6sp"
+            android:text="文件"
+            android:textSize="18sp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:id="@+id/card.func.localAttachments.fileCard.filename"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12sp"
+            android:layout_marginStart="6sp"
+            android:gravity="center"
+            android:textColor="#000"
+            android:textSize="36sp"
+            android:text="♻️"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:id="@+id/card.func.localAttachments.fileCard.delete"/>
+    </LinearLayout>
+</RelativeLayout>

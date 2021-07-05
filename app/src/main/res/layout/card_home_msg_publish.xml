@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="102sp"
+    android:layout_marginBottom="12sp"
+    android:background="@drawable/shape_login_page_box"
+    android:clickable="true"
+    android:id="@+id/card.home.commonMsgPublish.layout">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="16sp"
+        android:text=" "
+        android:textSize="16sp"
+        android:textColor="#000"
+        android:maxLines="3"
+        android:ellipsize="end"
+        android:id="@+id/card.home.commonMsgPublish.title" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16sp"
+        android:textSize="16sp"
+        android:text=" "
+        android:id="@+id/card.home.commonMsgPublish.date"/>
+
+</RelativeLayout>

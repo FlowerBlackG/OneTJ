@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<paths>
+    <files-path
+        name="app_installer"
+        path="download/appUpdate/" />
+    <files-path
+        name="msg_show_attachment"
+        path="download/attachment/" />
+</paths>

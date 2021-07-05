@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/shape_page_background_gradient"
+    tools:context=".activity.func.autocourseelect.AutoCourseElect">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="80sp"
+        android:layout_marginTop="38sp"
+        android:layout_marginBottom="12sp"
+        android:layout_marginStart="18sp"
+        android:layout_marginEnd="18sp"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:text="自动抢课"
+        android:textColor="#fff"
+        android:background="@drawable/fakerun_button"
+        android:clickable="true"
+        android:id="@+id/func.autoCourseElect.titleTag"/>
+
+    <TextView
+        android:layout_width="80sp"
+        android:layout_height="80sp"
+        android:layout_marginBottom="12sp"
+        android:layout_marginStart="12sp"
+        android:layout_marginEnd="18sp"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/func.autoCourseElect.titleTag"
+        android:gravity="center"
+        android:textSize="36sp"
+        android:text="🔍"
+        android:textColor="#fff"
+        android:background="@drawable/fakerun_button"
+        android:clickable="true"
+        android:id="@+id/func.autoCourseElect.courseCodeField.search"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="80sp"
+        android:layout_marginBottom="12sp"
+        android:layout_marginStart="18sp"
+        android:layout_toStartOf="@id/func.autoCourseElect.courseCodeField.search"
+        android:textColor="#fff"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:maxLength="6"
+        android:maxLines="1"
+        android:hint="在此输入6位课号"
+        android:textColorHint="#8fff"
+        android:background="@drawable/fakerun_button"
+        android:layout_below="@id/func.autoCourseElect.titleTag"
+        android:id="@+id/func.autoCourseElect.courseCodeField.input"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/func.autoCourseElect.courseCodeField.input"
+        android:layout_marginStart="18sp"
+        android:layout_marginEnd="18sp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:animateLayoutChanges="true"
+            android:id="@+id/func.autoCourseElect.linearLayout" />
+    </ScrollView>
+
+</RelativeLayout>

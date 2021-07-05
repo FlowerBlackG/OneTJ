@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="68sp"
+    android:layout_marginBottom="12sp"
+    android:background="@drawable/shape_login_page_box"
+    android:clickable="true"
+    android:id="@+id/card.msgPublishShow.attachCard.layout">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16sp"
+        android:text="📎"
+        android:textSize="28sp"
+        android:textColor="#000"
+        android:maxLines="3"
+        android:ellipsize="end"
+        android:id="@+id/card.msgPublishShow.attachCard.icon" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@id/card.msgPublishShow.attachCard.icon"
+        android:layout_margin="16sp"
+        android:textSize="16sp"
+        android:text=" "
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:id="@+id/card.msgPublishShow.attachCard.filename"/>
+
+</RelativeLayout>
