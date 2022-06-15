@@ -42,13 +42,13 @@ import com.gardilily.common.view.card.InfoCard.Builder
  *
  * 使用 [Builder.build()][Builder.build] 构造对象。
  */
-open class InfoCard internal constructor(
+open class InfoCard private constructor(
 	builder: Builder
 ) : RelativeLayout(builder.c) {
 
-	constructor(context: Context) : this(Builder(context))
+	private constructor(context: Context) : this(Builder(context))
 
-	val c = builder.c
+	private val c = builder.c
 	val spMultiply = builder.spMultiply
 	val cardBackground: Drawable? = builder.cardBackground
 	val outerMarginBottomSp = builder.outerMarginBottomSp

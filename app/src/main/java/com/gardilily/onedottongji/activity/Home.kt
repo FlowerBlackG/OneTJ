@@ -2,7 +2,11 @@ package com.gardilily.onedottongji.activity
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.LinearLayout
@@ -29,8 +33,10 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import org.json.JSONObject
-import java.util.*
+import java.net.URLDecoder
+import java.net.URLEncoder
 import kotlin.concurrent.thread
 
 class Home : Activity() {
@@ -160,6 +166,10 @@ class Home : Activity() {
     }
 
     private lateinit var shelf: FuncCardShelf
+
+    /**
+     * 初始化主页功能按钮。
+     */
     private fun initFuncButtons() {
         val spMultiply = resources.displayMetrics.scaledDensity
         val screenWidthPx = windowManager.defaultDisplay.width
@@ -169,34 +179,38 @@ class Home : Activity() {
         shelf.targetCardWidthPx = targetCardWidthPx
         findViewById<LinearLayout>(R.id.home_funcBtnLinearLayout).addView(shelf)
 
-        shelf.addFuncCard("🍕", "今日课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY) { funcButtonClick(it) }
-        shelf.addFuncCard("🍔", "学期课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE) { funcButtonClick(it) }
-        shelf.addFuncCard("💧", "我的成绩", MacroDefines.HOME_FUNC_MY_GRADES) { funcButtonClick(it) }
+        shelf.addFuncCard("🍕", "今日课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY, true) { funcButtonClick(it) }
+        shelf.addFuncCard("🍔", "学期课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE, true) { funcButtonClick(it) }
+        shelf.addFuncCard("💧", "我的成绩", MacroDefines.HOME_FUNC_MY_GRADES, true) { funcButtonClick(it) }
 
-        shelf.addFuncCard("🤯", "我的考试", MacroDefines.HOME_FUNC_STU_EXAM_ENQUIRIES) { funcButtonClick(it) }
-        shelf.addFuncCard("🎲", "个人选课", MacroDefines.HOME_FUNC_STUDENT_ELECT) { funcButtonClick(it) }
+        shelf.addFuncCard("🤯", "我的考试", MacroDefines.HOME_FUNC_STU_EXAM_ENQUIRIES, true) { funcButtonClick(it) }
 
-        shelf.addFuncCard("🥪", "本地文件", MacroDefines.HOME_FUNC_LOCAL_ATTACHMENTS) { funcButtonClick(it) }
+        shelf.addFuncCard("👩‍🦼", "抢课", MacroDefines.HOME_FUNC_AUTO_COURSE_ELECT, true) { funcButtonClick(it) }
 
-        //shelf.addFuncCard("👩‍🦼", "抢课 Preview", MacroDefines.HOME_FUNC_AUTO_COURSE_ELECT) { funcButtonClick(it) }
+        shelf.addFuncCard("🥪", "本地文件", MacroDefines.HOME_FUNC_LOCAL_ATTACHMENTS, true) { funcButtonClick(it) }
 
-        shelf.addFuncCard("🚗", "退出登录", MacroDefines.HOME_FUNC_LOGOUT) { funcButtonClick(it) }
-        shelf.addFuncCard("🤔", "关于App", MacroDefines.HOME_FUNC_ABOUT_APP) { funcButtonClick(it) }
+
+
+        shelf.addFuncCard("🚗", "退出登录", MacroDefines.HOME_FUNC_LOGOUT, true) { funcButtonClick(it) }
+        shelf.addFuncCard("🤔", "关于App", MacroDefines.HOME_FUNC_ABOUT_APP, true) { funcButtonClick(it) }
+
+        // shelf.addFuncCard("🔧", "提取SessionId", MacroDefines.HOME_FUNC_GET_SESSIONID, true) { funcButtonClick(it) }
+
+        shelf.fillBlank()
     }
 
+    /**
+     * 初始化通知列表。
+     */
     private fun initCommonMsgPublish() {
         val container = findViewById<LinearLayout>(R.id.home_commonMsgPublishContainer)
 
-        //val v = CourseTableContainer(this)
-        //container.addView(v.layout)
-
-        //return
-
         thread {
             val requestFormBody = FormBody.Builder()
-                    .add("pageNum_", "1")
-                    .add("total", "0")
-                    .build()
+                .add("pageNum_", "1")
+                .add("pageSize_", "9999")
+                .add("total", "0")
+                .build()
 
             val client = OkHttpClient()
 
@@ -253,6 +267,60 @@ class Home : Activity() {
         }
     }
 
+    private fun defUrlEnc(str: String?): String {
+        return URLEncoder.encode(str, "UTF-8")
+    }
+
+    private fun defUrlDec(str: String?): String {
+        return URLDecoder.decode(str, "UTF-8")
+    }
+
+    private fun jumpToAutoCourseElectActivity() {
+        // 先校验身份，再进行跳转。
+
+        // 采用跑吗的验证接口进行身份校验。
+
+        thread {
+            val fakerunMockClientVersion = 9
+            val authApiUrl = "https://www.gardilily.com/fakeRun/api/auth.php" +
+                    "?ac_key=" + "B9D934C1D10F29B1C5201C84291133F4" +
+                    "&version=$fakerunMockClientVersion" +
+                    "&keycode=" + username +
+                    "&device=${defUrlEnc(Build.BRAND + Build.MODEL)}"
+            val request = Request.Builder()
+                .url(authApiUrl)
+                .build()
+            var response: Response? = null
+            try {
+                response = uniHttpClient.newCall(request).execute()
+            } catch (e: Exception) { }
+            if (response?.code == 200) {
+                val result = defUrlDec(response.body?.string())
+                val resInt = result.toInt()
+
+                if (resInt < 0) {
+                    runOnUiThread {
+                        Toast.makeText(this, "拒绝使用。请联系负责人员", Toast.LENGTH_SHORT).show()
+                    }
+                } else if (resInt > 0) {
+                    runOnUiThread {
+                        val intent = Intent(this, AutoCourseElect::class.java)
+                        intent.putExtra("sessionid", sessionid)
+                        intent.putExtra("studentId", uid)
+                        startActivity(intent)
+                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                    }
+                }
+            } else {
+                runOnUiThread {
+                    Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+
+    }
+
     private fun funcButtonClick(action: Int) {
         when (action) {
             MacroDefines.HOME_FUNC_LOGOUT -> funcLogout()
@@ -268,16 +336,13 @@ class Home : Activity() {
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             }
             MacroDefines.HOME_FUNC_AUTO_COURSE_ELECT -> {
+                val warningText = "本功能仅可用于选课机制研究与开发测试等必要情景，请勿将其用于任何违规违法活动。\n" +
+                        "违反此忠告着，产生的一切后果自负。本程序设计者及相关研发人员拒绝承担任何责任。"
                 AlertDialog.Builder(this)
-                    .setTitle("警告")
-                    .setMessage("使用本功能，风险自负担。\n")
+                    .setTitle("免责声明")
+                    .setMessage(warningText)
                     .setPositiveButton("好") { _, _ ->
-                        val intent = Intent(this, AutoCourseElect::class.java)
-                        intent.putExtra("sessionid", sessionid)
-                        intent.putExtra("studentId", uid)
-                        startActivity(intent)
-                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-
+                        jumpToAutoCourseElectActivity()
                     }
                     .setNegativeButton("不要", null)
                     .create()
@@ -287,7 +352,8 @@ class Home : Activity() {
                 Toast.makeText(this, "暂缓开通", Toast.LENGTH_SHORT).show()
             }
             MacroDefines.HOME_FUNC_STU_EXAM_ENQUIRIES -> {
-                class CalendarIdAndName(var id: Int, var name: String) {}
+                class CalendarIdAndName(var id: Int, var name: String)
+
                 fun getExamCalendarIdAndNameSync(): CalendarIdAndName? {
 
                     val mediaTypeJSON = "application/json; charset=utf-8".toMediaType()
@@ -387,6 +453,13 @@ class Home : Activity() {
                         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                     }
                 }
+            }
+            MacroDefines.HOME_FUNC_GET_SESSIONID -> {
+                val clipBoardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clipData = ClipData.newPlainText("OneDotTongji SessionId", sessionid)
+                clipBoardManager.setPrimaryClip(clipData)
+
+                Toast.makeText(this, "Session Id 已复制到剪切板。打开小程序粘贴使用。", Toast.LENGTH_SHORT).show()
             }
         }
     }

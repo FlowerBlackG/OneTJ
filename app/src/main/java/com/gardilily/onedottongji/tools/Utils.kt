@@ -13,7 +13,9 @@ import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.File
+import java.util.*
 
+/** 项目需要使用到的一些通用小工具。 */
 class Utils {
     companion object {
 
@@ -48,12 +50,12 @@ class Utils {
         /**
          * 在遇到错误时，使用 Alert Dialog 发出提醒。
          */
-        val REQ_RES_CHECK_NOTI_LEVEL_ALERTDIALOG = 1
+        const val REQ_RES_CHECK_NOTI_LEVEL_ALERTDIALOG = 1
 
         /**
          * 在遇到错误时，使用 Toast 发出提醒。
          */
-        val REQ_RES_CHECK_NOTI_LEVEL_TOAST = 2
+        const val REQ_RES_CHECK_NOTI_LEVEL_TOAST = 2
 
         /**
          * 检查请求是否拿到了正确的返回内容。
@@ -153,7 +155,7 @@ class Utils {
                 return type
             }
             /* 获取文件的后缀名*/
-            val end = fName.substring(dotIndex, fName.length).toLowerCase()
+            val end = fName.substring(dotIndex, fName.length).lowercase(Locale.getDefault())
             if (end === "") return type
             //在MIME和文件类型的匹配表中找到对应的MIME类型。
             for (i in MIME_MapTable.indices) {

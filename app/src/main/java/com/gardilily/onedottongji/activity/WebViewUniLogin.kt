@@ -12,6 +12,7 @@ import androidx.core.view.setMargins
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.tools.MacroDefines
 
+/** 同济大学统一身份认证登录浏览器。 */
 class WebViewUniLogin : Activity() {
 
     private lateinit var webView : WebView
@@ -39,6 +40,7 @@ class WebViewUniLogin : Activity() {
         webView.settings.setSupportZoom(true)
         webView.setInitialScale(100)
 
+        // 使用电脑页面登录，防止缩放问题。
         webView.settings.userAgentString =
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
 
@@ -88,6 +90,9 @@ class WebViewUniLogin : Activity() {
 
     }
 
+    /**
+     * 登录页面加载失败时，展现这个页面。
+     */
     private fun showNetworkErrorView() {
         val mainLayout = RelativeLayout(this)
         val mainLayoutParams = RelativeLayout.LayoutParams(

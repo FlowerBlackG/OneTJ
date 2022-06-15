@@ -18,12 +18,12 @@ class BackgroundDownload : Service() {
      * 对外开放的一些宏定义。
      */
     companion object {
-        val INTENT_KEY_FILEURL = "__0"
-        val INTENT_KEY_FILENAME = "__1"
-        val INTENT_KEY_COOKIE = "__2"
-        val INTENT_KEY_FOLDERPATH = "__3"
+        const val INTENT_KEY_FILEURL = "__0"
+        const val INTENT_KEY_FILENAME = "__1"
+        const val INTENT_KEY_COOKIE = "__2"
+        const val INTENT_KEY_FOLDERPATH = "__3"
 
-        val INTENT_KEY_SHOULD_AUTOLAUNCH = "__4"
+        const val INTENT_KEY_SHOULD_AUTOLAUNCH = "__4"
     }
 
     /**
@@ -34,14 +34,14 @@ class BackgroundDownload : Service() {
             /**
              * 关于"后台下载"通知相关的信息
              */
-            val NOTI_CHANNEL_BACK_DOWNLOAD_ID = "background download"
-            val NOTI_CHANNEL_BACK_DOWNLOAD_NAME = "后台下载"
+            const val NOTI_CHANNEL_BACK_DOWNLOAD_ID = "background download"
+            const val NOTI_CHANNEL_BACK_DOWNLOAD_NAME = "后台下载"
 
             /**
              * 关于"下载通知"通知相关的信息
              */
-            val NOTI_CHANNEL_DOWNLOAD_INS_MSG_ID = "download ins msg"
-            val NOTI_CHANNEL_DOWNLOAD_INS_MSG_NAME = "下载通知"
+            const val NOTI_CHANNEL_DOWNLOAD_INS_MSG_ID = "download ins msg"
+            const val NOTI_CHANNEL_DOWNLOAD_INS_MSG_NAME = "下载通知"
         }
     }
 

@@ -1,15 +1,21 @@
 package com.gardilily.onedottongji.service
 
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import com.gardilily.onedottongji.R
-import com.gardilily.onedottongji.activity.Login
-import com.gardilily.onedottongji.activity.func.autocourseelect.AutoCourseElect
-import okhttp3.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
@@ -26,6 +32,7 @@ class BackgroundAutoCourseElect : Service() {
 		const val ACTION_NULL = -1
 		const val ACTION_START_TASK = 1
 		const val ACTION_STOP_TASK = 2
+		const val ACTION_STOP_ALL = 3
 
 		/*****************
 		 * info json 说明
@@ -44,8 +51,22 @@ class BackgroundAutoCourseElect : Service() {
 		const val INTENT_PARAM_COURSE_INFO_JSON = "__3"
 	}
 
+	/** 选课目标列表。 */
 	private val taskList = ArrayList<Long>()
+
+	/** 截止列表。 */
 	private val toBeClosedList = ArrayList<Long>()
+
+	/** 课号信息映射。 */
+	private val courseMap = HashMap<Long, JSONObject>()
+
+	/** 课号信息映射锁。 */
+	private val courseMapLock = Mutex()
+
+	/** 选课轮次。 */
+	private var roundId: String = "0"
+
+	private var sessionid: String = ""
 
 	private class Defines {
 		companion object {
@@ -107,7 +128,6 @@ class BackgroundAutoCourseElect : Service() {
 	override fun onCreate() {
 		super.onCreate()
 
-		//client = OkHttpClient()
 		initNotificationService()
 
 		electThreadNotiBuilder = Notification
@@ -142,7 +162,7 @@ class BackgroundAutoCourseElect : Service() {
 		notiManager.createNotificationChannel(resMsgNotiChannel)
 	}
 
-	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = runBlocking {
 		fun safeIntentGetStringExtra(key: String): String {
 			val solidIntent = intent!!
 			val res = solidIntent.getStringExtra(key)
@@ -152,28 +172,29 @@ class BackgroundAutoCourseElect : Service() {
 		val action = intent!!.getIntExtra(INTENT_PARAM_ACTION, ACTION_NULL)
 
 		val infoJson =
-			if (action == ACTION_NULL)
+			if (action == ACTION_NULL || action == ACTION_STOP_ALL)
 				JSONObject()
 			else
 				JSONObject(safeIntentGetStringExtra(INTENT_PARAM_COURSE_INFO_JSON))
 
 		when (action) {
 			ACTION_START_TASK -> {
-				if (taskList.isNotEmpty()) {
-					fireMsgNotiWithAutoKey("已在抢课", "暂时只能单线选课..._(:τ」∠)_")
 
-				} else {
-					taskList.add(infoJson.getLong("teachClassId"))
-					electLoop(infoJson)
+				// 设置选课轮次
+				roundId = infoJson.getString("roundId")
+
+				sessionid = infoJson.getString("sessionid")
+
+				// 将选课目标加入映射表。
+				courseMapLock.withLock {
+					courseMap[infoJson.getLong("teachClassId")] = infoJson
 				}
-				/*
-				if (!taskList.contains(infoJson.getLong("teachClassId"))) {
 
+				fireMsgNotiWithAutoKey("${infoJson.getString("courseName")}", "已加入队列")
 
-				} else {
-					fireMsgNotiWithAutoKey("已在抢课", "努力抢课ing...")
-				}*/
+				electLoopEntry()
 			}
+
 			ACTION_STOP_TASK -> {
 				if (taskList.contains(infoJson.getLong("teachClassId"))) {
 
@@ -182,98 +203,147 @@ class BackgroundAutoCourseElect : Service() {
 					taskList.remove(infoJson.getLong("teachClassId"))
 				}
 			}
+
+			ACTION_STOP_ALL -> {
+				courseMapLock.withLock {
+					courseMap.clear()
+				}
+				electLoopRunning = false
+			}
+
+			else -> {}
 		}
 
-		return START_STICKY
+		return@runBlocking START_STICKY
 	}
 
-	private fun electLoop(infoJson: JSONObject) {
+	private var electLoopRunning = false
+
+	/**
+	 * 选课循环。需要在外部异步调用。内部阻塞式执行。
+	 */
+	private fun electLoop() = runBlocking {
+
+		var count = 0
+		val electUrl = "https://1.tongji.edu.cn/api/electionservice/student/elect"
+		val electResUrl = "https://1.tongji.edu.cn/api/electionservice/student/$roundId/electRes"
+		val client = OkHttpClient()
+
+		while (electLoopRunning) {
+
+			// 登记所有要尝试的选课
+			val electCourseArray = JSONArray()
+			var electCourseArrayString = ""
+			courseMapLock.withLock {
+				courseMap.forEach { (courseId, courseInfo) ->
+					val electCourseObj = JSONObject()
+					electCourseObj.put("teachClassId", courseId)
+						.put("teachClassCode", courseInfo.getString("teachClassCode"))
+						.put("courseCode", courseInfo.getString("courseCode"))
+					electCourseArray.put(electCourseObj)
+					electCourseArrayString += courseInfo.getString("courseName") + " "
+				}
+			}
+
+			if (electCourseArray.length() == 0) {
+				break
+			}
+
+			count++ // 计数
+
+			val mediaTypeJSON = "application/json; charset=utf-8".toMediaType()
+			val reqJson = JSONObject()
+			reqJson.put("elecClassList", electCourseArray)
+				.put("roundId", roundId.toInt())
+				.put("withdrawClassList", JSONArray())
+			val reqBody = reqJson.toString().toRequestBody(mediaTypeJSON)
+
+			val request = Request.Builder()
+				.url(electUrl)
+				.addHeader("Cookie", "sessionid=$sessionid")
+				.post(reqBody)
+				.build()
+
+			val resRequest = Request.Builder()
+				.url(electResUrl)
+				.addHeader("Cookie", "sessionid=$sessionid")
+				.post(FormBody.Builder().build())
+				.build()
+
+			Log.d("抢课请求数据", reqJson.toString())
+
+			val resJson = try {
+				client.newCall(request).execute()
+				Thread.sleep(1000)
+				JSONObject(client.newCall(resRequest).execute().body!!.string())
+			} catch (_: Exception) {
+				// 解析异常
+				continue
+			}
+
+			Log.d("Func.AutoCourseElectCard.resJson", resJson.toString())
+
+			val textTryCount = "第${count}次尝试"
+			var outputStr = ""
+			val data = resJson.getJSONObject("data")
+			val dataJsonArray = data.getJSONArray("successCourses")
+			if (dataJsonArray.isNull(0)) {
+				outputStr += "失败：" + data.getJSONObject("failedReasons").toString()
+			} else {
+				outputStr += "成功。"
+
+				for (i in 0 until dataJsonArray.length()) {
+					val teachClassId = dataJsonArray.getLong(i)
+
+					try { // 加上 try catch，防止与其他抢课软件冲突。
+						outputStr += courseMap[teachClassId]!!.getString("courseName") + " "
+					} catch (_: Exception) {
+						continue
+					}
+
+					fireMsgNotiWithAutoKey("成功", courseMap[teachClassId]!!.getString("courseName"))
+
+					courseMapLock.withLock {
+						courseMap.remove(teachClassId)
+					}
+				}
+			}
+
+			val noti = electThreadNotiBuilder
+				.setContentTitle("进行中...")
+				.setContentText(textTryCount)
+				//.setContentIntent(pendingIntent)
+				.setStyle(
+					Notification.BigTextStyle()
+						.bigText("$textTryCount\n$outputStr\n尝试列表：$electCourseArrayString")
+				)
+				.build()
+
+			notiManager.notify(Defines.NOTI_ID_BACK_AUTOELECT_SERVICE, noti)
+			Thread.sleep(1000)
+		}
+
+		stopForeground(STOP_FOREGROUND_REMOVE)
+		electLoopRunning = false
+
+	}
+
+	private fun electLoopEntry() {
+		if (electLoopRunning) {
+			return
+		} else {
+			electLoopRunning = true
+		}
+
 		val noti = electThreadNotiBuilder
-			.setContentTitle(infoJson.getString("courseName") + " 点击以停止")
+			.setContentTitle("自动抢课")
 			.setContentText("就绪")
-			//.setContentIntent(pendingIntent)
 			.build()
 
 		notiManager.notify(Defines.NOTI_ID_BACK_AUTOELECT_SERVICE, noti)
 
 		thread {
-			/*
-			val intent = Intent(this, AutoCourseElect::class.java)
-			intent.putExtra(AutoCourseElect.INTENT_PARAM_SERVICE_CONTROL_ACTION,
-					AutoCourseElect.SERVICE_ACTION_STOP_TASK
-				)
-				.putExtra(AutoCourseElect.INTENT_PARAM_SERVICE_CONTROL_TASK_JSON,
-					infoJson.toString()
-				)
-				.putExtra("sessionid", infoJson.getString("sessionid"))
-				.putExtra("studentId", infoJson.getString("studentId"))
-
-			val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
-*/
-
-			var count = 0
-			val electUrl = "https://1.tongji.edu.cn/api/electionservice/student/elect"
-			val electResUrl =
-				"https://1.tongji.edu.cn/api/electionservice/student/" +
-						infoJson.getString("roundId") +
-						"/electRes"
-			val client = OkHttpClient()
-			while (!toBeClosedList.contains(infoJson.getLong("teachClassId"))) {
-				count++
-				val elecClassJsonObj = JSONObject()
-				elecClassJsonObj.put("teachClassId", infoJson.getLong("teachClassId"))
-					.put("teachClassCode", infoJson.getString("teachClassCode"))
-					.put("courseCode", infoJson.getString("courseCode"))
-
-				val mediaTypeJSON = "application/json; charset=utf-8".toMediaType()
-				val reqJson = JSONObject()
-				reqJson.put("elecClassList", JSONArray().put(elecClassJsonObj))
-					.put("roundId", infoJson.getString("roundId").toInt())
-					.put("withdrawClassList", JSONArray())
-				val reqBody = reqJson.toString().toRequestBody(mediaTypeJSON)
-
-				val request = Request.Builder()
-					.url(electUrl)
-					.addHeader("Cookie", "sessionid=${infoJson.getString("sessionid")}")
-					.post(reqBody)
-					.build()
-
-				val resRequest = Request.Builder()
-					.url(electResUrl)
-					.addHeader("Cookie", "sessionid=${infoJson.getString("sessionid")}")
-					.post(FormBody.Builder().build())
-					.build()
-
-				client.newCall(request).execute()
-				Thread.sleep(1000)
-				val resJson = JSONObject(client.newCall(resRequest).execute().body!!.string())
-
-				Log.d("Func.AutoCourseElectCard.resJson", resJson.toString())
-
-				val textTryCount = "第${count}次尝试"
-				var outputStr = ""
-				val data = resJson.getJSONObject("data")
-				if (data.getJSONArray("successCourses").isNull(0)) {
-					outputStr += "失败：" + data.getJSONObject("failedReasons").toString()
-				} else {
-					outputStr += "成功。"
-					toBeClosedList.add(infoJson.getLong("teachClassId"))
-					taskList.remove(infoJson.getLong("teachClassId"))
-				}
-
-				val noti = electThreadNotiBuilder
-					.setContentTitle(infoJson.getString("courseName"))
-					.setContentText(textTryCount)
-					//.setContentIntent(pendingIntent)
-					.setStyle(Notification.BigTextStyle()
-						.bigText(textTryCount + '\n' + outputStr))
-					.build()
-
-				notiManager.notify(Defines.NOTI_ID_BACK_AUTOELECT_SERVICE, noti)
-				Thread.sleep(1000)
-			}
-
-			stopForeground(STOP_FOREGROUND_REMOVE)
+			electLoop()
 		}
 	}
 
@@ -281,11 +351,12 @@ class BackgroundAutoCourseElect : Service() {
 		return null
 	}
 
-	override fun onDestroy() {
+	override fun onDestroy() = runBlocking {
 		super.onDestroy()
-		taskList.forEach {
-			toBeClosedList.add(it)
+		courseMapLock.withLock {
+			courseMap.clear()
 		}
+		electLoopRunning = false
 	}
 
 	private fun fireMsgNotiWithAutoKey(title: String, msg: String) {

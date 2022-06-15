@@ -1,11 +1,13 @@
 package com.gardilily.onedottongji.activity.func.autocourseelect
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
+import com.gardilily.common.view.card.InfoCard
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.service.BackgroundAutoCourseElect
 import com.gardilily.onedottongji.tools.Utils
@@ -34,39 +36,12 @@ class AutoCourseElect : Activity() {
 	private lateinit var linearLayout: LinearLayout
 
 	private var roundId = ""
+	private var calendarId = 0
 
 	private lateinit var uniHttpClient: OkHttpClient
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-
-		/************************/
-		finish()
-		/************************/
-
-		if (false) {
-			val intentAction =
-				intent.getIntExtra(INTENT_PARAM_SERVICE_CONTROL_ACTION, SERVICE_ACTION_NULL)
-			val intentJson = intent.getStringExtra(INTENT_PARAM_SERVICE_CONTROL_TASK_JSON)
-
-			if (intentJson != null) {
-				val intent = Intent(this, BackgroundAutoCourseElect::class.java)
-
-				intent.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_COURSE_INFO_JSON, intentJson)
-
-				if (intentAction == SERVICE_ACTION_STOP_TASK) {
-					intent.putExtra(
-						BackgroundAutoCourseElect.INTENT_PARAM_ACTION,
-						BackgroundAutoCourseElect.ACTION_STOP_TASK
-					)
-				}
-
-				startService(intent)
-				//finish()
-			}
-		}
-
-
 		setContentView(R.layout.activity_autocourseelect)
 		linearLayout = findViewById(R.id.func_autoCourseElect_linearLayout)
 
@@ -88,7 +63,7 @@ class AutoCourseElect : Activity() {
 
 	private fun initRoundId() {
 		thread {
-			val getRoundIdUrl = "https://1.tongji.edu.cn/api/electionservice/student/getRounds"
+			val getRoundIdUrl = "https://1.tongji.edu.cn/api/electionservice/student/getRounds?projectId=1"
 			val getRoundIdRequestFormBody = FormBody.Builder()
 				.add("projectId", "1")
 				.build()
@@ -112,10 +87,31 @@ class AutoCourseElect : Activity() {
 				return@thread
 			}
 
-			roundId = JSONObject(resStr)
-				.getJSONArray("data")
-				.getJSONObject(0)
-				.getString("id")
+			val rounds = JSONObject(resStr).getJSONArray("data")
+			if (rounds.length() > 1) {
+				val items = Array(rounds.length()) { idx -> rounds.getJSONObject(idx).getString("name") }
+				runOnUiThread {
+					val alertBuilder = AlertDialog.Builder(this)
+						.setTitle("选择轮次")
+						.setItems(items) { dialog, idx ->
+							roundId = rounds.getJSONObject(idx).getString("id")
+							calendarId = rounds.getJSONObject(idx).getInt("calendarId")
+							dialog.dismiss()
+						}
+						.setCancelable(false)
+						.create()
+						.show()
+				}
+
+			} else if (rounds.length() <= 0) {
+				runOnUiThread {
+					Toast.makeText(this, "当前没有选课轮次...", Toast.LENGTH_SHORT).show()
+					finish()
+				}
+			} else {
+				roundId = rounds.getJSONObject(0).getString("id")
+				calendarId = rounds.getJSONObject(0).getInt("calendarId")
+			}
 		}
 	}
 
@@ -141,7 +137,9 @@ class AutoCourseElect : Activity() {
 			linearLayout.removeAllViews()
 
 			val getCourseInfoUrl =
-				"https://1.tongji.edu.cn/api/electionservice/student/getTeachClass4Limit"
+				"https://1.tongji.edu.cn/api/electionservice/student/getTeachClass4Limit" +
+						"?roundId=$roundId&courseCode=$courseCode" +
+						"studentId=${intent.getStringExtra("studentId")!!}&calendarId=$calendarId"
 
 			val getCourseInfoRequestFormBody = FormBody.Builder()
 				.add("roundId", roundId)
@@ -155,9 +153,8 @@ class AutoCourseElect : Activity() {
 				.addHeader("Cookie",
 					"sessionid=${intent.getStringExtra("sessionid")}")
 				.build()
+
 			thread {
-
-
 
 				val courseInfoResponse = Utils.safeNetworkRequest(courseInfoReq, uniHttpClient)
 				if (courseInfoResponse == null) {
@@ -215,7 +212,7 @@ class AutoCourseElect : Activity() {
 
 				for (i in 0 until len) {
 					val singleObj = data.getJSONObject(i)
-
+/*
 					val card = RelativeLayout(this)
 					val cardLayoutParams = LinearLayout.LayoutParams(
 						LinearLayout.LayoutParams.MATCH_PARENT,
@@ -226,7 +223,7 @@ class AutoCourseElect : Activity() {
 
 					card.layoutParams = cardLayoutParams
 					card.isClickable = true
-					card.background = getDrawable(R.drawable.fakerun_button)
+					card.background = getDrawable(R.drawable.shape_login_page_box)
 
 					card.addView(
 						buildDetailTextView(singleObj.getString("courseName"), 16f, 1),
@@ -241,7 +238,16 @@ class AutoCourseElect : Activity() {
 						buildDetailTextView(
 							getTimeTableListAndRoom(singleObj.getJSONArray("timeTableList")),
 							16f, 4),
-					)
+					)*/
+
+					val card = InfoCard.Builder(this)
+						.setTitle(singleObj.getString("courseName"))
+						.addInfo(InfoCard.Info("教师", singleObj.getString("teacherName")))
+						.addInfo(InfoCard.Info("时间", getTimeTableListAndRoom(singleObj.getJSONArray("timeTableList"))))
+						.setCardBackground(getDrawable(R.drawable.shape_login_page_box))
+						.setIcon(listOf("🍓", "🍊", "🫐", "🍏", "🍍", "🥥", "🥝", "🍋", "🍒", "🍈", "🍎", "🍑", "🍉").random())
+						.setOuterMarginBottomSp(18f)
+						.build()
 
 					card.setOnClickListener {
 						/*****************
@@ -266,11 +272,8 @@ class AutoCourseElect : Activity() {
 						infoJson.put("sessionid", intent.getStringExtra("sessionid"))
 
 						val intent = Intent(this, BackgroundAutoCourseElect::class.java)
-						intent.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_COURSE_INFO_JSON,
-							infoJson.toString())
-							.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_ACTION,
-								BackgroundAutoCourseElect.ACTION_START_TASK
-							)
+						intent.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_COURSE_INFO_JSON, infoJson.toString())
+							.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_ACTION, BackgroundAutoCourseElect.ACTION_START_TASK)
 
 						startService(intent)
 					}
@@ -280,6 +283,15 @@ class AutoCourseElect : Activity() {
 					}
 				}
 			}
+		}
+
+		// 全部停止
+		findViewById<TextView>(R.id.func_autoCourseElect_funcBtnRow_stopAll).setOnClickListener {
+			val intent = Intent(this, BackgroundAutoCourseElect::class.java)
+			intent.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_ACTION, BackgroundAutoCourseElect.ACTION_STOP_ALL)
+			startService(intent)
+
+			Toast.makeText(this, "正在停止选课...", Toast.LENGTH_SHORT).show()
 		}
 	}
 

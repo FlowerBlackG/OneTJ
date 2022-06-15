@@ -50,24 +50,6 @@ class LocalAttachments: Activity() {
 
             listFiles(f)
 
-            return@thread
-
-            if (f.exists()) {
-                val files = f.listFiles()!!
-                files.forEach {
-                    Thread.sleep(28)
-                    runOnUiThread {
-
-                        layout.addView(object : LocalAttachmentsFileCard(this, it) {
-                            override fun delete(file: File, card: LocalAttachmentsFileCard) {
-                                file.delete()
-                                layout.removeView(card)
-                            }
-
-                        })
-                    }
-                }
-            }
         }
     }
 }

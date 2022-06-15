@@ -1,6 +1,7 @@
 package com.gardilily.onedottongji.activity.func.studenttimetable
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.widget.LinearLayout
@@ -12,7 +13,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class SingleDay : Activity() {
 
@@ -33,13 +33,31 @@ class SingleDay : Activity() {
         setContentView(R.layout.activity_func_studenttimetable_singleday)
 
         initCourseArray()
-        initWeekInfo()
+
+        if (savedInstanceState != null
+            && savedInstanceState.getBoolean(SAVED_STATE_KEY_IS_DATA_INITIATED, false)) {
+            pageWeek = savedInstanceState.getInt(SAVED_STATE_KEY_PAGE_WEEK)
+            pageDayOfWeek = savedInstanceState.getInt(SAVED_STATE_KEY_PAGE_DAY_OF_WEEK)
+        } else {
+            initWeekInfo()
+        }
 
         cardContainer = findViewById(R.id.func_studentTimeTable_singleDay_linearLayout)
 
         initDirButtons()
 
         refreshPage()
+    }
+
+    private val SAVED_STATE_KEY_IS_DATA_INITIATED = "_1"
+    private val SAVED_STATE_KEY_PAGE_WEEK = "_2"
+    private val SAVED_STATE_KEY_PAGE_DAY_OF_WEEK = "_3"
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(SAVED_STATE_KEY_IS_DATA_INITIATED, true)
+        outState.putInt(SAVED_STATE_KEY_PAGE_DAY_OF_WEEK, pageDayOfWeek)
+        outState.putInt(SAVED_STATE_KEY_PAGE_WEEK, pageWeek)
     }
 
     private fun initCourseArray() {
@@ -178,21 +196,35 @@ class SingleDay : Activity() {
                     .setEndMark(
                         "${data.getString("timeStart")}-${data.getString("timeEnd")}"
                     )
-                    .setIconTextSizeSp(48f)
-                    .setEndMarkTextSizeSp(42f)
                     .setTitle(data.getString("courseName"))
-                    .setTitleTextSizeSp(24f)
                     .setInfoTextSizeSp(16f)
-                    .setLayoutHeightSp(132f)
-                    .addInfo(InfoCard.Info(
-                        "课号", data.getString("classCode")
-                    ))
-                    .addInfo(InfoCard.Info(
-                        "教师", data.getString("teacherName")
-                    ))
-                    .addInfo(InfoCard.Info(
-                        "地点", fetchCourseRoom(data)
-                    ))
+                    .setLayoutHeightSp(72f)
+                    .setIconTextSizeSp(32f)
+                    .setTitleTextSizeSp(20f)
+                    .setEndMarkTextSizeSp(32f)
+                    .addInfo(
+                        InfoCard.Info(
+                            "地点", fetchCourseRoom(data)
+                        )
+                    )
+
+                if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    card.setLayoutHeightSp(132f)
+                        .setTitleTextSizeSp(24f)
+                        .setIconTextSizeSp(48f)
+                        .setEndMarkTextSizeSp(42f)
+                        .addInfo(
+                            InfoCard.Info(
+                                "课号", data.getString("classCode")
+                            )
+                        )
+                        .addInfo(
+                            InfoCard.Info(
+                                "教师", data.getString("teacherName")
+                            )
+                        )
+                }
+
 
                 cardContainer.addView(card.build())
                 //cardContainer.addView(cardL)
@@ -201,16 +233,22 @@ class SingleDay : Activity() {
     }
 
     private fun getCourseIcon(timeBegin: Int): String {
-        return if (timeBegin <= 2) {
-            "🍞"
-        } else if (timeBegin <= 4) {
-            "🍛"
-        } else if (timeBegin <= 6) {
-            "🍹"
-        } else if (timeBegin <= 9) {
-            "🍔"
-        } else {
-            "🥮"
+        return when {
+            timeBegin <= 2 -> {
+                "🍞"
+            }
+            timeBegin <= 4 -> {
+                "🍛"
+            }
+            timeBegin <= 6 -> {
+                "🍹"
+            }
+            timeBegin <= 9 -> {
+                "🍔"
+            }
+            else -> {
+                "🥮"
+            }
         }
     }
 

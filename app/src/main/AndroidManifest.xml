@@ -6,7 +6,8 @@
         android:allowBackup="true"
         android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true">
 
         <provider
             android:authorities="com.gardilily.onedottongji.fileprovider"
@@ -19,6 +20,7 @@
         </provider>
 
         <activity android:name=".activity.Login"
+            android:exported="true"
             android:theme="@style/Theme.OneDotTongjiRefresh.Main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +30,7 @@
         </activity>
 
         <activity android:name=".activity.WebViewUniLogin"
-            android:theme="@style/Theme.OneDotTongjiRefresh.Main"/>
+            android:theme="@style/Theme.OneDotTongjiRefresh.Main" />
 
         <activity android:name=".activity.About"
             android:theme="@style/Theme.OneDotTongjiRefresh.About"/>
@@ -49,7 +51,7 @@
             android:theme="@style/Theme.OneDotTongjiRefresh.func.StudentTimeTable.TermComplete"/>
 
         <activity android:name=".activity.func.studenttimetable.SingleDay"
-            android:theme="@style/Theme.OneDotTongjiRefresh.func.StudentTimeTable.SingleDay"/>
+            android:theme="@style/Theme.OneDotTongjiRefresh.func.StudentTimeTable.SingleDay" />
 
         <activity android:name=".activity.func.LocalAttachments"
             android:theme="@style/Theme.OneDotTongjiRefresh.func.LocalAttachments"/>

@@ -10,6 +10,7 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.tools.GarCloudApi
 
+/** "关于"页面。 */
 class About : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

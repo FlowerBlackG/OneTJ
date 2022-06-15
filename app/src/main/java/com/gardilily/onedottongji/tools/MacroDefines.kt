@@ -1,5 +1,6 @@
 package com.gardilily.onedottongji.tools
 
+/** 项目使用到的一些宏定义。 */
 class MacroDefines {
     companion object {
 
@@ -21,6 +22,8 @@ class MacroDefines {
         const val HOME_FUNC_UNDEFINED = -1
         const val HOME_FUNC_ABOUT_APP = 1
         const val HOME_FUNC_MY_GRADES = 2
+
+        const val HOME_FUNC_GET_SESSIONID = 10
 
         /**
          * 学期内完整课表

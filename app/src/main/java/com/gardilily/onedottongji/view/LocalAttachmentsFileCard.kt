@@ -1,7 +1,6 @@
 package com.gardilily.onedottongji.view
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
 import android.widget.TextView

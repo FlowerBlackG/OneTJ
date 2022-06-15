@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.gardilily.onedottongji.R
 
+/** 功能卡书架。 */
 class FuncCardShelf(context: Context) : LinearLayout(context) {
     private val c = context
     private val layout: LinearLayout
@@ -18,13 +19,15 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
     private val spMultiply = resources.displayMetrics.scaledDensity
     var targetCardWidthPx = 480
 
+    var CARD_PER_ROW = 3
+
     init {
         LayoutInflater.from(context).inflate(R.layout.card_function_shelf, this, true)
         layout = findViewById(R.id.cardshelf_layout)
     }
 
     private fun addCard(v: View) {
-        if (cardCount % 3 == 0) {
+        if (cardCount % CARD_PER_ROW == 0) {
             rowLayout = createRowLayout()
             layout.addView(rowLayout)
         }
@@ -51,20 +54,20 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
         return mLayout
     }
 
-    fun addFuncCard(icon: String, text: String, func: Int, action: (func: Int)->Unit) {
+    fun addFuncCard(
+        icon: String,
+        text: String,
+        func: Int,
+        isVisible: Boolean = true,
+        action: (func: Int)->Unit
+    ) {
         val layout = LinearLayout(c)
         layout.orientation = VERTICAL
-        val params = LayoutParams(targetCardWidthPx, (112 * spMultiply).toInt())
 
-        /*
-        if (cardCount % 2 == 0) {
-            params.addRule(RelativeLayout.ALIGN_PARENT_START)
-        } else {
-            params.addRule(RelativeLayout.ALIGN_PARENT_END)
-        }
-         */
+        val params = LayoutParams(0, (112 * spMultiply).toInt())
+        params.weight = 1f
 
-        if (cardCount % 3 != 0) {
+        if (cardCount % CARD_PER_ROW != 0) {
             params.marginStart = (12f * spMultiply).toInt()
         }
 
@@ -73,6 +76,10 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
         layout.background = c.getDrawable(R.drawable.shape_login_page_box)
         layout.isClickable = true
         layout.gravity = Gravity.CENTER
+
+        if (!isVisible) {
+            layout.visibility = INVISIBLE
+        }
 
         val iconView = TextView(c)
         iconView.text = icon
@@ -97,4 +104,11 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
         addCard(layout)
     }
 
+    fun addEmptyTransparentCard() = addFuncCard("", "", -1, false) {}
+
+    fun fillBlank() {
+        while (cardCount % CARD_PER_ROW != 0) {
+            addEmptyTransparentCard()
+        }
+    }
 }

@@ -63,9 +63,9 @@
     </style>
 
     <style name="Theme.OneDotTongjiRefresh.func.AutoCourseElect" parent="Theme.OneDotTongjiRefresh.Base">
-        <item name="theme_color_accent">#000</item>
-        <item name="background_color_gradient_start">#000</item>
-        <item name="background_color_gradient_end">#000</item>
+        <item name="theme_color_accent">#d299c2</item>
+        <item name="background_color_gradient_start">#fef9d7</item>
+        <item name="background_color_gradient_end">#d299c2</item>
     </style>
 
 </resources>

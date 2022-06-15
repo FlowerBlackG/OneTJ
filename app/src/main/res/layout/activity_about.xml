@@ -50,18 +50,18 @@ tools:context=".activity.About">
         android:id="@+id/about.moreText"/>
 
     <Button
+        android:id="@+id/about.button.checkUpdate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_below="@id/about.moreText"
-        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="18sp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="18sp"
         android:background="@drawable/shape_login_page_button"
         android:text="检查更新"
-        android:textSize="16sp"
         android:textColor="#c555"
-        android:id="@+id/about.button.checkUpdate"/>
+        android:textSize="16sp" />
 
     <Button
         android:layout_width="match_parent"

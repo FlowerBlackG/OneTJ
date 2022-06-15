@@ -7,65 +7,89 @@
     tools:context=".activity.func.autocourseelect.AutoCourseElect">
 
     <TextView
+        android:id="@+id/func.autoCourseElect.titleTag"
         android:layout_width="match_parent"
         android:layout_height="80sp"
-        android:layout_marginTop="38sp"
-        android:layout_marginBottom="12sp"
         android:layout_marginStart="18sp"
+        android:layout_marginTop="38sp"
         android:layout_marginEnd="18sp"
-        android:gravity="center"
-        android:textSize="24sp"
-        android:text="自动抢课"
-        android:textColor="#fff"
-        android:background="@drawable/fakerun_button"
+        android:layout_marginBottom="12sp"
+        android:background="@drawable/shape_login_page_box"
         android:clickable="true"
-        android:id="@+id/func.autoCourseElect.titleTag"/>
+        android:gravity="center"
+        android:text="自动抢课"
+        android:textSize="24sp" />
 
     <TextView
-        android:layout_width="80sp"
-        android:layout_height="80sp"
-        android:layout_marginBottom="12sp"
-        android:layout_marginStart="12sp"
-        android:layout_marginEnd="18sp"
-        android:layout_alignParentEnd="true"
+        android:id="@+id/func.autoCourseElect.courseCodeField.search"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_below="@id/func.autoCourseElect.titleTag"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/shape_login_page_box"
+        android:clickable="true"
         android:gravity="center"
-        android:textSize="36sp"
         android:text="🔍"
         android:textColor="#fff"
-        android:background="@drawable/fakerun_button"
-        android:clickable="true"
-        android:id="@+id/func.autoCourseElect.courseCodeField.search"/>
+        android:textSize="36sp" />
 
     <EditText
+        android:id="@+id/func.autoCourseElect.courseCodeField.input"
         android:layout_width="match_parent"
-        android:layout_height="80sp"
-        android:layout_marginBottom="12sp"
-        android:layout_marginStart="18sp"
+        android:layout_height="80dp"
+        android:layout_below="@id/func.autoCourseElect.titleTag"
+        android:layout_marginStart="18dp"
+        android:layout_marginBottom="12dp"
         android:layout_toStartOf="@id/func.autoCourseElect.courseCodeField.search"
-        android:textColor="#fff"
-        android:textSize="24sp"
+        android:background="@drawable/shape_login_page_box"
         android:gravity="center"
+        android:hint="在此输入6位课号"
+        android:inputType="number"
         android:maxLength="6"
         android:maxLines="1"
-        android:hint="在此输入6位课号"
-        android:textColorHint="#8fff"
-        android:background="@drawable/fakerun_button"
-        android:layout_below="@id/func.autoCourseElect.titleTag"
-        android:id="@+id/func.autoCourseElect.courseCodeField.input"/>
+        android:textColor="?attr/colorAccent"
+        android:textSize="24sp" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/func.autoCourseElect.courseCodeField.input"
-        android:layout_marginStart="18sp"
-        android:layout_marginEnd="18sp">
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_above="@id/func.autoCourseElect.funcBtnRow">
+
         <LinearLayout
+            android:id="@+id/func.autoCourseElect.linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:animateLayoutChanges="true"
-            android:id="@+id/func.autoCourseElect.linearLayout" />
+            android:orientation="vertical" />
     </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="18dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:id="@+id/func.autoCourseElect.funcBtnRow">
+
+        <TextView
+            android:layout_width="80sp"
+            android:layout_height="80sp"
+            android:background="@drawable/shape_login_page_box"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="✋"
+            android:layout_margin="6dp"
+            android:textColor="#fff"
+            android:id="@+id/func.autoCourseElect.funcBtnRow.stopAll"
+            android:textSize="36sp" />
+
+    </LinearLayout>
 
 </RelativeLayout>

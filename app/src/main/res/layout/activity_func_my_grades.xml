@@ -9,17 +9,32 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="18sp"
-        android:layout_marginEnd="18sp"
-        android:layout_marginBottom="0sp">
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="0dp">
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:animateLayoutChanges="true"
-            android:id="@+id/func.myGrades.linearLayout">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/func.myGrades.generalInfoContainer" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:animateLayoutChanges="true"
+                android:id="@+id/func.myGrades.gradeInfoContainer">
+
+            </LinearLayout>
         </LinearLayout>
+
+
     </ScrollView>
 
 </RelativeLayout>
