@@ -2,9 +2,13 @@ package com.gardilily.onedottongji.activity
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
+import android.view.animation.AlphaAnimation
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.tools.GarCloudApi
@@ -12,14 +16,20 @@ import com.gardilily.onedottongji.tools.MacroDefines
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.io.ByteArrayInputStream
 import kotlin.concurrent.thread
 
 /** 首页欢迎页面。 */
 class Login : Activity() {
 
+    private lateinit var backgroundImageView: ImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        backgroundImageView = findViewById(R.id.login_backgroundImg)
+        loadBackgroundImage()
 
         showVersionInfo()
         autoLoginByLastSessionId()
@@ -31,7 +41,35 @@ class Login : Activity() {
             )
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
+
         GarCloudApi.checkUpdate(this, false)
+    }
+
+    /**
+     * 设置必应每日壁纸。
+     */
+    private fun loadBackgroundImage() {
+        thread {
+            val url = "https://bing.icodeq.com/"
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+            val resBody = client.newCall(request).execute().body ?: return@thread
+
+            val istream = resBody.byteStream()
+            val bitmap = BitmapFactory.decodeStream(istream)
+            istream.close()
+
+            runOnUiThread {
+                val fadeInAnim = AlphaAnimation(0f, 1f)
+                fadeInAnim.interpolator = DecelerateInterpolator()
+                fadeInAnim.duration = 670
+                backgroundImageView.startAnimation(fadeInAnim)
+                backgroundImageView.setImageBitmap(bitmap)
+            }
+        }
     }
 
     /**

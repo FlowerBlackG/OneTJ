@@ -6,6 +6,12 @@
     android:background="@drawable/shape_page_background_gradient"
     tools:context=".activity.Login">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/login.backgroundImg"
+        android:scaleType="centerCrop" />
+
     <!--android:layout_marginTop="154sp"-->
     <RelativeLayout
         android:layout_width="match_parent"

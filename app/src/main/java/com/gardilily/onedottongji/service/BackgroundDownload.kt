@@ -233,7 +233,7 @@ class BackgroundDownload : Service() {
                     val pendingIntent = PendingIntent.getActivity(this@BackgroundDownload,
                             0,
                             intent,
-                            0)
+                            PendingIntent.FLAG_IMMUTABLE)
 
                     val noti = Notification.Builder(this@BackgroundDownload,
                             Defines.NOTI_CHANNEL_DOWNLOAD_INS_MSG_ID)
