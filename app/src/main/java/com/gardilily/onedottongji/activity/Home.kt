@@ -6,9 +6,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.animation.AlphaAnimation
+import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -70,6 +75,8 @@ class Home : Activity() {
         initCommonMsgPublish()
 
         GarCloudApi.checkUpdate(this, false)
+
+        loadWeather()
     }
 
     private fun fetchUserBasicInfo() {
@@ -321,6 +328,59 @@ class Home : Activity() {
 
     }
 
+    private var weatherIconBitmap: Bitmap? = null
+
+    /**
+     * 加载天气数据。
+     */
+    private fun loadWeather() {
+        thread {
+            val request = Request.Builder()
+                .url("https://www.gardilily.com/oneDotTongji/shWeather.php")
+                .get()
+                .build()
+            val response = uniHttpClient.newCall(request).execute()
+            response.body ?: return@thread
+
+            try {
+                val data = JSONObject(response.body!!.string()).getJSONArray("results").getJSONObject(0)
+                val now = data.getJSONObject("now")
+                val dataText = now.getString("text")
+                val dataCode = now.getString("code")
+                val temperature = now.getString("temperature")
+
+                // 获取天气图片素材。
+                val request = Request.Builder()
+                    .url("https://www.gardilily.com/oneDotTongji/weatherIcons/$dataCode@2x.png")
+                    .get()
+                    .build()
+                val response = uniHttpClient.newCall(request).execute()
+                response.body ?: return@thread
+
+                val istream = response.body!!.byteStream()
+                weatherIconBitmap?.recycle()
+                weatherIconBitmap = BitmapFactory.decodeStream(istream)
+                istream.close()
+
+                // 准备展示天气。
+                runOnUiThread {
+                    val fadeInAnim = AlphaAnimation(0f, 1f)
+                    fadeInAnim.interpolator = DecelerateInterpolator()
+                    fadeInAnim.duration = 670
+
+                    findViewById<LinearLayout>(R.id.home_userinfobox_weatherContainer)?.startAnimation(fadeInAnim)
+
+                    findViewById<TextView>(R.id.home_userinfobox_weatherText)?.text = "上海$temperature°C"
+                    val imgView = findViewById<ImageView>(R.id.home_userinfobox_weatherImgView)
+                    imgView?.setImageBitmap(weatherIconBitmap)
+                }
+
+            } catch (e: Exception) {
+                // nothing to do.
+            }
+        }
+    }
+
     private fun funcButtonClick(action: Int) {
         when (action) {
             MacroDefines.HOME_FUNC_LOGOUT -> funcLogout()
@@ -557,5 +617,10 @@ class Home : Activity() {
                 return@runOnUiThread
             }
         }
+    }
+
+    override fun onDestroy() {
+        weatherIconBitmap?.recycle()
+        super.onDestroy()
     }
 }

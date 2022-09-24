@@ -2,6 +2,7 @@ package com.gardilily.onedottongji.activity
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
@@ -45,6 +46,8 @@ class Login : Activity() {
         GarCloudApi.checkUpdate(this, false)
     }
 
+    private var backgroundImageBitmap: Bitmap? = null
+
     /**
      * 设置必应每日壁纸。
      */
@@ -59,7 +62,7 @@ class Login : Activity() {
             val resBody = client.newCall(request).execute().body ?: return@thread
 
             val istream = resBody.byteStream()
-            val bitmap = BitmapFactory.decodeStream(istream)
+            backgroundImageBitmap = BitmapFactory.decodeStream(istream)
             istream.close()
 
             runOnUiThread {
@@ -67,7 +70,7 @@ class Login : Activity() {
                 fadeInAnim.interpolator = DecelerateInterpolator()
                 fadeInAnim.duration = 670
                 backgroundImageView.startAnimation(fadeInAnim)
-                backgroundImageView.setImageBitmap(bitmap)
+                backgroundImageView.setImageBitmap(backgroundImageBitmap)
             }
         }
     }
@@ -137,6 +140,11 @@ class Login : Activity() {
 
             }
         }
+    }
+
+    override fun onDestroy() {
+        backgroundImageBitmap?.recycle()
+        super.onDestroy()
     }
 
     /**

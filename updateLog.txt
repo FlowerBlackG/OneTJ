@@ -1,3 +1,9 @@
+Version: 2.6.1 (39)
+Build Time: 2022.09.24–15:18
+Update Log:
++ 首页天气
+* 修复登录页每日壁纸未释放内存的问题
+
 Version: 2.6 (38)
 Build Time: 2022.09.23–15:39
 Update Log:

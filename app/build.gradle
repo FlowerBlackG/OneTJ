@@ -11,8 +11,8 @@ android {
         applicationId "com.gardilily.onedottongji"
         minSdkVersion 29
         targetSdkVersion 31
-        versionCode 38
-        versionName "2.6"
+        versionCode 39
+        versionName "2.6.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
