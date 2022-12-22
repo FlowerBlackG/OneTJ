@@ -46,10 +46,10 @@
         android:layout_toStartOf="@id/func.autoCourseElect.courseCodeField.search"
         android:background="@drawable/shape_login_page_box"
         android:gravity="center"
-        android:hint="在此输入6位课号"
-        android:inputType="number"
-        android:maxLength="6"
+        android:hint="在此输入课号"
+        android:maxLength="16"
         android:maxLines="1"
+        android:inputType="textMultiLine"
         android:textColor="?attr/colorAccent"
         android:textSize="24sp" />
 

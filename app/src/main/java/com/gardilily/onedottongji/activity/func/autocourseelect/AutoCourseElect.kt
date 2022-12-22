@@ -121,18 +121,11 @@ class AutoCourseElect : Activity() {
 				findViewById<EditText>(R.id.func_autoCourseElect_courseCodeField_input)
 					.text
 					.toString()
-
-			if (courseCode.length != 6) {
-				Toast.makeText(this, "课号长度应为6", Toast.LENGTH_SHORT).show()
-				return@setOnClickListener
-			}
-
-			try {
-				courseCode.toInt()
-			} catch (e: Exception) {
-				Toast.makeText(this, "课号应为6位整数", Toast.LENGTH_SHORT).show()
-				return@setOnClickListener
-			}
+					.uppercase()
+					.replace("\r", "")
+					.replace("\n", "")
+					.replace("\t", "")
+					.replace(" ", "")
 
 			linearLayout.removeAllViews()
 
@@ -212,38 +205,14 @@ class AutoCourseElect : Activity() {
 
 				for (i in 0 until len) {
 					val singleObj = data.getJSONObject(i)
-/*
-					val card = RelativeLayout(this)
-					val cardLayoutParams = LinearLayout.LayoutParams(
-						LinearLayout.LayoutParams.MATCH_PARENT,
-						LinearLayout.LayoutParams.WRAP_CONTENT//(120 * spMultiply).toInt()
-					)
-
-					cardLayoutParams.bottomMargin = (12 * spMultiply).toInt()
-
-					card.layoutParams = cardLayoutParams
-					card.isClickable = true
-					card.background = getDrawable(R.drawable.shape_login_page_box)
-
-					card.addView(
-						buildDetailTextView(singleObj.getString("courseName"), 16f, 1),
-					)
-					card.addView(
-						buildDetailTextView(singleObj.getString("teacherName"), 16f, 2),
-					)
-					card.addView(
-						buildDetailTextView(singleObj.getString("roomLable"), 16f, 3),
-					)
-					card.addView(
-						buildDetailTextView(
-							getTimeTableListAndRoom(singleObj.getJSONArray("timeTableList")),
-							16f, 4),
-					)*/
 
 					val card = InfoCard.Builder(this)
 						.setTitle(singleObj.getString("courseName"))
 						.addInfo(InfoCard.Info("教师", singleObj.getString("teacherName")))
 						.addInfo(InfoCard.Info("时间", getTimeTableListAndRoom(singleObj.getJSONArray("timeTableList"))))
+						.addInfo(InfoCard.Info("校区", singleObj.getString("campusI18n")))
+						.addInfo(InfoCard.Info("课号", singleObj.getString("teachClassCode")))
+						.addInfo(InfoCard.Info("备注", singleObj.getString("remark")))
 						.setCardBackground(getDrawable(R.drawable.shape_login_page_box))
 						.setIcon(listOf("🍓", "🍊", "🫐", "🍏", "🍍", "🥥", "🥝", "🍋", "🍒", "🍈", "🍎", "🍑", "🍉").random())
 						.setOuterMarginBottomSp(18f)
