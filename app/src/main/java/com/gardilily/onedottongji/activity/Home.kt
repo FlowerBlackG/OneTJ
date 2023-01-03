@@ -339,7 +339,13 @@ class Home : Activity() {
                 .url("https://www.gardilily.com/oneDotTongji/shWeather.php")
                 .get()
                 .build()
-            val response = uniHttpClient.newCall(request).execute()
+
+            val response = try {
+                uniHttpClient.newCall(request).execute()
+            } catch (_: Exception) {
+                return@thread
+            }
+
             response.body ?: return@thread
 
             try {

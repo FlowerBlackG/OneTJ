@@ -59,7 +59,12 @@ class Login : Activity() {
                 .url(url)
                 .get()
                 .build()
-            val resBody = client.newCall(request).execute().body ?: return@thread
+
+            val resBody = try {
+                client.newCall(request).execute().body ?: return@thread
+            } catch (_: Exception) {
+                return@thread
+            }
 
             val istream = resBody.byteStream()
             backgroundImageBitmap = BitmapFactory.decodeStream(istream)
