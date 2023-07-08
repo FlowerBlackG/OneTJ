@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MulanPSL-2.0
 package com.gardilily.onedottongji.view.coursetable
 
 import android.app.Activity

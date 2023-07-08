@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MulanPSL-2.0
 package com.gardilily.onedottongji.tools
 
 /** 项目使用到的一些宏定义。 */

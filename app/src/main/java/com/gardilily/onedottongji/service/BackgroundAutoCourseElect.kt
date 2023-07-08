@@ -1,4 +1,5 @@
 package com.gardilily.onedottongji.service
+// SPDX-License-Identifier: MulanPSL-2.0
 
 import android.app.Notification
 import android.app.NotificationChannel

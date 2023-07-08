@@ -1,5 +1,13 @@
 <resources>
 
+    <style name="Theme.Material.Base" parent="Theme.Material3.DayNight">
+
+    </style>
+
+    <style name="Theme.Material.NoActionBar" parent="Theme.Material.Base">
+
+    </style>
+
     <style name="Theme.OneDotTongjiRefresh.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">?attr/theme_color_accent</item>
         <item name="colorPrimaryDark">?attr/theme_color_accent</item>
