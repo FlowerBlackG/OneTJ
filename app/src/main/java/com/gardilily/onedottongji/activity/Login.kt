@@ -40,7 +40,9 @@ class Login : Activity() {
         loadBackgroundImage()
 
         showVersionInfo()
-        tryAutoLogin()
+        if (tryAutoLogin()) {
+            return
+        }
         // autoLoginByLastSessionId()
 
         findViewById<Button>(R.id.login_button_toUniLogin).setOnClickListener {
@@ -59,11 +61,14 @@ class Login : Activity() {
     }
 
 
-    private fun tryAutoLogin() {
+    private fun tryAutoLogin(): Boolean {
         if (TongjiApi.instance.tokenAvailable()) {
             startActivity(Intent(this, Home::class.java))
             finish()
+            return true
         }
+
+        return false
     }
     private fun setUISpinning(loading: Boolean) {
 

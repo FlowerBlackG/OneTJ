@@ -41,7 +41,9 @@ class TongjiApi {
             "rt_onetongji_undergraduate_score",
             "rt_teaching_info_undergraduate_summarized_grades", // 暂未使用
             "rt_onetongji_student_timetable",
-            "rt_onetongji_student_exams"
+            "rt_onetongji_student_exams",
+            "rt_teaching_info_sports_test_data",
+            "rt_teaching_info_sports_test_health"
         )
 
         private var _instance: TongjiApi? = null
@@ -344,6 +346,67 @@ class TongjiApi {
             .get()
             .execute(activity)
     }
+
+    /**
+     *
+     * @return data.list: JSONArray
+     */
+    fun getOneTongjiCetScore(activity: Activity): JSONArray? {
+        val url = "$BASE_URL/v1/rt/onetongji/cet_score"
+        val data = basicRequestBuilder(url)
+            .get()
+            .execute<JSONObject>(activity) ?: return null
+        return data.getJSONArray("list")
+    }
+
+
+    fun getOneTongjiSportsTestHealthData(activity: Activity): JSONObject? {
+        val url = "$BASE_URL/v1/rt/teaching_info/sports_test_health"
+        return try {
+            basicRequestBuilder(url)
+                .get()
+                .execute<JSONObject>(activity)
+                ?.getJSONArray("userInfos")
+                ?.getJSONObject(0)
+        } catch (_: Exception) {
+            activity.runOnUiThread {
+                AlertDialog.Builder(activity)
+                    .setTitle("没有体锻数据")
+                    .setMessage("暂无数据")
+                    .setPositiveButton("好") { _, _ -> }
+                    .show()
+            }
+
+            null
+        }
+
+
+    }
+
+    fun getOneTongjiSportsTestData(activity: Activity): JSONObject? {
+        val url = "$BASE_URL/v1/rt/teaching_info/sports_test_data"
+        return try {
+            basicRequestBuilder(url)
+                .get()
+                .execute<JSONObject>(activity)
+                ?.getJSONArray("userInfos")
+                ?.getJSONObject(0)
+        } catch (_: Exception) {
+            activity.runOnUiThread {
+                AlertDialog.Builder(activity)
+                    .setTitle("没有体锻数据")
+                    .setMessage("暂无数据")
+                    .setPositiveButton("好") { _, _ -> }
+                    .show()
+            }
+
+            null
+        }
+
+
+    }
+
+
 
 }
 

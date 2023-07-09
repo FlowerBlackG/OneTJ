@@ -12,4 +12,7 @@
     <string name="my_grades">My Grades</string>
     <string name="single_day_curriculums">Single Day Curriculums</string>
     <string name="term_curriculums">Term Curriculums</string>
+    <string name="cet">CET</string>
+    <string name="Gym_activities">Gym activities</string>
+    <string name="Running">Running</string>
 </resources>

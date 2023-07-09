@@ -62,6 +62,12 @@
         <activity android:name=".activity.func.autocourseelect.AutoCourseElect"
             android:theme="@style/Theme.OneDotTongjiRefresh.func.AutoCourseElect" />
 
+        <activity android:name=".activity.func.CetScore"
+            android:theme="@style/Theme.OneTJ.Base" />
+
+        <activity android:name=".activity.func.SportsTestData"
+            android:theme="@style/Theme.OneTJ.Base" />
+
         <service android:name=".service.BackgroundDownload" />
         <service android:name=".service.BackgroundAutoCourseElect" />
     </application>

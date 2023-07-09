@@ -25,8 +25,10 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.caverock.androidsvg.SVG
 import com.caverock.androidsvg.SVGImageView
 import com.gardilily.onedottongji.R
+import com.gardilily.onedottongji.activity.func.CetScore
 import com.gardilily.onedottongji.activity.func.LocalAttachments
 import com.gardilily.onedottongji.activity.func.MyGrades
+import com.gardilily.onedottongji.activity.func.SportsTestData
 import com.gardilily.onedottongji.activity.func.StuExamEnquiries
 import com.gardilily.onedottongji.activity.func.autocourseelect.AutoCourseElect
 import com.gardilily.onedottongji.activity.func.studenttimetable.SingleDay
@@ -90,6 +92,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         loadWeather()
 
         findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/strawberry_color.svg")
+
     }
 
     private fun fetchUserBasicInfo() {
@@ -132,6 +135,19 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
 
     private lateinit var shelf: FuncCardShelf
 
+    enum class HomeFunc {
+        NONE,
+        GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY,
+        GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE,
+        MY_GRADES,
+        STU_EXAM_ENQUIRIES,
+        CET_SCORE,
+        AUTO_COURSE_ELECT,
+        LOGOUT,
+        ABOUT_APP,
+        SPORTS_TEST_DATA,
+    }
+
     /**
      * 初始化主页功能按钮。
      */
@@ -144,20 +160,22 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         shelf.targetCardWidthPx = targetCardWidthPx
         findViewById<LinearLayout>(R.id.home_funcBtnLinearLayout).addView(shelf)
 
-        shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "今日课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY, true) { funcButtonClick(it) }
-        shelf.addFuncCard("fluentemoji/notebook_color.svg", "学期课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE, true) { funcButtonClick(it) }
-        shelf.addFuncCard("fluentemoji/anguished_face_color.svg", "我的成绩", MacroDefines.HOME_FUNC_MY_GRADES, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "今日课表", HomeFunc.GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/notebook_color.svg", "学期课表", HomeFunc.GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/anguished_face_color.svg", "我的成绩", HomeFunc.MY_GRADES, true) { funcButtonClick(it) }
 
-        shelf.addFuncCard("fluentemoji/memo_color.svg", "我的考试", MacroDefines.HOME_FUNC_STU_EXAM_ENQUIRIES, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/memo_color.svg", "我的考试", HomeFunc.STU_EXAM_ENQUIRIES, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/money_with_wings_color.svg", "四六级", HomeFunc.CET_SCORE, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/badminton_color.svg", "体测体锻", HomeFunc.SPORTS_TEST_DATA, true) { funcButtonClick(it) }
 
-        //shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "抢课", MacroDefines.HOME_FUNC_AUTO_COURSE_ELECT, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/shushing_face_color.svg", "抢课", HomeFunc.AUTO_COURSE_ELECT, true) { funcButtonClick(it) }
 
-        //shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "本地文件", MacroDefines.HOME_FUNC_LOCAL_ATTACHMENTS, true) { funcButtonClick(it) }
+        //shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "本地文件", HomeFunc.LOCAL_ATTACHMENTS, true) { funcButtonClick(it) }
 
 
 
-        shelf.addFuncCard("fluentemoji/wilted_flower_color.svg", "退出登录", MacroDefines.HOME_FUNC_LOGOUT, true) { funcButtonClick(it) }
-        shelf.addFuncCard("fluentemoji/teddy_bear_color.svg", "关于App", MacroDefines.HOME_FUNC_ABOUT_APP, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/wilted_flower_color.svg", "退出登录", HomeFunc.LOGOUT, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/teddy_bear_color.svg", "关于App", HomeFunc.ABOUT_APP, true) { funcButtonClick(it) }
 
         // shelf.addFuncCard("🔧", "提取SessionId", MacroDefines.HOME_FUNC_GET_SESSIONID, true) { funcButtonClick(it) }
 
@@ -273,10 +291,8 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                 } else if (resInt > 0) {
                     runOnUiThread {
                         val intent = Intent(this, AutoCourseElect::class.java)
-                        intent.putExtra("sessionid", sessionid)
-                        intent.putExtra("studentId", uid)
+                        intent.putExtra("studentId", studentInfo?.userId)
                         startActivity(intent)
-                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                     }
                 }
             } else {
@@ -348,21 +364,18 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         }
     }
 
-    private fun funcButtonClick(action: Int) {
+    private fun funcButtonClick(action: HomeFunc) {
         when (action) {
-            MacroDefines.HOME_FUNC_LOGOUT -> funcLogout()
-            MacroDefines.HOME_FUNC_MY_GRADES -> startActivity(Intent(this, MyGrades::class.java))
-            MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE -> funcShowStudentTimetable(FUNC_TIMETABLE_TERM_COMPLETE)
-            MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY -> funcShowStudentTimetable(FUNC_TIMETABLE_SINGLE_DAY)
-            MacroDefines.HOME_FUNC_LOCAL_ATTACHMENTS -> {
+            HomeFunc.LOGOUT -> funcLogout()
+            HomeFunc.MY_GRADES -> startActivity(Intent(this, MyGrades::class.java))
+            HomeFunc.GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE -> funcShowStudentTimetable(FUNC_TIMETABLE_TERM_COMPLETE)
+            HomeFunc.GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY -> funcShowStudentTimetable(FUNC_TIMETABLE_SINGLE_DAY)
+            /*HomeFunc.LOCAL_ATTACHMENTS -> {
                 startActivity(Intent(this, LocalAttachments::class.java))
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-            }
-            MacroDefines.HOME_FUNC_ABOUT_APP -> {
-                startActivity(Intent(this, About::class.java))
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-            }
-            MacroDefines.HOME_FUNC_AUTO_COURSE_ELECT -> {
+            }*/
+            HomeFunc.ABOUT_APP -> startActivity(Intent(this, About::class.java))
+            HomeFunc.AUTO_COURSE_ELECT -> {
                 val warningText = "本功能仅可用于选课机制研究与开发测试等必要情景，请勿将其用于任何违规违法活动。\n" +
                         "违反此忠告着，产生的一切后果自负。本程序设计者及相关研发人员拒绝承担任何责任。"
                 AlertDialog.Builder(this)
@@ -375,133 +388,31 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                     .create()
                     .show()
             }
-            MacroDefines.HOME_FUNC_STUDENT_ELECT -> {
-                Toast.makeText(this, "暂缓开通", Toast.LENGTH_SHORT).show()
-            }
-            MacroDefines.HOME_FUNC_STU_EXAM_ENQUIRIES -> {
 
-                startActivity(Intent(this, StuExamEnquiries::class.java))
-                return
-                class CalendarIdAndName(var id: Int, var name: String)
-
-                fun getExamCalendarIdAndNameSync(): CalendarIdAndName? {
-
-                    val mediaTypeJSON = "application/json; charset=utf-8".toMediaType()
-                    val reqBody = "1".toRequestBody(mediaTypeJSON)
-                    val req = Request.Builder()
-                        .url("https://1.tongji.edu.cn/api/electionservice/underGraduateExamSwitch/getExamCalendar?examType=1&switchType=null")
-                        .addHeader("Cookie", "sessionid=$sessionid")
-                        .post(reqBody)
-                        .build()
-
-                    val response = Utils.safeNetworkRequest(req, uniHttpClient)
-
-                    if (response == null) {
-                        runOnUiThread {
-                            Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
-                        }
-                        return null
-                    }
-
-                    val resObj = JSONObject(response.body?.string())
-
-                    if (!isReqSessionAvailable(this, resObj) { funcLogout() }) {
-                        return null
-                    }
-
-                    if (isNotReqResCorrect(this, resObj,
-                            "查询学期信息", REQ_RES_CHECK_NOTI_LEVEL_ALERTDIALOG)
-                    )
-                    {
-                        return null
-                    }
-
-                    val resDataObj = resObj.getJSONObject("data")
-
-                    return CalendarIdAndName(
-                        resDataObj.getInt("calendarId"),
-                        resDataObj.getString("calendarIdI18n")
-                    )
-                }
-                thread {
-                    val mediaTypeJSON = "application/json; charset=utf-8".toMediaType()
-                    val calendarIdAndName = getExamCalendarIdAndNameSync()
-                    if (calendarIdAndName == null) {
-                        runOnUiThread {
-                            Toast
-                                .makeText(this, "无法获取学期信息", Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                        return@thread
-                    }
-                    val reqJsonCondition = JSONObject()
-                    reqJsonCondition.put("calendarId", calendarIdAndName.id)
-                        .put("examSituation", "")
-                        .put("examType", 1)
-                    val reqJson = JSONObject()
-                    reqJson.put("pageSize_", 1000)
-                        .put("pageNum_", 1)
-                        .put("condition", reqJsonCondition)
-                    val reqBody = reqJson.toString().toRequestBody(mediaTypeJSON)
-                    val req = Request.Builder()
-                        .url("https://1.tongji.edu.cn/api/electionservice/undergraduateExamQuery/getStudentListPage")
-                        .addHeader("Cookie", "sessionid=$sessionid")
-                        .post(reqBody)
-                        .build()
-
-                    val response = Utils.safeNetworkRequest(req, uniHttpClient)
-
-                    if (response == null) {
-                        runOnUiThread {
-                            Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
-                        }
-                        return@thread
-                    }
-
-                    val resObj = JSONObject(response.body?.string())
-
-                    if (!isReqSessionAvailable(this, resObj) { funcLogout() }) {
-                        return@thread
-                    }
-
-                    if (isNotReqResCorrect(this, resObj,
-                            "查询考试信息", REQ_RES_CHECK_NOTI_LEVEL_ALERTDIALOG)
-                    )
-                    {
-                        return@thread
-                    }
-
-                    val resDataList = resObj
-                        .getJSONObject("data")
-                        .getJSONObject("data")
-                        .getJSONArray("list")
-                    val intent = Intent(this, StuExamEnquiries::class.java)
-                    intent.putExtra("dataList", resDataList.toString())
-                        .putExtra("calendarIdI18n", calendarIdAndName.name)
-                    runOnUiThread {
-                        startActivity(intent)
-                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-                    }
-                }
-            }
-            MacroDefines.HOME_FUNC_GET_SESSIONID -> {
-                val clipBoardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clipData = ClipData.newPlainText("OneDotTongji SessionId", sessionid)
-                clipBoardManager.setPrimaryClip(clipData)
-
-                Toast.makeText(this, "Session Id 已复制到剪切板。打开小程序粘贴使用。", Toast.LENGTH_SHORT).show()
-            }
+            HomeFunc.STU_EXAM_ENQUIRIES -> startActivity(Intent(this, StuExamEnquiries::class.java))
+            HomeFunc.CET_SCORE -> startActivity(Intent(this, CetScore::class.java))
+            HomeFunc.SPORTS_TEST_DATA -> startActivity(Intent(this, SportsTestData::class.java))
+            else -> {}
         }
     }
 
     private fun funcLogout() {
-        TongjiApi.instance.clearCache()
-        TongjiApi.instance.switchAccountRequired = true
-        getSharedPreferences(MacroDefines.SHARED_PREFERENCES_STORE_NAME, MODE_PRIVATE)
-                .edit().putString(MacroDefines.SP_KEY_SESSIONID, "").apply()
-        startActivity(Intent(this, Login::class.java))
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-        finish()
+
+        AlertDialog.Builder(this)
+            .setTitle("退出登录")
+            .setMessage("真的要退出登录吗？🥀")
+            .setPositiveButton("退出") { _, _ ->
+                TongjiApi.instance.clearCache()
+                TongjiApi.instance.switchAccountRequired = true
+                getSharedPreferences(MacroDefines.SHARED_PREFERENCES_STORE_NAME, MODE_PRIVATE)
+                    .edit().putString(MacroDefines.SP_KEY_SESSIONID, "").apply()
+                startActivity(Intent(this, Login::class.java))
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                finish()
+            }
+            .setNegativeButton("算了") { _, _ -> }
+            .show()
+
     }
 
 

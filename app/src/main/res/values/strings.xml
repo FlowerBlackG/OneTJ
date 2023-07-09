@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">一块钱</string>
-    <string name="app_buildTime" translatable="false">2023.07.09–16:25</string>
+    <string name="app_buildTime" translatable="false">2023.07.09–22:15</string>
     <string name="login_to_tongji_university">统一身份认证登录</string>
     <string name="version">版本</string>
     <string name="check_for_update">检查更新</string>
@@ -12,4 +12,7 @@
     <string name="my_grades">我的成绩</string>
     <string name="single_day_curriculums">单日课表</string>
     <string name="term_curriculums">学期课表</string>
+    <string name="cet">四六级</string>
+    <string name="Gym_activities">场馆锻炼</string>
+    <string name="Running">健身跑步</string>
 </resources>

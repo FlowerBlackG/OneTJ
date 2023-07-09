@@ -229,7 +229,7 @@ class SingleDay : OneTJActivityBase(
                     card.setLayoutHeightSp(132f)
                         .setTitleTextSizeSp(24f)
                         .setIconTextSizeSp(48f)
-                        .setEndMarkTextSizeSp(42f)
+                        .setEndMarkTextSizeSp(36f)
                         .addInfo(
                             InfoCard.Info(
                                 "课号", data.getString("classCode")

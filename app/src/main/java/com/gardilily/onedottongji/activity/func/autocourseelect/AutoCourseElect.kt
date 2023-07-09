@@ -10,7 +10,9 @@ import android.util.Log
 import android.widget.*
 import com.gardilily.common.view.card.InfoCard
 import com.gardilily.onedottongji.R
+import com.gardilily.onedottongji.activity.WebViewUniLogin
 import com.gardilily.onedottongji.service.BackgroundAutoCourseElect
+import com.gardilily.onedottongji.tools.MacroDefines
 import com.gardilily.onedottongji.tools.Utils
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
@@ -41,6 +43,8 @@ class AutoCourseElect : Activity() {
 
 	private lateinit var uniHttpClient: OkHttpClient
 
+	private var sessionid: String? = null
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_autocourseelect)
@@ -48,6 +52,27 @@ class AutoCourseElect : Activity() {
 
 		uniHttpClient = OkHttpClient()
 
+		startActivityForResult(Intent(this, WebViewUniLogin::class.java), MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID)
+	}
+
+	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+		super.onActivityResult(requestCode, resultCode, data)
+
+		when (requestCode) {
+			MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID -> {
+				Log.d("activityRes=", "$resultCode")
+
+				if (resultCode == MacroDefines.ACTIVITY_RESULT_SUCCESS) {
+
+					sessionid = data?.getStringExtra("sessionid")
+					prepare()
+				}
+
+			}
+		}
+	}
+
+	private fun prepare() {
 		initRoundId()
 		initSearchButton()
 
@@ -72,7 +97,7 @@ class AutoCourseElect : Activity() {
 				.url(getRoundIdUrl)
 				.post(getRoundIdRequestFormBody)
 				.addHeader("Cookie",
-					"sessionid=${intent.getStringExtra("sessionid")}")
+					"sessionid=$sessionid")
 				.build()
 			val response = Utils.safeNetworkRequest(request, uniHttpClient)
 			if (response == null) {
@@ -145,7 +170,7 @@ class AutoCourseElect : Activity() {
 				.url(getCourseInfoUrl)
 				.post(getCourseInfoRequestFormBody)
 				.addHeader("Cookie",
-					"sessionid=${intent.getStringExtra("sessionid")}")
+					"sessionid=$sessionid")
 				.build()
 
 			thread {
@@ -239,7 +264,7 @@ class AutoCourseElect : Activity() {
 						infoJson.put("teachClassId", singleObj.getLong("teachClassId"))
 						infoJson.put("teachClassCode", singleObj.getString("teachClassCode"))
 						infoJson.put("studentId", intent.getStringExtra("studentId"))
-						infoJson.put("sessionid", intent.getStringExtra("sessionid"))
+						infoJson.put("sessionid", sessionid)
 
 						val intent = Intent(this, BackgroundAutoCourseElect::class.java)
 						intent.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_COURSE_INFO_JSON, infoJson.toString())

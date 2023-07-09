@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.caverock.androidsvg.SVGImageView
 import com.gardilily.onedottongji.R
+import com.gardilily.onedottongji.activity.Home
 
 /** 功能卡书架。 */
 class FuncCardShelf(context: Context) : LinearLayout(context) {
@@ -49,9 +50,9 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
     fun addFuncCard(
         iconPath: String,
         text: String,
-        func: Int,
+        func: Home.HomeFunc,
         isVisible: Boolean = true,
-        action: (func: Int)->Unit
+        action: (func: Home.HomeFunc)->Unit
     ) {
         val layout = LinearLayout(c)
         layout.orientation = VERTICAL
@@ -96,7 +97,7 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
         addCard(layout)
     }
 
-    fun addEmptyTransparentCard() = addFuncCard("", "", -1, false) {}
+    fun addEmptyTransparentCard() = addFuncCard("", "", Home.HomeFunc.NONE, false) {}
 
     fun fillBlank() {
         while (cardCount % CARD_PER_ROW != 0) {

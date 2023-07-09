@@ -56,6 +56,7 @@ class MacroDefines {
          */
         const val HOME_FUNC_STU_EXAM_ENQUIRIES = 8
 
+
         /**
          * 个人选课
          */
