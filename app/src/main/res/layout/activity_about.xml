@@ -3,7 +3,6 @@
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:background="@drawable/shape_page_background_gradient"
 tools:context=".activity.About">
 
     <LinearLayout
@@ -11,7 +10,7 @@ tools:context=".activity.About">
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="80dp"
         android:gravity="center"
         android:id="@+id/about.linearContainer" >
 
@@ -35,6 +34,7 @@ tools:context=".activity.About">
             android:text="VersionInfo"
             android:textSize="20sp"
             android:layout_marginTop="12dp"
+            android:textAlignment="center"
             android:id="@+id/about.versionInfo"/>
 
     </LinearLayout>
@@ -45,8 +45,9 @@ tools:context=".activity.About">
         android:layout_centerHorizontal="true"
         android:layout_below="@id/about.linearContainer"
         android:layout_marginTop="18dp"
-        android:text="部分技术实现参考自\n陈诺大佬的开源项目"
+        android:text="@string/directed_by_the_informatization_office_of_tongji_university"
         android:textSize="20sp"
+        android:textAlignment="center"
         android:id="@+id/about.moreText"/>
 
     <Button
@@ -55,12 +56,11 @@ tools:context=".activity.About">
         android:layout_height="wrap_content"
         android:layout_below="@id/about.moreText"
         android:layout_centerHorizontal="true"
-        android:layout_marginLeft="18sp"
+        android:layout_marginLeft="18dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="18sp"
-        android:background="@drawable/shape_login_page_button"
-        android:text="检查更新"
-        android:textColor="#c555"
+        android:layout_marginRight="18dp"
+        android:text="@string/check_for_update"
+        android:textAllCaps="false"
         android:textSize="16sp" />
 
     <Button
@@ -69,12 +69,11 @@ tools:context=".activity.About">
         android:layout_centerHorizontal="true"
         android:layout_below="@id/about.button.checkUpdate"
         android:layout_marginTop="12dp"
-        android:layout_marginLeft="18sp"
-        android:layout_marginRight="18sp"
-        android:background="@drawable/shape_login_page_button"
-        android:text="获取源码"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="18dp"
+        android:text="@string/get_source_code"
         android:textSize="16sp"
-        android:textColor="#c555"
+        android:textAllCaps="false"
         android:id="@+id/about.button.viewSource" />
 
     <TextView
@@ -84,7 +83,7 @@ tools:context=".activity.About">
         android:layout_marginBottom="8dp"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:text="Based on 1.TongJi's APIs\nDeveloped by GTY"
+        android:text="Based on Tongji Open Platform APIs\nDeveloped by GTY"
         android:textSize="12sp" />
 
 </RelativeLayout>

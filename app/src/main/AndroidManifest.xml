@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
+        android:name=".OneTJApplication"
         android:allowBackup="true"
         android:icon="@drawable/logo"
         android:label="@string/app_name"
@@ -20,7 +21,7 @@
 
         <activity android:name=".activity.Login"
             android:exported="true"
-            android:theme="@style/Theme.OneDotTongjiRefresh.Main">
+            android:theme="@style/Theme.OneTJ.NoActionBar.Immersed">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,26 +32,29 @@
         <activity android:name=".activity.WebViewUniLogin"
             android:theme="@style/Theme.OneDotTongjiRefresh.Main" />
 
+        <activity android:name=".activity.TongjiOAuth"
+            android:theme="@style/Theme.OneTJ.Base" />
+
         <activity android:name=".activity.About"
-            android:theme="@style/Theme.OneDotTongjiRefresh.About"/>
+            android:theme="@style/Theme.OneTJ.Base"/>
 
         <activity android:name=".activity.Home"
-            android:theme="@style/Theme.OneDotTongjiRefresh.Home"/>
+            android:theme="@style/Theme.OneTJ.NoActionBar"/>
 
         <activity android:name=".activity.MsgPublishShow"
             android:theme="@style/Theme.OneDotTongjiRefresh.MsgPublishShow" />
 
         <activity android:name=".activity.func.MyGrades"
-            android:theme="@style/Theme.OneDotTongjiRefresh.func.MyGrades" />
+            android:theme="@style/Theme.OneTJ.Base" />
 
         <activity android:name=".activity.func.StuExamEnquiries"
-            android:theme="@style/Theme.OneDotTongjiRefresh.func.StudentTimeTable.TermComplete" />
+            android:theme="@style/Theme.OneTJ.Base" />
 
         <activity android:name=".activity.func.studenttimetable.TermComplete"
-            android:theme="@style/Theme.OneDotTongjiRefresh.func.StudentTimeTable.TermComplete"/>
+            android:theme="@style/Theme.OneTJ.Base"/>
 
         <activity android:name=".activity.func.studenttimetable.SingleDay"
-            android:theme="@style/Theme.OneDotTongjiRefresh.func.StudentTimeTable.SingleDay" />
+            android:theme="@style/Theme.OneTJ.Base" />
 
         <activity android:name=".activity.func.LocalAttachments"
             android:theme="@style/Theme.OneDotTongjiRefresh.func.LocalAttachments"/>

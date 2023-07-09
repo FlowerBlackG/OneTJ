@@ -17,6 +17,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import com.caverock.androidsvg.SVGImageView
 import com.gardilily.common.view.card.InfoCard.Builder
 
 /**
@@ -64,8 +65,8 @@ open class InfoCard private constructor(
 	val layoutWidth = builder.layoutWidth
 	val layoutHeight = builder.layoutHeight
 	val hasIcon = builder.hasIcon
-	val icon = builder.icon
-	val iconTextSizeSp = builder.iconTextSizeSp
+	val iconPath = builder.iconPath
+	val iconSize = builder.iconSize
 	val hasEndMark = builder.hasEndMark
 	val endMark = builder.endMark
 	val endMarkTextSizeSp = builder.endMarkTextSizeSp
@@ -96,10 +97,10 @@ open class InfoCard private constructor(
 
 		this.isClickable = true
 
-		val iconView = TextView(c)
-		iconView.text = icon
-		iconView.textSize = iconTextSizeSp
-		iconView.setTextColor(Color.BLACK)
+		val iconView = SVGImageView(c)
+		iconView.setImageAsset(iconPath)
+
+		val iconViewSize = iconSize
 
 		iconView.visibility =
 			if (hasIcon) {
@@ -114,6 +115,8 @@ open class InfoCard private constructor(
 		)
 		iconViewParams.marginStart = floatSp2intPx(innerMarginStartSp)
 		iconViewParams.addRule(CENTER_VERTICAL)
+		iconViewParams.width = iconViewSize
+		iconViewParams.height = iconViewSize
 
 		iconView.layoutParams = iconViewParams
 
@@ -155,7 +158,7 @@ open class InfoCard private constructor(
 					} else {
 						0f
 					}
-		) + iconView.paint.measureText(icon).toInt()
+		) + iconView.layoutParams.width
 
 		infoLinearLayoutParams.marginEnd = floatSp2intPx(innerMarginEndSp)
 		infoLinearLayoutParams.topMargin = floatSp2intPx(innerMarginTopSp)
@@ -300,14 +303,16 @@ open class InfoCard private constructor(
 			this.hasIcon = hasIcon
 		}
 
-		var icon = "🍓"
+		var iconPath = "🍓"
 		fun setIcon(icon: String) = apply {
-			this.icon = icon
+			this.iconPath = icon
 		}
 
-		var iconTextSizeSp = 48f
-		fun setIconTextSizeSp(iconTextSizeSp: Float) = apply {
-			this.iconTextSizeSp = iconTextSizeSp
+		var iconSize = 150
+
+		fun setIconTextSizeSp(com: Float) = apply { /* deprecated */ }
+		fun setIconSize(iconSize: Int) = apply {
+			this.iconSize = iconSize
 		}
 
 		var hasEndMark = false

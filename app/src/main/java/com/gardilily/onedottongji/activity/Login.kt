@@ -6,19 +6,25 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
+import android.util.Base64
+import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.tools.GarCloudApi
 import com.gardilily.onedottongji.tools.MacroDefines
+import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import java.io.ByteArrayInputStream
 import kotlin.concurrent.thread
 
 /** 首页欢迎页面。 */
@@ -34,11 +40,12 @@ class Login : Activity() {
         loadBackgroundImage()
 
         showVersionInfo()
-        autoLoginByLastSessionId()
+        tryAutoLogin()
+        // autoLoginByLastSessionId()
 
         findViewById<Button>(R.id.login_button_toUniLogin).setOnClickListener {
             startActivityForResult(
-                Intent(this@Login, WebViewUniLogin::class.java),
+                Intent(this@Login, TongjiOAuth::class.java),
                 MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID
             )
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
@@ -47,12 +54,60 @@ class Login : Activity() {
         GarCloudApi.checkUpdate(this, false)
     }
 
+    companion object {
+        const val SP_KEY_BACKGROUND_BASE64 = "login.bg-base64"
+    }
+
+
+    private fun tryAutoLogin() {
+        if (TongjiApi.instance.tokenAvailable()) {
+            startActivity(Intent(this, Home::class.java))
+            finish()
+        }
+    }
+    private fun setUISpinning(loading: Boolean) {
+
+        val pb = findViewById<ProgressBar>(R.id.login_loading_progressBar)
+        val btn = findViewById<Button>(R.id.login_button_toUniLogin)
+
+        if (loading) {
+            pb.visibility = View.VISIBLE
+            btn.visibility = View.GONE
+        } else {
+            pb.visibility = View.GONE
+            btn.visibility = View.VISIBLE
+        }
+    }
+
     private var backgroundImageBitmap: Bitmap? = null
 
-    /**
-     * 设置必应每日壁纸。
-     */
-    private fun loadBackgroundImage() {
+
+    private val switchBackgroundLock = Semaphore(1, 0)
+    private val spBackgroundLock = Semaphore(1, 0)
+
+    private fun stageBackground(bitmap: Bitmap?) {
+
+        if (bitmap == null) {
+            // 无法呈现图片。
+            return
+        }
+
+        runBlocking {
+            switchBackgroundLock.acquire()
+        }
+
+        runOnUiThread {
+            val fadeInAnim = AlphaAnimation(0f, 1f)
+            fadeInAnim.interpolator = DecelerateInterpolator()
+            fadeInAnim.duration = 670
+            backgroundImageView.startAnimation(fadeInAnim)
+            backgroundImageView.setImageBitmap(bitmap)
+
+            switchBackgroundLock.release()
+        }
+    }
+
+    private fun fetchNewBackground() {
         thread {
             val url = "https://bing.icodeq.com/"
             val client = OkHttpClient()
@@ -67,19 +122,55 @@ class Login : Activity() {
                 return@thread
             }
 
-            val istream = resBody.byteStream()
-            backgroundImageBitmap = BitmapFactory.decodeStream(istream)
-            istream.close()
+            val bytes = resBody.bytes()
+            backgroundImageBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            val base64 = Base64.encode(bytes, Base64.DEFAULT)
+            val base64Str = String(base64)
 
-            runOnUiThread {
-                val fadeInAnim = AlphaAnimation(0f, 1f)
-                fadeInAnim.interpolator = DecelerateInterpolator()
-                fadeInAnim.duration = 670
-                backgroundImageView.startAnimation(fadeInAnim)
-                backgroundImageView.setImageBitmap(backgroundImageBitmap)
+            runBlocking {
+                spBackgroundLock.acquire()
             }
+            getSharedPreferences(MacroDefines.SHARED_PREFERENCES_STORE_NAME, MODE_PRIVATE)
+                .edit()
+                .putString(SP_KEY_BACKGROUND_BASE64, base64Str)
+                .apply()
+            spBackgroundLock.release()
+
+            stageBackground(backgroundImageBitmap)
         }
     }
+
+    private fun loadOldBackground() {
+        thread {
+            val sp = getSharedPreferences(MacroDefines.SHARED_PREFERENCES_STORE_NAME, MODE_PRIVATE)
+
+            runBlocking {
+                spBackgroundLock.acquire()
+            }
+
+            val base64 = sp.getString(SP_KEY_BACKGROUND_BASE64, null)
+            spBackgroundLock.release()
+
+            if (base64 == null) {
+                return@thread
+            }
+
+            val decoded = Base64.decode(base64, Base64.DEFAULT)
+            val bitmap = BitmapFactory.decodeByteArray(decoded, 0, decoded.size)
+
+            stageBackground(bitmap)
+
+        }
+    }
+
+    /**
+     * 设置必应每日壁纸。
+     */
+    private fun loadBackgroundImage() {
+        loadOldBackground()
+        fetchNewBackground()
+    }
+
 
     /**
      * 尝试使用上次留下的 sessionid 恢复登录。
@@ -122,31 +213,39 @@ class Login : Activity() {
 
         when (requestCode) {
             MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID -> {
-                Log.d("activityRes=", "$resultCode")
 
-                if (resultCode == MacroDefines.ACTIVITY_RESULT_SUCCESS) {
-                    val intent = Intent(this@Login, Home::class.java)
-                    intent.putExtra("sessionid", data!!.getStringExtra("sessionid"))
+                val resultData = data?.getStringArrayExtra(TongjiOAuth.RESULT_KEY)
+                if (resultData == null) {
 
-                    val sp = getSharedPreferences(MacroDefines.SHARED_PREFERENCES_STORE_NAME, MODE_PRIVATE)
-
-                    sp.edit()
-                        .putString(
-                            MacroDefines.SP_KEY_SESSIONID,
-                            data.getStringExtra("sessionid")
-                        )
-                        .apply()
-
-                    runOnUiThread {
-                        startActivity(intent)
-                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-                        finish()
-                    }
+                    Toast.makeText(this, "授权失败 qwq", Toast.LENGTH_SHORT).show()
+                    return
                 }
 
-            }
-        }
-    }
+                if (resultData[0] != null || resultData[1] == null) {
+
+                    Toast.makeText(this, "授权失败 qwq (${resultData[0]})", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                val code = resultData[1]
+                setUISpinning(true)
+
+                thread {
+
+                    if (TongjiApi.instance.code2token(code)) {
+                        runOnUiThread {
+                            startActivity(Intent(this@Login, Home::class.java))
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                            finish()
+                        }
+                    }
+                    runOnUiThread { setUISpinning(false) }
+
+                }
+
+            } // MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID ->
+        } // when (requestCode)
+    } // override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
 
     override fun onDestroy() {
         backgroundImageBitmap?.recycle()
@@ -157,7 +256,7 @@ class Login : Activity() {
      * 显示软件版本信息。
      */
     private fun showVersionInfo() {
-        val version = "版本：${packageManager.getPackageInfo(packageName, 0).versionName}" +
+        val version = "${resources.getString(R.string.version)}: ${packageManager.getPackageInfo(packageName, 0).versionName}" +
                 " (${packageManager.getPackageInfo(packageName, 0).longVersionCode})"
         findViewById<TextView>(R.id.login_appVersion).text = version
     }

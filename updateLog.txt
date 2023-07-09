@@ -1,3 +1,25 @@
+Version: 3.0.0-rc1 (42)
+Build Time: 2023.07.09–16:25
+Update Log:
+界面更新
++ 启用 Material You Design
+  + 自适应夜间模式
+  + 自适应个性化调色板（Android 12+）
+  + 更简洁流畅的界面
++ 部分页面加入标题栏
++ 图标更换为 FluentUI Emoji
+
+接入信息办“同济大学开放平台”接口
++ 使用信息办统一身份认证登录
++ 单日内免登录
++ 使用信息办接口获取数据
+
+多语言适配
++ 部分文本新增英文翻译
+
+* Release Candidate 版本 *
+版本仍在开发中，可能存在未处理的 bug。部分功能未适配完成。
+
 Version: 2.6.3 (41)
 Build Time: 2023.01.03–21:43
 Update Log:

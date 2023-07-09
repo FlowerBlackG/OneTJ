@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MulanPSL-2.0
 package com.gardilily.onedottongji.activity.func
 
-import android.app.Activity
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -12,11 +10,17 @@ import android.widget.TextView
 import com.gardilily.common.view.card.CardShelf
 import com.gardilily.common.view.card.InfoCard
 import com.gardilily.onedottongji.R
+import com.gardilily.onedottongji.activity.OneTJActivityBase
+import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.concurrent.thread
 import kotlin.math.abs
 
-class MyGrades : Activity() {
+class MyGrades : OneTJActivityBase(
+    hasTitleBar = true, backOnTitleBar = true, withSpinning = true
+) {
+
     private lateinit var dataObj: JSONObject
     //private lateinit var layout: LinearLayout
 
@@ -30,15 +34,31 @@ class MyGrades : Activity() {
 
         spMultiply = resources.displayMetrics.scaledDensity
 
-        dataObj = JSONObject(intent.getStringExtra("JsonObj")!!).getJSONObject("data")
-        Log.d("func.MyGrades.jsonObjReceived", dataObj.toString())
+        title = getString(R.string.my_grades)
 
-        //layout = findViewById(R.id.func_myGrades_linearLayout)
-        generalInfoContainer = findViewById(R.id.func_myGrades_generalInfoContainer)
-        gradeInfoContainer = findViewById(R.id.func_myGrades_gradeInfoContainer)
+        stageSpinningProgressBar(findViewById(R.id.func_myGrades_rootContainer))
+        setSpinning(true)
 
-        showBasicGradeInfo()
-        showAllTermGradeInfo(dataObj.getJSONArray("term"))
+        loadData()
+
+    }
+
+    private fun loadData() {
+        thread {
+
+            dataObj = TongjiApi.instance.getOneTongjiUndergraduateScore(this@MyGrades) ?: return@thread
+
+            runOnUiThread {
+
+                setSpinning(false)
+
+                generalInfoContainer = findViewById(R.id.func_myGrades_generalInfoContainer)
+                gradeInfoContainer = findViewById(R.id.func_myGrades_gradeInfoContainer)
+
+                showBasicGradeInfo()
+                showAllTermGradeInfo(dataObj.getJSONArray("term"))
+            }
+        }
     }
 
     private fun showBasicGradeInfo() {
@@ -53,7 +73,7 @@ class MyGrades : Activity() {
             )
 
             if (isFirstLine) {
-                params.topMargin = (38f * spMultiply).toInt()
+                params.topMargin = (18f * spMultiply).toInt()
             }
 
             params.bottomMargin = (12f * spMultiply).toInt()
@@ -63,50 +83,9 @@ class MyGrades : Activity() {
 
         var cardCount = 0
 
- /*       fun createAndShowInfoCard(title: String, content: String, tarRow: RelativeLayout) {
-            val layout = RelativeLayout(this)
-            val params = RelativeLayout.LayoutParams(targetCardWidthPx, (80f * spMultiply).toInt())
-
-            if (cardCount % 2 == 0) {
-                params.addRule(RelativeLayout.ALIGN_PARENT_START)
-            } else {
-                params.addRule(RelativeLayout.ALIGN_PARENT_END)
-            }
-
-            layout.layoutParams = params
-
-            layout.background = getDrawable(R.drawable.shape_login_page_box)
-            layout.isClickable = true
-            layout.gravity = Gravity.CENTER_VERTICAL
-
-            val titleView = TextView(this)
-            titleView.text = title
-            titleView.textSize = 24f
-         //   titleView.setTextColor(Color.parseColor("#000000"))
-            val titleParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-            titleParams.leftMargin = (12f * spMultiply).toInt()
-            titleView.layoutParams = titleParams
-            layout.addView(titleView)
-
-            val contentView = TextView(this)
-            contentView.text = content
-            contentView.textSize = 24f
-          //  contentView.setTextColor(Color.parseColor("#000000"))
-            val contentParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-            contentParams.rightMargin = (12f * spMultiply).toInt()
-            contentParams.addRule(RelativeLayout.ALIGN_PARENT_END)
-            contentView.layoutParams = contentParams
-            layout.addView(contentView)
-
-            tarRow.addView(layout)
-
-            cardCount++
-        }
-*/
-
         fun createAndShowInfoCard(title: String, content: String, tarRow: LinearLayout) {
             val layout = RelativeLayout(this)
-            //val params = LinearLayout.LayoutParams(0, (80f * spMultiply).toInt())
+
             val params = LinearLayout.LayoutParams(0, (90f * spMultiply).toInt())
 
             params.weight = 1f
@@ -119,9 +98,6 @@ class MyGrades : Activity() {
 
             layout.layoutParams = params
 
-            layout.background = getDrawable(R.drawable.shape_login_page_box)
-            layout.isClickable = true
-            //layout.gravity = Gravity.CENTER
 
             val titleView = TextView(this)
             titleView.text = title
@@ -164,8 +140,7 @@ class MyGrades : Activity() {
 
         val row1 = createRowLayout(true)
         val row2 = createRowLayout()
-        //layout.addView(row1)
-        //layout.addView(row2)
+
         generalInfoContainer.addView(row1)
         generalInfoContainer.addView(row2)
 
@@ -174,9 +149,9 @@ class MyGrades : Activity() {
         createAndShowInfoCard("总修学分",
             stringFloat2doublePrecStringFloat(dataObj.getString("actualCredit")), row1)
 
-        createAndShowInfoCard("挂科学分",
+        createAndShowInfoCard("失利学分",
             stringFloat2doublePrecStringFloat(dataObj.getString("failingCredits")), row2)
-        createAndShowInfoCard("挂科门数", dataObj.getString("failingCourseCount"), row2)
+        createAndShowInfoCard("失利门数", dataObj.getString("failingCourseCount"), row2)
     }
 
     private fun showAllTermGradeInfo(jsonArr: JSONArray) {
@@ -197,18 +172,18 @@ class MyGrades : Activity() {
         }
         fun gradePoint2gradeIcon(point: Int): String {
             if (point == 5) {
-                return "🍓"
+                return "fluentemoji/strawberry_color.svg" // 🍓
             }
             if (point == 4) {
-                return "🍒"
+                return "fluentemoji/cherries_color.svg" // 🍒
             }
             if (point == 3) {
-                return "🍊"
+                return "fluentemoji/tangerine_color.svg" // 🍊
             }
             if (point == 2) {
-                return "🍋"
+                return "fluentemoji/lemon_color.svg" // 🍋
             }
-            return "🍇"
+            return "fluentemoji/grapes_color.svg" // 🍇
         }
 
         fun showSingleTermGradeInfo(jsonArr: JSONArray) {
@@ -234,7 +209,6 @@ class MyGrades : Activity() {
                 val data = jsonArr.getJSONObject(i)
                 val card = InfoCard.Builder(this)
                     .setSpMultiply(resources.displayMetrics.scaledDensity)
-                    .setCardBackground(getDrawable(R.drawable.shape_login_page_box))
                     .setLayoutHeightSp(
                         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
                             128f
@@ -292,31 +266,10 @@ class MyGrades : Activity() {
                         )
                 }
 
-                /*
-                val cardCustomizedParams: LinearLayout.LayoutParams? =
-                    if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        val params = LinearLayout.LayoutParams(
-                            0,
-                            card.layoutHeight
-                        )
-                        params.marginEnd = (6 * spMultiply).toInt()
-                        params.marginStart = (6 * spMultiply).toInt()
-                        params.topMargin = (6 * spMultiply).toInt()
-                        params.bottomMargin = (6 * spMultiply).toInt()
-                        params.weight = 1f
-
-                        params
-                    } else {
-                        null
-                    }*/
-
-
-                //layout.addView(card.build())
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
                     gradeInfoContainer.addView(card.build())
                 else {
-                    //val cardBuilt = card.build()
-                    //cardBuilt.layoutParams = cardCustomizedParams
+
                     shelf!!.addCard(card.build())
                 }
             }
@@ -344,7 +297,6 @@ class MyGrades : Activity() {
             val termName = TextView(this)
             termName.text = jsonArr.getJSONObject(i).getString("termName")
             termName.gravity = Gravity.CENTER
-            termName.background = getDrawable(R.drawable.shape_login_page_box)
             termName.textSize =
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
                     24f
@@ -365,7 +317,6 @@ class MyGrades : Activity() {
             val termGrade = TextView(this)
             termGrade.text = "平均绩点：${jsonArr.getJSONObject(i).getString("averagePoint")}"
             termGrade.gravity = Gravity.CENTER
-            termGrade.background = getDrawable(R.drawable.shape_login_page_box)
             termGrade.textSize =
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
                     24f

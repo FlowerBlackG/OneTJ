@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: MulanPSL-2.0
 package com.gardilily.onedottongji.activity
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +21,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
+import com.caverock.androidsvg.SVG
+import com.caverock.androidsvg.SVGImageView
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.activity.func.LocalAttachments
 import com.gardilily.onedottongji.activity.func.MyGrades
@@ -32,6 +38,7 @@ import com.gardilily.onedottongji.tools.Utils.Companion.REQ_RES_CHECK_NOTI_LEVEL
 import com.gardilily.onedottongji.tools.Utils.Companion.REQ_RES_CHECK_NOTI_LEVEL_TOAST
 import com.gardilily.onedottongji.tools.Utils.Companion.isNotReqResCorrect
 import com.gardilily.onedottongji.tools.Utils.Companion.isReqSessionAvailable
+import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import com.gardilily.onedottongji.view.FuncCardShelf
 import com.gardilily.onedottongji.view.HomeMsgPublishCard
 import okhttp3.FormBody
@@ -45,10 +52,11 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import kotlin.concurrent.thread
 
-class Home : Activity() {
-    private var sessionid = ""
+class Home : OneTJActivityBase(hasTitleBar = false) {
+
     private lateinit var uniHttpClient: OkHttpClient
 
+    private var sessionid = ""
     private var uid = ""
     private var username = ""
     private var termId = 111
@@ -58,11 +66,13 @@ class Home : Activity() {
 
     private var userInfoReported = false
 
+    private var studentInfo: TongjiApi.StudentInfo? = null
+    private var schoolCalendar: TongjiApi.SchoolCalendar? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        sessionid = intent.getStringExtra("sessionid")!!
-        Log.d("Home.onCreate.sessionid", sessionid)
+
 
         uniHttpClient = OkHttpClient().newBuilder()
                 .followRedirects(false)
@@ -78,98 +88,45 @@ class Home : Activity() {
         GarCloudApi.checkUpdate(this, false)
 
         loadWeather()
+
+        findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/strawberry_color.svg")
     }
 
     private fun fetchUserBasicInfo() {
         thread {
-            val request = Request.Builder()
-                    .url("https://1.tongji.edu.cn/api/sessionservice/session/getSessionUser")
-                    .addHeader("Cookie", "sessionid=$sessionid")
-                    .get()
-                    .build()
 
-            //val response = uniHttpClient.newCall(request).execute()
+            studentInfo = TongjiApi.instance.getStudentInfo(this) ?: return@thread
+            runOnUiThread {
+                findViewById<TextView>(R.id.home_userinfobox_username).text = studentInfo!!.name
+                findViewById<TextView>(R.id.home_userinfobox_uid).text = studentInfo!!.userId
+                findViewById<TextView>(R.id.home_userinfobox_facultyName).text = studentInfo!!.deptName
+                findViewById<TextView>(R.id.home_userinfobox_grade).text = "${studentInfo!!.currentGrade}级"
 
-            val response = Utils.safeNetworkRequest(request, uniHttpClient)
-
-            if (response == null) {
-                runOnUiThread {
-                    Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
+                if (studentInfo!!.gender == TongjiApi.StudentInfo.Gender.MALE) {
+                    findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/sleeping_face_color.svg")
+                } else {
+                    findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/smiling_face_with_hearts_color.svg")
                 }
-                return@thread
             }
-
-            val resStr = response.body?.string()
-            Log.d("Home.fetchUserBasicInfo", resStr!!)
-            val jsonObj = JSONObject(resStr)
-
-            if (!isReqSessionAvailable(this, jsonObj) { funcLogout() }) {
-                return@thread
-            }
-
-            if (isNotReqResCorrect(this, jsonObj, "获取个人信息", REQ_RES_CHECK_NOTI_LEVEL_TOAST)) {
-                return@thread
-            }
-
-            val userDataObj = jsonObj.getJSONObject("data").getJSONObject("user")
-            username = userDataObj.getString("name")
-            uid = userDataObj.getString("uid")
 
             if (!userInfoReported) {
-                GarCloudApi.uploadUserInfo(this, uid, username)
+                GarCloudApi.uploadUserInfo(this, studentInfo!!.userId!!, studentInfo!!.name!!)
                 userInfoReported = true
             }
 
-            runOnUiThread {
-                findViewById<TextView>(R.id.home_userinfobox_username).text = username
-                findViewById<TextView>(R.id.home_userinfobox_uid).text = uid
-                findViewById<TextView>(R.id.home_userinfobox_facultyName).text = userDataObj.getString("facultyName")
-                val USER_DATA_SEX_MALE = 1
-                if (userDataObj.getInt("sex") == USER_DATA_SEX_MALE) {
-                    findViewById<TextView>(R.id.home_userinfobox_avatar).text = "👨‍🎓"
-                } else {
-                    findViewById<TextView>(R.id.home_userinfobox_avatar).text = "👩‍🎓"
-                }
-                findViewById<TextView>(R.id.home_userinfobox_grade).text = "${userDataObj.getString("grade")}级"
-            }
         }
     }
 
     private fun fetchTermBasicInfo() {
         thread {
-            val req = Request.Builder()
-                    .url("https://1.tongji.edu.cn/api/baseresservice/schoolCalendar/currentTermCalendar")
-                    .addHeader("Cookie", "sessionid=$sessionid")
-                    .get()
-                    .build()
 
-            val res = Utils.safeNetworkRequest(req, uniHttpClient)
+            schoolCalendar = TongjiApi.instance.getOneTongjiSchoolCalendar(this) ?: return@thread
 
-            if (res == null) {
-                runOnUiThread {
-                    Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
-                }
-                return@thread
-            }
-
-            val rawObj = JSONObject(res.body?.string())
-
-            if (!isReqSessionAvailable(this, rawObj) { funcLogout() }) {
-                return@thread
-            }
-
-            if (isNotReqResCorrect(this, rawObj, "获取学期信息", REQ_RES_CHECK_NOTI_LEVEL_TOAST)) {
-                return@thread
-            }
-
-            val dataObj = rawObj.getJSONObject("data")
-            termId = dataObj.getJSONObject("schoolCalendar").getInt("id")
-            termName = dataObj.getString("simpleName")
-            termWeek = dataObj.getInt("week")
             runOnUiThread {
-                findViewById<TextView>(R.id.home_terminfobox_terminfo).text = termName
-                findViewById<TextView>(R.id.home_terminfobox_weeknumber).text = "第${termWeek}周"
+                findViewById<TextView>(R.id.home_terminfobox_terminfo).text = schoolCalendar!!.simpleName
+                findViewById<TextView>(R.id.home_terminfobox_weeknumber).text = "第${schoolCalendar!!.schoolWeek}周"
             }
+
         }
     }
 
@@ -187,20 +144,20 @@ class Home : Activity() {
         shelf.targetCardWidthPx = targetCardWidthPx
         findViewById<LinearLayout>(R.id.home_funcBtnLinearLayout).addView(shelf)
 
-        shelf.addFuncCard("🍕", "今日课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY, true) { funcButtonClick(it) }
-        shelf.addFuncCard("🍔", "学期课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE, true) { funcButtonClick(it) }
-        shelf.addFuncCard("💧", "我的成绩", MacroDefines.HOME_FUNC_MY_GRADES, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "今日课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/notebook_color.svg", "学期课表", MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/anguished_face_color.svg", "我的成绩", MacroDefines.HOME_FUNC_MY_GRADES, true) { funcButtonClick(it) }
 
-        shelf.addFuncCard("🤯", "我的考试", MacroDefines.HOME_FUNC_STU_EXAM_ENQUIRIES, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/memo_color.svg", "我的考试", MacroDefines.HOME_FUNC_STU_EXAM_ENQUIRIES, true) { funcButtonClick(it) }
 
-        shelf.addFuncCard("👩‍🦼", "抢课", MacroDefines.HOME_FUNC_AUTO_COURSE_ELECT, true) { funcButtonClick(it) }
+        //shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "抢课", MacroDefines.HOME_FUNC_AUTO_COURSE_ELECT, true) { funcButtonClick(it) }
 
-        shelf.addFuncCard("🥪", "本地文件", MacroDefines.HOME_FUNC_LOCAL_ATTACHMENTS, true) { funcButtonClick(it) }
+        //shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "本地文件", MacroDefines.HOME_FUNC_LOCAL_ATTACHMENTS, true) { funcButtonClick(it) }
 
 
 
-        shelf.addFuncCard("🚗", "退出登录", MacroDefines.HOME_FUNC_LOGOUT, true) { funcButtonClick(it) }
-        shelf.addFuncCard("🤔", "关于App", MacroDefines.HOME_FUNC_ABOUT_APP, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/wilted_flower_color.svg", "退出登录", MacroDefines.HOME_FUNC_LOGOUT, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/teddy_bear_color.svg", "关于App", MacroDefines.HOME_FUNC_ABOUT_APP, true) { funcButtonClick(it) }
 
         // shelf.addFuncCard("🔧", "提取SessionId", MacroDefines.HOME_FUNC_GET_SESSIONID, true) { funcButtonClick(it) }
 
@@ -211,6 +168,9 @@ class Home : Activity() {
      * 初始化通知列表。
      */
     private fun initCommonMsgPublish() {
+
+        return // todo
+
         val container = findViewById<LinearLayout>(R.id.home_commonMsgPublishContainer)
 
         thread {
@@ -391,7 +351,7 @@ class Home : Activity() {
     private fun funcButtonClick(action: Int) {
         when (action) {
             MacroDefines.HOME_FUNC_LOGOUT -> funcLogout()
-            MacroDefines.HOME_FUNC_MY_GRADES -> funcShowMyGrades()
+            MacroDefines.HOME_FUNC_MY_GRADES -> startActivity(Intent(this, MyGrades::class.java))
             MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE -> funcShowStudentTimetable(FUNC_TIMETABLE_TERM_COMPLETE)
             MacroDefines.HOME_FUNC_GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY -> funcShowStudentTimetable(FUNC_TIMETABLE_SINGLE_DAY)
             MacroDefines.HOME_FUNC_LOCAL_ATTACHMENTS -> {
@@ -419,6 +379,9 @@ class Home : Activity() {
                 Toast.makeText(this, "暂缓开通", Toast.LENGTH_SHORT).show()
             }
             MacroDefines.HOME_FUNC_STU_EXAM_ENQUIRIES -> {
+
+                startActivity(Intent(this, StuExamEnquiries::class.java))
+                return
                 class CalendarIdAndName(var id: Int, var name: String)
 
                 fun getExamCalendarIdAndNameSync(): CalendarIdAndName? {
@@ -532,6 +495,8 @@ class Home : Activity() {
     }
 
     private fun funcLogout() {
+        TongjiApi.instance.clearCache()
+        TongjiApi.instance.switchAccountRequired = true
         getSharedPreferences(MacroDefines.SHARED_PREFERENCES_STORE_NAME, MODE_PRIVATE)
                 .edit().putString(MacroDefines.SP_KEY_SESSIONID, "").apply()
         startActivity(Intent(this, Login::class.java))
@@ -539,54 +504,27 @@ class Home : Activity() {
         finish()
     }
 
-    private fun funcShowMyGrades() {
-        thread {
-            val req = Request.Builder()
-                    .url("https://1.tongji.edu.cn/api/scoremanagementservice/scoreGrades/getMyGrades")
-                    .addHeader("Cookie", "sessionid=$sessionid")
-                    .get()
-                    .build()
-
-            val response = Utils.safeNetworkRequest(req, uniHttpClient)
-
-            if (response == null) {
-                runOnUiThread {
-                    Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
-                }
-                return@thread
-            }
-
-            val resObj = JSONObject(response.body?.string())
-
-            if (!isReqSessionAvailable(this, resObj) { funcLogout() }) {
-                return@thread
-            }
-
-            if (isNotReqResCorrect(this, resObj, "查询成绩", REQ_RES_CHECK_NOTI_LEVEL_ALERTDIALOG)) {
-                return@thread
-            }
-
-            val resDataObj = resObj.getJSONObject("data")
-            Log.d("Home.funcShowMyGrades", resDataObj.toString())
-            runOnUiThread {
-                val intent = Intent(this, MyGrades::class.java)
-                intent.putExtra("JsonObj", resObj.toString())
-                startActivity(intent)
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-            }
-        }
-    }
 
     private val FUNC_TIMETABLE_TERM_COMPLETE = 1
     private val FUNC_TIMETABLE_SINGLE_DAY = 2
     private fun funcShowStudentTimetable(type: Int) {
+
+        if (type == FUNC_TIMETABLE_SINGLE_DAY) {
+            startActivity(Intent(this, SingleDay::class.java))
+        } else {
+            val intent = Intent(this, TermComplete::class.java)
+            intent.putExtra("TermName", schoolCalendar?.simpleName)
+            startActivity(intent)
+        }
+
+        return
+
         thread {
             val req = Request.Builder()
                     .url("https://1.tongji.edu.cn/api/electionservice/reportManagement/findStudentTimetab?calendarId=$termId")
                     .addHeader("Cookie", "sessionid=$sessionid")
                     .get()
                     .build()
-            //val response = uniHttpClient.newCall(req).execute()
 
             val response = Utils.safeNetworkRequest(req, uniHttpClient)
 

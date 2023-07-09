@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OneTJ</string>
+    <string name="login_to_tongji_university">Login to Tongji University</string>
+    <string name="version">Version</string>
+    <string name="check_for_update">Check for update</string>
+    <string name="get_source_code">Get source code</string>
+    <string name="about">About</string>
+    <string name="compile">Compile</string>
+    <string name="Time">Time</string>
+    <string name="directed_by_the_informatization_office_of_tongji_university">Directed by the Informatization Office of Tongji University</string>
+    <string name="my_grades">My Grades</string>
+    <string name="single_day_curriculums">Single Day Curriculums</string>
+    <string name="term_curriculums">Term Curriculums</string>
+</resources>

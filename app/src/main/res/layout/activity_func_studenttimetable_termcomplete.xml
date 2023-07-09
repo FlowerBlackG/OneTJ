@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shape_page_background_gradient"
+    android:id="@+id/func.studentTimeTable.termComplete.rootContainer"
     tools:context=".activity.func.studenttimetable.TermComplete">
 
     <ScrollView
@@ -21,14 +21,12 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="80sp"
-                android:layout_marginTop="38sp"
-                android:layout_marginBottom="12sp"
+                android:layout_height="80dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
                 android:gravity="center"
-                android:background="@drawable/shape_login_page_box"
                 android:textSize="24sp"
                 android:text="学期"
-                android:clickable="true"
                 android:id="@+id/func.studentTimeTable.termComplete.termName"/>
 
         </LinearLayout>

@@ -1,11 +1,20 @@
 <resources>
 
-    <style name="Theme.Material.Base" parent="Theme.Material3.DayNight">
+    <style name="Theme.OneTJ.Base" parent="Theme.Material3.DayNight">
 
     </style>
 
-    <style name="Theme.Material.NoActionBar" parent="Theme.Material.Base">
+    <style name="Theme.OneTJ.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
 
+    </style>
+
+    <style name="Theme.OneTJ.NoActionBar.Immersed" parent="Theme.OneTJ.NoActionBar">
+
+        <item name="windowNoTitle">true</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.OneDotTongjiRefresh.Base" parent="Theme.MaterialComponents.Light.NoActionBar">

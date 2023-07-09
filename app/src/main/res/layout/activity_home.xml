@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shape_page_background_gradient"
     tools:context=".activity.Home">
 
     <LinearLayout
@@ -18,18 +17,14 @@
             android:layout_height="160sp"
             android:layout_marginTop="38sp"
             android:layout_marginBottom="12sp"
-            android:clickable="true"
-            android:background="@drawable/shape_login_page_box">
+            android:clickable="true">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <com.caverock.androidsvg.SVGImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="20sp"
                 android:gravity="center"
-                android:text="🍓"
-                android:textSize="64sp"
-                android:textColor="#000"
                 android:id="@+id/home.userinfobox.avatar" />
 
             <LinearLayout
@@ -49,7 +44,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#000"
                         android:textSize="24sp"
                         android:text="余小庆"
                         android:id="@+id/home.userinfobox.username" />
@@ -58,7 +52,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="6sp"
-                        android:textColor="#000"
                         android:textSize="24sp"
                         android:text="学号"
                         android:id="@+id/home.userinfobox.uid" />
@@ -69,7 +62,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="#000"
                     android:textSize="24sp"
                     android:text="学院"
                     android:id="@+id/home.userinfobox.facultyName" />
@@ -82,7 +74,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#000"
                         android:textSize="24sp"
                         android:text="年级"
                         android:id="@+id/home.userinfobox.grade" />
@@ -100,7 +91,6 @@
                             android:layout_height="wrap_content"
                             android:text=""
                             android:textSize="20sp"
-                            android:textColor="#000"
                             android:id="@+id/home.userinfobox.weatherText"/>
 
                         <ImageView
@@ -124,13 +114,11 @@
             android:orientation="horizontal"
             android:layout_marginBottom="12sp"
             android:gravity="center"
-            android:clickable="true"
-            android:background="@drawable/shape_login_page_box">
+            android:clickable="true">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#000"
                 android:textSize="20sp"
                 android:text="学期"
                 android:id="@+id/home.terminfobox.terminfo" />
@@ -139,7 +127,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10sp"
-                android:textColor="#000"
                 android:textSize="20sp"
                 android:text="星期"
                 android:id="@+id/home.terminfobox.weeknumber" />

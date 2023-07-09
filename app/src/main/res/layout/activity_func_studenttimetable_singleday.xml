@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/shape_page_background_gradient"
+    android:id="@+id/func.studentTimeTable.singleDay.rootContainer"
     tools:context=".activity.func.studenttimetable.SingleDay">
 
     <RelativeLayout
@@ -16,8 +17,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12sp"
-            android:layout_marginTop="38sp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="4dp"
             android:orientation="horizontal"
             android:id="@+id/func.studentTimeTable.singleDay.bar.weekInfo">
 
@@ -30,7 +31,6 @@
                 android:textSize="24sp"
                 android:text="第0周"
                 android:clickable="true"
-                android:background="@drawable/shape_login_page_box"
                 android:id="@+id/func.studentTimeTable.singleDay.weekNum"/>
 
             <TextView
@@ -42,7 +42,6 @@
                 android:textSize="24sp"
                 android:text="星期日"
                 android:clickable="true"
-                android:background="@drawable/shape_login_page_box"
                 android:id="@+id/func.studentTimeTable.singleDay.dayOfWeek"/>
 
         </LinearLayout>
@@ -56,41 +55,38 @@
             android:orientation="horizontal"
             android:id="@+id/func.studentTimeTable.singleDay.bar.dir">
 
-            <TextView
+            <Button
                 android:layout_width="match_parent"
-                android:layout_height="80sp"
+                android:layout_height="70dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="8sp"
                 android:gravity="center"
-                android:textSize="24sp"
+                android:textSize="18sp"
                 android:text="前一天"
                 android:clickable="true"
-                android:background="@drawable/shape_login_page_box"
                 android:id="@+id/func.studentTimeTable.singleDay.dir.prevDay"/>
 
-            <TextView
+            <Button
                 android:layout_width="match_parent"
-                android:layout_height="80sp"
+                android:layout_height="70dp"
                 android:layout_weight="1"
                 android:layout_marginStart="4sp"
                 android:layout_marginEnd="4sp"
                 android:gravity="center"
-                android:textSize="24sp"
+                android:textSize="18sp"
                 android:text="今天"
                 android:clickable="true"
-                android:background="@drawable/shape_login_page_box"
                 android:id="@+id/func.studentTimeTable.singleDay.dir.today"/>
 
-            <TextView
+            <Button
                 android:layout_width="match_parent"
-                android:layout_height="80sp"
+                android:layout_height="70dp"
                 android:layout_weight="1"
                 android:layout_marginStart="8sp"
                 android:gravity="center"
-                android:textSize="24sp"
+                android:textSize="18sp"
                 android:text="后一天"
                 android:clickable="true"
-                android:background="@drawable/shape_login_page_box"
                 android:id="@+id/func.studentTimeTable.singleDay.dir.nextDay"/>
 
         </LinearLayout>

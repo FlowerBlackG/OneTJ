@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/shape_page_background_gradient"
+    android:id="@+id/func.studentTimeTable.singleDay.rootContainer"
     tools:context=".activity.func.studenttimetable.SingleDay">
 
     <LinearLayout

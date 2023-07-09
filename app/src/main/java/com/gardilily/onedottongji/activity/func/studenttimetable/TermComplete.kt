@@ -3,16 +3,23 @@ package com.gardilily.onedottongji.activity.func.studenttimetable
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.gardilily.common.view.card.InfoCard
 import com.gardilily.onedottongji.R
+import com.gardilily.onedottongji.activity.OneTJActivityBase
+import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.concurrent.thread
 import kotlin.math.abs
 
-class TermComplete : Activity() {
+class TermComplete : OneTJActivityBase(
+    backOnTitleBar = true,
+    hasTitleBar = true,
+    withSpinning = true
+) {
 
     private lateinit var layout: LinearLayout
 
@@ -20,21 +27,67 @@ class TermComplete : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_func_studenttimetable_termcomplete)
 
-        findViewById<TextView>(R.id.func_studentTimeTable_termComplete_termName).text =
-                intent.getStringExtra("TermName")
+        stageSpinningProgressBar(findViewById(R.id.func_studentTimeTable_termComplete_rootContainer))
+        setSpinning(true)
 
-        layout = findViewById(R.id.func_studentTimeTable_termComplete_linearLayout)
+        loadData()
 
-        val dataObj = JSONArray(intent.getStringExtra("JsonDataObj")!!)
+        title = getString(R.string.term_curriculums)
 
-        showCourseCards(dataObj, layout)
+        return
+
+
+    }
+
+    private lateinit var timetableJson: JSONArray
+
+    private fun loadData() {
+        thread {
+
+            timetableJson = TongjiApi.instance.getOneTongjiStudentTimetable(this@TermComplete) ?: return@thread
+
+
+            runOnUiThread {
+                setSpinning(false)
+                findViewById<TextView>(R.id.func_studentTimeTable_termComplete_termName).text =
+                    intent.getStringExtra("TermName")
+
+                layout = findViewById(R.id.func_studentTimeTable_termComplete_linearLayout)
+
+                val dataObj = timetableJson
+
+                showCourseCards(dataObj, layout)
+            }
+        }
     }
 
     private fun showCourseCards(dataArr: JSONArray, layout: LinearLayout) {
         fun getCourseIcon(): String {
-            val arr = arrayOf("🍏", "🍎", "🍐", "🍊", "🍋", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑",
-                "🥭", "🍍", "🥝", "🍅", "🥑", "🥥", "🍌", "🍆", "🥕", "🌽", "🫑", "🥒", "🫒", "🧅")
-            return arr[(arr.indices).random()]
+            val arr = arrayOf(
+                "green_apple",
+                "red_apple",
+                "pear",
+                "tangerine",
+                "lemon",
+                "watermelon",
+                "grapes",
+                "strawberry",
+                "blueberries",
+                "melon",
+                "cherries",
+                "peach",
+                "pineapple",
+                "kiwi_fruit",
+                "avocado",
+                "coconut",
+                "banana",
+                "eggplant",
+                "carrot",
+                "bell_pepper",
+                "olive",
+                "onion"
+            )
+            return "fluentemoji/${arr[(arr.indices).random()]}_color.svg"
         }
 
         fun fetchCourseRoom(courseData: JSONObject): String {
@@ -52,7 +105,6 @@ class TermComplete : Activity() {
                 Thread.sleep(56)
                 runOnUiThread {
                     val card = InfoCard.Builder(this)
-                        .setCardBackground(this.getDrawable(R.drawable.shape_login_page_box))
                         .setHasIcon(true)
                         .setIcon(getCourseIcon())
                         .setHasEndMark(false)

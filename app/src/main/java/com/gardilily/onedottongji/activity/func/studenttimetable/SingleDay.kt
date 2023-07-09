@@ -1,21 +1,24 @@
 // SPDX-License-Identifier: MulanPSL-2.0
 package com.gardilily.onedottongji.activity.func.studenttimetable
 
-import android.app.Activity
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.gardilily.common.view.card.InfoCard
 import com.gardilily.onedottongji.R
+import com.gardilily.onedottongji.activity.OneTJActivityBase
+import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.thread
 
-class SingleDay : Activity() {
+class SingleDay : OneTJActivityBase(
+    hasTitleBar = true, withSpinning = true, backOnTitleBar = true
+) {
 
     private lateinit var cardContainer: LinearLayout
 
@@ -29,11 +32,15 @@ class SingleDay : Activity() {
 
     private val courseArray = ArrayList<Course>()
 
+    private lateinit var timetableObj: JSONArray
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_func_studenttimetable_singleday)
 
-        initCourseArray()
+        loadData()
+        stageSpinningProgressBar(findViewById(R.id.func_studentTimeTable_singleDay_rootContainer))
+        setSpinning(true)
 
         if (savedInstanceState != null
             && savedInstanceState.getBoolean(SAVED_STATE_KEY_IS_DATA_INITIATED, false)) {
@@ -43,11 +50,25 @@ class SingleDay : Activity() {
             initWeekInfo()
         }
 
-        cardContainer = findViewById(R.id.func_studentTimeTable_singleDay_linearLayout)
+        title = getString(R.string.single_day_curriculums)
 
-        initDirButtons()
+    }
 
-        refreshPage()
+    private fun loadData() {
+        thread {
+            timetableObj = TongjiApi.instance.getOneTongjiStudentTimetable(this@SingleDay) ?: return@thread
+
+            runOnUiThread {
+                setSpinning(false)
+                initCourseArray()
+
+                cardContainer = findViewById(R.id.func_studentTimeTable_singleDay_linearLayout)
+
+                initDirButtons()
+
+                refreshPage()
+            }
+        }
     }
 
     private val SAVED_STATE_KEY_IS_DATA_INITIATED = "_1"
@@ -62,16 +83,12 @@ class SingleDay : Activity() {
     }
 
     private fun initCourseArray() {
-        val fullClassDataObj = JSONArray(intent.getStringExtra("JsonDataObj")!!)
-
-        Log.d("OneFun:SingleDay:fullClassData", fullClassDataObj.toString())
+        val fullClassDataObj = timetableObj
 
         val arrLen = fullClassDataObj.length()
 
         for (i in 0 until arrLen) {
 
-            Log.d("OneFun:SingleDay:Init:CP1",
-                fullClassDataObj.getJSONObject(i).toString())
 
             try {
                 val timeTableList = fullClassDataObj.getJSONObject(i).getJSONArray("timeTableList")
@@ -190,17 +207,16 @@ class SingleDay : Activity() {
             if (it.courseWeek.contains(pageWeek) && (it.courseDayOfWeek == pageDayOfWeek)) {
                 val card = InfoCard.Builder(this)
                     .setSpMultiply(resources.displayMetrics.scaledDensity)
-                    .setCardBackground(this.getDrawable(R.drawable.shape_login_page_box))
                     .setHasEndMark(true)
                     .setHasIcon(true)
-                    .setIcon(getCourseIcon(data.getInt("timeStart")))
+                    .setIcon(getCourseIconPath(data.getInt("timeStart")))
                     .setEndMark(
                         "${data.getString("timeStart")}-${data.getString("timeEnd")}"
                     )
                     .setTitle(data.getString("courseName"))
                     .setInfoTextSizeSp(16f)
                     .setLayoutHeightSp(72f)
-                    .setIconTextSizeSp(32f)
+                    .setIconSize(144)
                     .setTitleTextSizeSp(20f)
                     .setEndMarkTextSizeSp(32f)
                     .addInfo(
@@ -228,27 +244,26 @@ class SingleDay : Activity() {
 
 
                 cardContainer.addView(card.build())
-                //cardContainer.addView(cardL)
             }
         }
     }
 
-    private fun getCourseIcon(timeBegin: Int): String {
+    private fun getCourseIconPath(timeBegin: Int): String {
         return when {
             timeBegin <= 2 -> {
-                "🍞"
+                "fluentemoji/bread_color.svg"
             }
             timeBegin <= 4 -> {
-                "🍛"
+                "fluentemoji/curry_rice_color.svg"
             }
             timeBegin <= 6 -> {
-                "🍹"
+                "fluentemoji/tropical_drink_color.svg"
             }
             timeBegin <= 9 -> {
-                "🍔"
+                "fluentemoji/hamburger_color.svg"
             }
             else -> {
-                "🥮"
+                "fluentemoji/moon_cake_color.svg"
             }
         }
     }

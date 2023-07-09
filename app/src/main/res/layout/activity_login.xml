@@ -12,109 +12,38 @@
         android:id="@+id/login.backgroundImg"
         android:scaleType="centerCrop" />
 
+
     <!--android:layout_marginTop="154sp"-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="24sp"
-        android:layout_marginRight="24sp"
-
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:padding="26dp"
         android:layout_centerVertical="true"
-
         android:background="@drawable/shape_login_page_box">
 
-        <LinearLayout
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:id="@+id/login.loading.progressBar" />
+
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="26sp">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:background="@drawable/shape_login_page_button"
+            android:text="@string/login_to_tongji_university"
+            android:textSize="18sp"
+            android:textColor="#000"
+            android:textAllCaps="false"
+            android:id="@+id/login.button.toUniLogin"/>
 
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:maxLength="24"
-                android:inputType="number"
-                android:hint="学号"
-                android:textSize="20sp"
-                android:id="@+id/login.input.uid"
-
-                android:visibility="gone"/>
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6sp"
-                android:maxLines="1"
-                android:maxLength="512"
-                android:inputType="textPassword"
-                android:hint="密码"
-                android:textSize="20sp"
-                android:id="@+id/login.input.upw"
-
-                android:visibility="gone"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6sp"
-                android:orientation="horizontal"
-
-                android:visibility="gone">
-
-                <EditText
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="56"
-                    android:layout_marginEnd="2sp"
-                    android:maxLines="1"
-                    android:maxLength="24"
-                    android:inputType="text"
-                    android:hint="验证码"
-                    android:textSize="20sp"
-                    android:id="@+id/login.input.captcha"/>
-
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="2sp"
-                    android:layout_marginBottom="6sp"
-                    android:layout_weight="44"
-                    android:scaleType="fitCenter"
-                    android:id="@+id/login.image.captcha" />
-
-            </LinearLayout>
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18sp"
-                android:layout_marginBottom="4sp"
-                android:layout_marginStart="2sp"
-                android:layout_marginEnd="2sp"
-                android:background="@drawable/shape_login_page_button"
-                android:text="登录"
-                android:textSize="18sp"
-                android:textColor="#000"
-                android:id="@+id/login.button.confirm"
-
-                android:visibility="gone"/>
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10sp"
-                android:layout_marginBottom="4sp"
-                android:layout_marginStart="2sp"
-                android:layout_marginEnd="2sp"
-                android:background="@drawable/shape_login_page_button"
-                android:text="统一身份认证登录"
-                android:textSize="18sp"
-                android:textColor="#000"
-                android:id="@+id/login.button.toUniLogin"/>
-
-        </LinearLayout>
     </RelativeLayout>
 
     <TextView

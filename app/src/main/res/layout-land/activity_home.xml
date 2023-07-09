@@ -22,19 +22,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="32dp"
-                android:layout_marginBottom="12dp"
-                android:clickable="true"
-                android:background="@drawable/shape_login_page_box">
+                android:layout_marginBottom="12dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+
+                <com.caverock.androidsvg.SVGImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="20sp"
                     android:gravity="center"
-                    android:text="🍓"
-                    android:textSize="24sp"
-                    android:textColor="#000"
                     android:id="@+id/home.userinfobox.avatar" />
 
                 <LinearLayout
@@ -54,7 +50,6 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="#000"
                             android:textSize="20sp"
                             android:text="余小庆"
                             android:id="@+id/home.userinfobox.username" />
@@ -63,7 +58,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6sp"
-                            android:textColor="#000"
                             android:textSize="20sp"
                             android:text="学号"
                             android:id="@+id/home.userinfobox.uid" />
@@ -122,14 +116,11 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="12sp"
                 android:layout_marginTop="32dp"
-                android:gravity="center"
-                android:clickable="true"
-                android:background="@drawable/shape_login_page_box">
+                android:gravity="center">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#000"
                     android:textSize="18sp"
                     android:text="学期"
                     android:id="@+id/home.terminfobox.terminfo" />
@@ -138,7 +129,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10sp"
-                    android:textColor="#000"
                     android:textSize="18sp"
                     android:text="星期"
                     android:id="@+id/home.terminfobox.weeknumber" />

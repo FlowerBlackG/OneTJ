@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">一块钱</string>
-    <string name="app_buildTime">2023.01.03–21:43</string>
+    <string name="app_buildTime" translatable="false">2023.07.09–16:25</string>
+    <string name="login_to_tongji_university">统一身份认证登录</string>
+    <string name="version">版本</string>
+    <string name="check_for_update">检查更新</string>
+    <string name="get_source_code">获取源码</string>
+    <string name="about">关于</string>
+    <string name="compile">编译</string>
+    <string name="Time">时间</string>
+    <string name="directed_by_the_informatization_office_of_tongji_university">在信息化办公室指导下研发完成</string>
+    <string name="my_grades">我的成绩</string>
+    <string name="single_day_curriculums">单日课表</string>
+    <string name="term_curriculums">学期课表</string>
 </resources>

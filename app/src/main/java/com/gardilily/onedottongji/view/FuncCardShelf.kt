@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.caverock.androidsvg.SVGImageView
 import com.gardilily.onedottongji.R
 
 /** 功能卡书架。 */
@@ -18,9 +19,9 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
     private var rowLayout: LinearLayout? = null
 
     private val spMultiply = resources.displayMetrics.scaledDensity
-    var targetCardWidthPx = 480
+    var targetCardWidthPx = 360
 
-    var CARD_PER_ROW = 3
+    var CARD_PER_ROW = 4
 
     init {
         LayoutInflater.from(context).inflate(R.layout.card_function_shelf, this, true)
@@ -35,18 +36,7 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
         rowLayout!!.addView(v)
         cardCount++
     }
-/*
-    private fun legacy_createRowLayout(): RelativeLayout {
-        val mLayout = RelativeLayout(c)
-        val params = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.MATCH_PARENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
-        )
-        params.bottomMargin = (12f * spMultiply).toInt()
-        mLayout.layoutParams = params
-        return mLayout
-    }
-*/
+
     private fun createRowLayout(): LinearLayout {
         val mLayout = LinearLayout(c)
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
@@ -55,8 +45,9 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
         return mLayout
     }
 
+
     fun addFuncCard(
-        icon: String,
+        iconPath: String,
         text: String,
         func: Int,
         isVisible: Boolean = true,
@@ -74,7 +65,7 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
 
         layout.layoutParams = params
 
-        layout.background = c.getDrawable(R.drawable.shape_login_page_box)
+
         layout.isClickable = true
         layout.gravity = Gravity.CENTER
 
@@ -82,19 +73,19 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
             layout.visibility = INVISIBLE
         }
 
-        val iconView = TextView(c)
-        iconView.text = icon
-        iconView.textSize = 36f
-        iconView.setTextColor(Color.parseColor("#000000"))
+        val iconView = SVGImageView(c)
+        iconView.setImageAsset(iconPath)
         val iconParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-        //iconAndTextCommonParams.leftMargin = (12f * spMultiply).toInt()
+        val iconSize = 128
+        iconParams.width = iconSize
+        iconParams.height = iconSize
         iconView.layoutParams = iconParams
         layout.addView(iconView)
 
         val textView = TextView(c)
         textView.text = text
         textView.textSize = 18f
-        textView.setTextColor(Color.parseColor("#000000"))
+
         val textParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         textParams.topMargin = (8f * spMultiply).toInt()
         textView.layoutParams = textParams
