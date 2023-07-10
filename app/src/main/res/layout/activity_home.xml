@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activity.Home">
 
     <LinearLayout
@@ -53,7 +54,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="6sp"
                         android:textSize="24sp"
-                        android:text="学号"
+                        android:text="..."
                         android:id="@+id/home.userinfobox.uid" />
 
                 </LinearLayout>
@@ -63,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textSize="24sp"
-                    android:text="学院"
+                    android:text="..."
                     android:id="@+id/home.userinfobox.facultyName" />
 
                 <RelativeLayout
@@ -75,7 +76,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="24sp"
-                        android:text="年级"
+                        android:text="..."
                         android:id="@+id/home.userinfobox.grade" />
 
                     <LinearLayout
@@ -108,30 +109,37 @@
 
         </RelativeLayout>
 
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="80sp"
-            android:orientation="horizontal"
-            android:layout_marginBottom="12sp"
-            android:gravity="center"
+            android:layout_height="80dp"
+            android:layout_marginBottom="16dp"
+            app:strokeColor="#0000"
             android:clickable="true">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="学期"
-                android:id="@+id/home.terminfobox.terminfo" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10sp"
-                android:textSize="20sp"
-                android:text="星期"
-                android:id="@+id/home.terminfobox.weeknumber" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="..."
+                    android:id="@+id/home.terminfobox.terminfo" />
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10sp"
+                    android:textSize="20sp"
+                    android:text="..."
+                    android:id="@+id/home.terminfobox.weeknumber" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
 
         <ScrollView
             android:layout_width="match_parent"

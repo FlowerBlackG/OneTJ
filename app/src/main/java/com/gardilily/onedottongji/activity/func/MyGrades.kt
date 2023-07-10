@@ -12,6 +12,7 @@ import com.gardilily.common.view.card.InfoCard
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.activity.OneTJActivityBase
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
+import com.google.android.material.card.MaterialCardView
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.concurrent.thread
@@ -305,14 +306,25 @@ class MyGrades : OneTJActivityBase(
             termName.isClickable = true
             val nameParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
+            termName.gravity = Gravity.CENTER
+            termName.layoutParams = nameParams
+
+            val termNameCard = MaterialCardView(this)
+            val termCardParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 (80f * spMultiply).toInt()
             )
-            nameParams.bottomMargin = (12f * spMultiply).toInt()
-            nameParams.weight = 1f
-            nameParams.marginEnd = (6f * spMultiply).toInt()
-            termName.layoutParams = nameParams
-            //layout.addView(termName)
-            singleTermInfoLayout.addView(termName)
+            termCardParams.bottomMargin = 36
+            termCardParams.topMargin = 56
+            termCardParams.weight = 1f
+            termCardParams.marginEnd = (6f * spMultiply).toInt()
+            termNameCard.layoutParams = termCardParams
+            termNameCard.isClickable = true
+
+            termNameCard.addView(termName)
+            singleTermInfoLayout.addView(termNameCard)
 
             val termGrade = TextView(this)
             termGrade.text = "平均绩点：${jsonArr.getJSONObject(i).getString("averagePoint")}"
@@ -322,7 +334,7 @@ class MyGrades : OneTJActivityBase(
                     24f
                 else
                     20f
-            termGrade.isClickable = true
+
             //val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (80f * spMultiply).toInt())
             //params.bottomMargin = (12f * spMultiply).toInt()
             val gradeParams = LinearLayout.LayoutParams(

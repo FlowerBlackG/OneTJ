@@ -5,76 +5,89 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".activity.About">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
-        android:gravity="center"
-        android:id="@+id/about.linearContainer" >
-
-        <RelativeLayout
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="4sp"
-            android:elevation="4sp"
-            android:id="@+id/about.appLogo"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="28sp"
-            android:layout_marginTop="28dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="VersionInfo"
-            android:textSize="20sp"
-            android:layout_marginTop="12dp"
-            android:textAlignment="center"
-            android:id="@+id/about.versionInfo"/>
-
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/about.linearContainer"
-        android:layout_marginTop="18dp"
-        android:text="@string/directed_by_the_informatization_office_of_tongji_university"
-        android:textSize="20sp"
-        android:textAlignment="center"
-        android:id="@+id/about.moreText"/>
-
-    <Button
-        android:id="@+id/about.button.checkUpdate"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/about.moreText"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="18dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="18dp"
-        android:text="@string/check_for_update"
-        android:textAllCaps="false"
-        android:textSize="16sp" />
+        android:layout_height="match_parent"
+        android:layout_above="@id/about.bottomText"
+        android:layout_marginBottom="8dp">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/about.button.checkUpdate"
-        android:layout_marginTop="12dp"
-        android:layout_marginLeft="18dp"
-        android:layout_marginRight="18dp"
-        android:text="@string/get_source_code"
-        android:textSize="16sp"
-        android:textAllCaps="false"
-        android:id="@+id/about.button.viewSource" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:id="@+id/about.linearContainer" >
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="36dp" />
+
+            <RelativeLayout
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_margin="4sp"
+                android:elevation="4sp"
+                android:id="@+id/about.appLogo"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textSize="28sp"
+                android:layout_marginTop="28dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VersionInfo"
+                android:textSize="20sp"
+                android:layout_marginTop="12dp"
+                android:textAlignment="center"
+                android:id="@+id/about.versionInfo"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/directed_by_the_informatization_office_of_tongji_university"
+                android:textSize="20sp"
+                android:textAlignment="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/licensed_under_Mulan_Permissive_Software_License_Version_2"
+                android:textSize="20sp"
+                android:textAlignment="center" />
+
+            <Button
+                android:id="@+id/about.button.checkUpdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="18dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="18dp"
+                android:text="@string/check_for_update"
+                android:textAllCaps="false"
+                android:textSize="16sp" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginLeft="18dp"
+                android:layout_marginRight="18dp"
+                android:text="@string/get_source_code"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:id="@+id/about.button.viewSource" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
 
     <TextView
         android:layout_width="wrap_content"
@@ -84,6 +97,7 @@ tools:context=".activity.About">
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:text="Based on Tongji Open Platform APIs\nDeveloped by GTY"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:id="@+id/about.bottomText" />
 
 </RelativeLayout>

@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.media.session.MediaSession.Token
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.gardilily.onedottongji.activity.Login
 import kotlinx.coroutines.runBlocking
@@ -43,7 +44,8 @@ class TongjiApi {
             "rt_onetongji_student_timetable",
             "rt_onetongji_student_exams",
             "rt_teaching_info_sports_test_data",
-            "rt_teaching_info_sports_test_health"
+            "rt_teaching_info_sports_test_health",
+            "rt_onetongji_manual_arrange"
         )
 
         private var _instance: TongjiApi? = null
@@ -74,11 +76,55 @@ class TongjiApi {
 
     data class TokenData(
         var token: String,
-        var expireTimeSec: Long
+        var expireTimeSec: Long,
+        var refreshToken: String,
+        var refreshTokenExpireSec: Long,
     ) {
+
+        constructor() : this(
+            token = "",
+            expireTimeSec = 0,
+            refreshToken = "",
+            refreshTokenExpireSec = 0
+        )
+
         override fun toString(): String {
-            return "$token|$expireTimeSec"
+            val json = JSONObject()
+
+            val ref = this::class.java
+
+            this::class.java.declaredFields.filter { it.name != "Companion" }.forEach {
+                json.put(it.name, it.get(this))
+            }
+
+            return json.toString()
         }
+
+        companion object {
+
+            fun from(jsonStr: String): TokenData? {
+                return from(JSONObject(jsonStr))
+            }
+
+            fun from(jsonObject: JSONObject): TokenData? {
+                return try {
+                    val data = TokenData()
+
+                    data::class.java.declaredFields.filter { it.name != "Companion" }.forEach {
+                        val prevAcc = it.isAccessible
+                        it.isAccessible = true
+                        it.set(data, jsonObject.get(it.name))
+                        it.isAccessible = prevAcc
+                    }
+
+                    data
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+        }
+
     }
 
     fun tokenAvailable(): Boolean {
@@ -109,8 +155,13 @@ class TongjiApi {
     }
 
     private fun getTokenData(): TokenData {
-        val datas = (sp.getStringOrNull(SP_KEY_TOKEN_DATA) ?: "0|0").split("|")
-        return TokenData(token = datas[0], expireTimeSec = datas[1].toLong())
+        return try {
+            sp.getStringOrNull(SP_KEY_TOKEN_DATA)?.let {
+                TokenData.from(it)
+            } ?: TokenData()
+        } catch (_: Exception) {
+            TokenData()
+        }
     }
 
     fun Request.Builder.addAuthorization(): Request.Builder {
@@ -118,9 +169,26 @@ class TongjiApi {
         return this.addHeader("Authorization", "Bearer ${getTokenData().token}")
     }
 
-    fun code2token(code: String): Boolean {
-        val jsonType = "application/json".toMediaType()
-        val json = JSONObject()
+    private fun processGetTokenResponse(json: JSONObject) {
+        val accessToken = json.getString("access_token")
+        // 有效期。单位为秒（应该是吧）
+        val expiresIn = json.getLong("expires_in")
+        val currentTime = System.currentTimeMillis() / 1000
+        val expireTime = currentTime + expiresIn - 10
+
+        val refreshToken = json.getString("refresh_token")
+        val refreshTokenExpiresIn = json.getLong("refresh_expires_in")
+        val refreshTokenExpireTime = currentTime + refreshTokenExpiresIn - 10
+
+        storeTokenData(TokenData(
+            token = accessToken,
+            expireTimeSec = expireTime,
+            refreshToken = refreshToken,
+            refreshTokenExpireSec = refreshTokenExpireTime
+        ))
+    }
+
+    fun code2token(code: String, activity: Activity): Boolean {
 
         val body = FormBody.Builder()
             .add("grant_type", "authorization_code")
@@ -134,20 +202,62 @@ class TongjiApi {
             .post(body)
             .build()
 
-        val response = client.newCall(request).execute()
+        val response = try {
+            client.newCall(request).execute()
+        } catch (_: Exception) {
+            activity.runOnUiThread {
+                Toast.makeText(activity, "网络连接失败。", Toast.LENGTH_SHORT).show()
+            }
+            null
+        } ?: return false
 
         val bodyString = response.body?.string()
         val responseJson = bodyString?.let { JSONObject(it) } ?: return false
 
-        val accessToken = responseJson.getString("access_token")
-        // 有效期。单位为秒（应该是吧）
-        val expiresIn = responseJson.getLong("expires_in")
-        val currentTime = System.currentTimeMillis() / 1000
-        val expireTime = currentTime + expiresIn - 10
-
-        storeTokenData(TokenData(token = accessToken, expireTimeSec = expireTime))
+        processGetTokenResponse(responseJson)
 
         return true
+    }
+
+    /**
+     *
+     * 参考济星云后端项目。
+     */
+    fun refreshAccessToken(): Boolean {
+        val tokenData = getTokenData()
+        val currTime = System.currentTimeMillis() / 1000
+        if (tokenData.refreshTokenExpireSec < currTime) {
+            return false // 无法刷新。
+        }
+
+        val body = FormBody.Builder()
+            .add("refresh_token", tokenData.refreshToken)
+            .add("grant_type", "refresh_token")
+            .add("client_id", CLIENT_ID)
+            .build()
+
+        val request = Request.Builder()
+            .url(CODE2TOKEN_URL)
+            .post(body)
+            .build()
+
+        val response = try {
+            client.newCall(request).execute()
+        } catch (_: Exception) {
+            null
+        } ?: return false
+
+        val responseBody = response.body?.string() ?: return false
+
+        val resJson = try {
+            JSONObject(responseBody)
+        } catch (_: Exception) {
+            null
+        } ?: return false
+
+        processGetTokenResponse(resJson)
+
+        return false
     }
 
     data class StudentInfo(
@@ -405,6 +515,7 @@ class TongjiApi {
 
 
     }
+
 
 
 

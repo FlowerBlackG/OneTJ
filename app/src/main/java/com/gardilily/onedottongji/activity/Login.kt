@@ -34,16 +34,23 @@ class Login : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        thread {
+            TongjiApi.instance.refreshAccessToken()
+        }
+
+        if (tryAutoLogin()) {
+            return
+        }
+
         setContentView(R.layout.activity_login)
 
         backgroundImageView = findViewById(R.id.login_backgroundImg)
         loadBackgroundImage()
-
         showVersionInfo()
-        if (tryAutoLogin()) {
-            return
-        }
-        // autoLoginByLastSessionId()
+
+
+
 
         findViewById<Button>(R.id.login_button_toUniLogin).setOnClickListener {
             startActivityForResult(
@@ -237,7 +244,7 @@ class Login : Activity() {
 
                 thread {
 
-                    if (TongjiApi.instance.code2token(code)) {
+                    if (TongjiApi.instance.code2token(code, this@Login)) {
                         runOnUiThread {
                             startActivity(Intent(this@Login, Home::class.java))
                             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
