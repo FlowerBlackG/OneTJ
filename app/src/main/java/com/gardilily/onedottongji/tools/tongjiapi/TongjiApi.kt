@@ -13,7 +13,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.gardilily.onedottongji.activity.Login
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttp
@@ -23,6 +25,9 @@ import okhttp3.Response
 import okio.IOException
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.thread
 
 class TongjiApi {
 
@@ -45,7 +50,8 @@ class TongjiApi {
             "rt_onetongji_student_exams",
             "rt_teaching_info_sports_test_data",
             "rt_teaching_info_sports_test_health",
-            "rt_onetongji_manual_arrange"
+            "rt_onetongji_manual_arrange",
+            "rt_onetongji_school_calendar_all_term_calendar"
         )
 
         private var _instance: TongjiApi? = null
@@ -377,6 +383,11 @@ class TongjiApi {
             return null
         }
 
+        if (json.has("error_error")) {
+            solveError(json.getJSONObject("error_error").toString(2))
+            return null
+        }
+
         if (json.getString("code") != "A00000") {
             solveError()
             return null
@@ -426,7 +437,7 @@ class TongjiApi {
         return SchoolCalendar(
             calendarId = schoolCalendar.getString("id"),
             simpleName = data.getString("simpleName"),
-            schoolWeek = data.getString("week")
+            schoolWeek = data.getString("week"),
         )
     }
 
@@ -517,7 +528,240 @@ class TongjiApi {
     }
 
 
+    data class CourseArrangement(
 
+        /** 课号。 */
+        var code: String? = null,
+
+        var courseLabelName: String? = null,
+        var courseLabelId: Int? = null,
+        var assessmentMode: AssessmentMode? = null,
+        var assessmentModeI18n: String? = null,
+
+        /** 学分。 */
+        var credits: String? = null,
+
+        /** 额定人数。 */
+        var number: String? = null,
+
+        /** 选课人数。 */
+        var elcNumber: String? = null,
+
+        /** 开课学院。 */
+        var facultyI18n: String? = null,
+
+        var campusI18n: String? = null,
+        var campus: String? = null,
+
+        var courseName: String? = null,
+        var courseCode: String? = null,
+        var arrangeInfo: String? = null,
+    ) {
+
+        enum class AssessmentMode(val value: Int) {
+            EXAM(1),
+            PAPER(2),
+            UNKNOWN(-1)
+
+            ;
+
+            companion object {
+                fun make(value: Int): AssessmentMode {
+                    return when (value) {
+                        EXAM.value -> EXAM
+                        PAPER.value -> PAPER
+                        else -> UNKNOWN
+                    }
+                }
+            }
+        }
+    }
+
+    data class GetOneTongjiTermArrangementApiControl(
+        var stop: AtomicBoolean = AtomicBoolean(false)
+    )
+
+    /**
+     * 全校课表。
+     * 会阻塞很久。
+     */
+    fun getOneTongjiTermArrangement(
+        calendarId: String,
+        activity: Activity,
+        apiControl: GetOneTongjiTermArrangementApiControl = GetOneTongjiTermArrangementApiControl(),
+        onProgressUpdate: ((progress: Int) -> Unit)? = null
+    ): List<CourseArrangement>? {
+
+        val result = ArrayList<CourseArrangement>()
+        val resultMutex = Mutex(false)
+
+        fun processApiData(jsonObj: JSONObject) {
+
+            if (apiControl.stop.get()) {
+                return
+            }
+
+            val jsonArr = jsonObj.getJSONArray("list")
+
+            runBlocking {
+                resultMutex.lock()
+            }
+
+            for (idx in 0 until jsonArr.length()) {
+                val courseObj = jsonArr.getJSONObject(idx)
+                result.add(CourseArrangement(
+                    code = courseObj.getString("code"),
+                    courseName = courseObj.getString("courseName"),
+                    facultyI18n = courseObj.getString("facultyI18n"),
+                    number = courseObj.getString("number"),
+                    elcNumber = courseObj.getString("elcNumber"),
+                    credits = courseObj.getString("credits"),
+                    courseLabelName = courseObj.getString("courseLabelName"),
+                    courseLabelId = courseObj.getInt("courseLabelId"),
+                    courseCode = courseObj.getString("courseCode"),
+                    arrangeInfo = courseObj.getString("arrangeInfo"),
+                    assessmentModeI18n = courseObj.getString("assessmentModeI18n"),
+                    assessmentMode = CourseArrangement.AssessmentMode.make(courseObj.getString("assessmentMode").toInt()),
+                    campusI18n = courseObj.getString("campusI18n"),
+                    campus = courseObj.getString("campus")
+                ))
+            }
+
+            resultMutex.unlock()
+
+        }
+
+        val url = "$BASE_URL/v1/rt/onetongji/manual_arrange"
+
+        val PAGE_SIZE = 50
+        val CONCURRENT_SIZE = 9
+
+        val concurrentPermits = Semaphore(CONCURRENT_SIZE, 0)
+
+        fun fetchData(pageNo: Int): JSONObject? {
+
+            val responseJson = basicRequestBuilder("$url?pageNum=$pageNo&pageSize=$PAGE_SIZE&calendarId=$calendarId")
+                .get()
+                .build()
+                .execute<JSONObject>(activity) ?: return null
+
+            return responseJson
+        }
+
+        val firstTry = fetchData(1) ?: return null
+        val total = firstTry.getInt("total_")
+
+        val pages = (total + PAGE_SIZE - 1) / PAGE_SIZE // 可用页号：[1, pages]
+
+        val progress = AtomicInteger(0)
+
+        processApiData(firstTry)
+
+        val errorCount = AtomicInteger(0)
+
+        val threadsListMutex = Mutex(false)
+        val threads = ArrayList<Thread>()
+
+        val unfiredThreads = AtomicInteger(pages)
+        unfiredThreads.decrementAndGet() // 最开始那个试探性的页面。
+        val allThreadsFiredSemaphore = Semaphore(1, 1)
+
+        if (unfiredThreads.get() == 0) {
+            allThreadsFiredSemaphore.release()
+        }
+
+        for (page in 2 .. pages step CONCURRENT_SIZE) {
+
+            if (apiControl.stop.get()) {
+                return null
+            }
+
+            thread {
+                val currPage = page
+                for (subPage in 0 until CONCURRENT_SIZE) {
+
+                    if (apiControl.stop.get()) {
+                        if (unfiredThreads.decrementAndGet() == 0) {
+                            allThreadsFiredSemaphore.release()
+                        }
+                        continue
+                    }
+
+                    val thisPage = currPage + subPage
+
+                    if (thisPage > pages) {
+                        return@thread
+                    }
+
+                    runBlocking {
+                        concurrentPermits.acquire()
+                    }
+
+                    val t = thread {
+                        val res = fetchData(thisPage)
+                        concurrentPermits.release()
+                        if (res == null) {
+                            errorCount.incrementAndGet()
+                            return@thread
+                        }
+
+                        val currProgress = thisPage * 100 / pages
+                        if (currProgress > progress.get()) {
+                            progress.set(currProgress)
+                            onProgressUpdate?.let { it(currProgress) }
+                        }
+
+                        processApiData(res)
+                    }
+
+                    runBlocking {
+                        threadsListMutex.withLock {
+                            Log.e("Tongji API get arrangement", "thread fired. ${thisPage - 2}")
+                            threads.add(t)
+                        }
+                    }
+
+                    if (unfiredThreads.decrementAndGet() == 0) {
+                        allThreadsFiredSemaphore.release()
+                    }
+                }
+            }
+
+            Thread.sleep(1000)
+        }
+
+        runBlocking {
+            allThreadsFiredSemaphore.acquire()
+        }
+
+        if (apiControl.stop.get()) {
+            Log.i("Tongji API OneTongji Term Arrangement", "stopped by control message. return null.")
+            return null
+        }
+
+        threads.forEachIndexed { idx, it ->
+            Log.i("Tongji API OneTongji Term Arrangement", "joining thread: $idx")
+            it.join()
+        }
+
+        Log.i("Tongji API OneTongji Term Arrangement", "all threads joined.")
+
+        if (errorCount.get() > 0) {
+            activity.runOnUiThread {
+                Toast.makeText(activity, "错误计数：${errorCount.get()}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        return result
+    }
+
+
+    fun getOneTongjiSchoolCalendarAllTermCalendar(activity: Activity): JSONArray? {
+        val url = "$BASE_URL/v1/rt/onetongji/school_calendar_all_term_calendar"
+        return basicRequestBuilder(url)
+            .get()
+            .execute(activity)
+    }
 
 }
 

@@ -11,14 +11,18 @@ package com.gardilily.common.view.card
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.text.InputType
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.caverock.androidsvg.SVGImageView
 import com.gardilily.common.view.card.InfoCard.Builder
+import com.google.android.material.card.MaterialCardView
 
 /**
  * 用于显示基本信息的卡片。继承自 RelativeLayout
@@ -45,7 +49,7 @@ import com.gardilily.common.view.card.InfoCard.Builder
  */
 open class InfoCard private constructor(
 	builder: Builder
-) : RelativeLayout(builder.c) {
+) : MaterialCardView(builder.c) {
 
 	private constructor(context: Context) : this(Builder(context))
 
@@ -79,17 +83,28 @@ open class InfoCard private constructor(
 	val titleEllipsize = builder.titleEllipsize
 	val infoTextSizeSp = builder.infoTextSizeSp
 	val infoList = builder.infoList
+	val cardStrokeColor = builder.strokeColor
+
+	val innerRelativeLayout = RelativeLayout(builder.c)
 
 	init {
-		val params = LayoutParams(
+
+		val innerLayoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+		innerRelativeLayout.layoutParams = innerLayoutParams
+		this.addView(innerRelativeLayout)
+
+		val params = RelativeLayout.LayoutParams(
 			layoutWidth,
 			layoutHeight
 		)
+
 		params.marginStart = floatSp2intPx(outerMarginStartSp)
 		params.marginEnd = floatSp2intPx(outerMarginEndSp)
 		params.topMargin = floatSp2intPx(outerMarginTopSp)
 		params.bottomMargin = floatSp2intPx(outerMarginBottomSp)
 		this.layoutParams = params
+
+		this.cardStrokeColor?.let { this.strokeColor = cardStrokeColor }
 
 		if (cardBackground != null) {
 			this.background = cardBackground
@@ -97,30 +112,44 @@ open class InfoCard private constructor(
 
 		this.isClickable = true
 
-		val iconView = SVGImageView(c)
-		iconView.setImageAsset(iconPath)
+		var iconView: SVGImageView? = null
+		if (hasIcon) {
+			iconView = SVGImageView(c)
+			iconView.setImageAsset(iconPath)
 
-		val iconViewSize = iconSize
+			val iconViewSize = iconSize
 
-		iconView.visibility =
-			if (hasIcon) {
-				View.VISIBLE
-			} else {
-				View.GONE
-			}
+			iconView.visibility =
+				if (hasIcon) {
+					View.VISIBLE
+				} else {
+					View.GONE
+				}
 
-		val iconViewParams = LayoutParams(
-			LayoutParams.WRAP_CONTENT,
-			LayoutParams.WRAP_CONTENT
+			val iconViewParams = RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.WRAP_CONTENT,
+				RelativeLayout.LayoutParams.WRAP_CONTENT
+			)
+			iconViewParams.marginStart = floatSp2intPx(innerMarginStartSp)
+			iconViewParams.addRule(RelativeLayout.CENTER_VERTICAL)
+			iconViewParams.width = iconViewSize
+			iconViewParams.height = iconViewSize
+
+			iconView.layoutParams = iconViewParams
+
+			innerRelativeLayout.addView(iconView)
+		}
+
+		val endMarkContainer = LinearLayout(c)
+		val endMarkContainerParam = RelativeLayout.LayoutParams(
+			RelativeLayout.LayoutParams.WRAP_CONTENT,
+			RelativeLayout.LayoutParams.WRAP_CONTENT
 		)
-		iconViewParams.marginStart = floatSp2intPx(innerMarginStartSp)
-		iconViewParams.addRule(CENTER_VERTICAL)
-		iconViewParams.width = iconViewSize
-		iconViewParams.height = iconViewSize
-
-		iconView.layoutParams = iconViewParams
-
-		this.addView(iconView)
+		endMarkContainer.orientation = LinearLayout.VERTICAL
+		endMarkContainer.layoutParams = endMarkContainerParam
+		endMarkContainerParam.marginEnd = floatSp2intPx(endMarkMarginEndSp)
+		endMarkContainerParam.addRule(RelativeLayout.ALIGN_PARENT_END)
+		endMarkContainerParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
 
 		val endMarkView = TextView(c)
 		endMarkView.text = endMark
@@ -131,25 +160,30 @@ open class InfoCard private constructor(
 			} else {
 				View.GONE
 			}
-		val endMarkViewParams = LayoutParams(
-			LayoutParams.WRAP_CONTENT,
-			LayoutParams.WRAP_CONTENT
+		val endMarkViewParams = RelativeLayout.LayoutParams(
+			RelativeLayout.LayoutParams.WRAP_CONTENT,
+			RelativeLayout.LayoutParams.WRAP_CONTENT
 		)
-		endMarkViewParams.marginEnd = floatSp2intPx(endMarkMarginEndSp)
-		endMarkViewParams.bottomMargin = floatSp2intPx(endMarkMarginBottomSp)
-		endMarkViewParams.addRule(ALIGN_PARENT_END)
-		endMarkViewParams.addRule(ALIGN_PARENT_BOTTOM)
 		endMarkView.layoutParams = endMarkViewParams
 
-		this.addView(endMarkView)
+		endMarkContainer.addView(endMarkView)
+
+		val endMarkMarginBottomView = View(c)
+		val endMarkMarginBottomViewParams = LinearLayout.LayoutParams(
+			0, floatSp2intPx(endMarkMarginBottomSp)
+		)
+		endMarkMarginBottomView.layoutParams = endMarkMarginBottomViewParams
+		endMarkContainer.addView(endMarkMarginBottomView)
+
+		innerRelativeLayout.addView(endMarkContainer)
 
 		val infoLinearLayout = LinearLayout(c)
 		infoLinearLayout.orientation = LinearLayout.VERTICAL
 		infoLinearLayout.gravity = Gravity.CENTER_VERTICAL
 
-		val infoLinearLayoutParams = LayoutParams(
-			LayoutParams.MATCH_PARENT,
-			LayoutParams.MATCH_PARENT
+		val infoLinearLayoutParams = RelativeLayout.LayoutParams(
+			RelativeLayout.LayoutParams.MATCH_PARENT,
+			RelativeLayout.LayoutParams.WRAP_CONTENT
 		)
 		infoLinearLayoutParams.marginStart = floatSp2intPx(
 			innerMarginStartSp +
@@ -158,7 +192,7 @@ open class InfoCard private constructor(
 					} else {
 						0f
 					}
-		) + iconView.layoutParams.width
+		) + (iconView?.layoutParams?.width ?: 0)
 
 		infoLinearLayoutParams.marginEnd = floatSp2intPx(innerMarginEndSp)
 		infoLinearLayoutParams.topMargin = floatSp2intPx(innerMarginTopSp)
@@ -194,16 +228,20 @@ open class InfoCard private constructor(
 			rowParams.topMargin = floatSp2intPx(textLineSpaceSp)
 			row.layoutParams = rowParams
 
-			val tvParams = LinearLayout.LayoutParams(
+			val tvTitleParams = LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.WRAP_CONTENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT
 			)
 			val tvTitle = TextView(c)
-			tvTitle.layoutParams = tvParams
+			tvTitle.layoutParams = tvTitleParams
 			tvTitle.textSize = infoTextSizeSp
 			tvTitle.text = "${it.title}："
 			val tvText = TextView(c)
-			tvText.layoutParams = tvParams
+			val tvTextParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.WRAP_CONTENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT
+			)
+			tvText.layoutParams = tvTextParams
 			tvText.textSize = infoTextSizeSp
 			tvText.text = it.text
 
@@ -213,7 +251,7 @@ open class InfoCard private constructor(
 			infoLinearLayout.addView(row)
 		}
 
-		this.addView(infoLinearLayout)
+		innerRelativeLayout.addView(infoLinearLayout)
 	}
 
 	class Builder constructor(context: Context) {
@@ -372,6 +410,12 @@ open class InfoCard private constructor(
 			this.infoTextSizeSp = infoTextSizeSp
 		}
 
+		var strokeColor: Int? = null
+
+		fun setStrokeColor(color: Int?) = apply {
+			this.strokeColor = color
+		}
+
 		var infoTextSizeSp = 14f
 
 		val infoList = ArrayList<Info>()
@@ -383,7 +427,7 @@ open class InfoCard private constructor(
 		fun build(): InfoCard = InfoCard(this)
 	}
 
-	data class Info(val title: String, val text: String, val divider: String = "：")
+	data class Info(val title: String, val text: String?, val divider: String = "：")
 
 	/**
 	 * 将 Sp 转换为 Px 单位。并将原浮点数变为整数。

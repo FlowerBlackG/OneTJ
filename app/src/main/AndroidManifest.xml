@@ -68,6 +68,9 @@
         <activity android:name=".activity.func.SportsTestData"
             android:theme="@style/Theme.OneTJ.Base" />
 
+        <activity android:name=".activity.func.TermArrangement"
+            android:theme="@style/Theme.OneTJ.Base" />
+
         <service android:name=".service.BackgroundDownload" />
         <service android:name=".service.BackgroundAutoCourseElect" />
     </application>

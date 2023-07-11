@@ -3,6 +3,8 @@ package com.gardilily.onedottongji.view
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -69,6 +71,10 @@ class FuncCardShelf(context: Context) : LinearLayout(context) {
 
         layout.isClickable = true
         layout.gravity = Gravity.CENTER
+
+        val typedValue = TypedValue()
+        c.theme.resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true)
+        layout.setBackgroundResource(typedValue.resourceId)
 
         if (!isVisible) {
             layout.visibility = INVISIBLE

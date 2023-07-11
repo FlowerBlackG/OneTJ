@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MulanPSL-2.0
+
 package com.gardilily.onedottongji.activity.func
 
 import android.graphics.drawable.ColorDrawable
@@ -161,11 +163,13 @@ class SportsTestData : OneTJActivityBase(
         addData("50米", "${infoObj.getString("fiftyMeters")} 秒")
 
         if (infoObj.getString("sexName") == "女") {
-            addData("体前屈", "${infoObj.getString("sitUp")} 个")
+            addData("仰卧起坐", "${infoObj.getString("sitUp")} 个")
         } else {
-            addData("引体", "${infoObj.getString("pullUp")} 个")
+            addData("引体向上", "${infoObj.getString("pullUp")} 个")
         }
 
+        addData("立定跳远", "${infoObj.getString("standingLongJump").toFloat() / 100} 米", true)
+        addData("体前屈", "${infoObj.getString("sitForward")} 厘米", true)
         addData("肺活量", "${infoObj.getString("vitalCapacity")} 毫升", true)
 
     }

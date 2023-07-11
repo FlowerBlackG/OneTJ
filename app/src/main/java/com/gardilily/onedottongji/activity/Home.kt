@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.animation.AlphaAnimation
 import android.view.animation.DecelerateInterpolator
+import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -30,6 +31,7 @@ import com.gardilily.onedottongji.activity.func.LocalAttachments
 import com.gardilily.onedottongji.activity.func.MyGrades
 import com.gardilily.onedottongji.activity.func.SportsTestData
 import com.gardilily.onedottongji.activity.func.StuExamEnquiries
+import com.gardilily.onedottongji.activity.func.TermArrangement
 import com.gardilily.onedottongji.activity.func.autocourseelect.AutoCourseElect
 import com.gardilily.onedottongji.activity.func.studenttimetable.SingleDay
 import com.gardilily.onedottongji.activity.func.studenttimetable.TermComplete
@@ -43,6 +45,10 @@ import com.gardilily.onedottongji.tools.Utils.Companion.isReqSessionAvailable
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import com.gardilily.onedottongji.view.FuncCardShelf
 import com.gardilily.onedottongji.view.HomeMsgPublishCard
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Semaphore
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -70,6 +76,9 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
 
     private var studentInfo: TongjiApi.StudentInfo? = null
     private var schoolCalendar: TongjiApi.SchoolCalendar? = null
+
+
+    private var studentInfoLoadedSemaphore = Semaphore(1, 1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,6 +108,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         thread {
 
             studentInfo = TongjiApi.instance.getStudentInfo(this) ?: return@thread
+
             runOnUiThread {
                 findViewById<TextView>(R.id.home_userinfobox_username).text = studentInfo!!.name
                 findViewById<TextView>(R.id.home_userinfobox_uid).text = studentInfo!!.userId
@@ -110,6 +120,8 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                 } else {
                     findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/smiling_face_with_hearts_color.svg")
                 }
+
+                studentInfoLoadedSemaphore.release()
             }
 
             if (!userInfoReported) {
@@ -144,8 +156,10 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         CET_SCORE,
         AUTO_COURSE_ELECT,
         LOGOUT,
+        SHARE_APP,
         ABOUT_APP,
         SPORTS_TEST_DATA,
+        TERM_ARRANGEMENT,
     }
 
     /**
@@ -167,6 +181,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         shelf.addFuncCard("fluentemoji/memo_color.svg", "我的考试", HomeFunc.STU_EXAM_ENQUIRIES, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/money_with_wings_color.svg", "四六级", HomeFunc.CET_SCORE, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/badminton_color.svg", "体测体锻", HomeFunc.SPORTS_TEST_DATA, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/speedboat_color.svg", "全校课表", HomeFunc.TERM_ARRANGEMENT, true) { funcButtonClick(it) }
 
         shelf.addFuncCard("fluentemoji/shushing_face_color.svg", "抢课", HomeFunc.AUTO_COURSE_ELECT, true) { funcButtonClick(it) }
 
@@ -175,6 +190,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
 
 
         shelf.addFuncCard("fluentemoji/wilted_flower_color.svg", "退出登录", HomeFunc.LOGOUT, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/hatching_chick_color.svg", "分享App", HomeFunc.SHARE_APP, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/teddy_bear_color.svg", "关于App", HomeFunc.ABOUT_APP, true) { funcButtonClick(it) }
 
         // shelf.addFuncCard("🔧", "提取SessionId", MacroDefines.HOME_FUNC_GET_SESSIONID, true) { funcButtonClick(it) }
@@ -356,6 +372,28 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                     findViewById<TextView>(R.id.home_userinfobox_weatherText)?.text = "上海$temperature°C"
                     val imgView = findViewById<ImageView>(R.id.home_userinfobox_weatherImgView)
                     imgView?.setImageBitmap(weatherIconBitmap)
+
+                    val temperatureFloat = temperature.toFloat()
+                    if (temperatureFloat.toFloat() >= 27.9 || temperatureFloat.toFloat() <= 2.1) {
+                        thread {
+                            runBlocking {
+                                studentInfoLoadedSemaphore.acquire()
+                            }
+
+                            runOnUiThread {
+                                if (temperatureFloat > 27) {
+                                    findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset(
+                                        "fluentemoji/melting_face_color.svg"
+                                    )
+                                } else {
+                                    findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset(
+                                        "fluentemoji/cold_face_color.svg"
+                                    )
+                                }
+                                studentInfoLoadedSemaphore.release()
+                            }
+                        }
+                    }
                 }
 
             } catch (e: Exception) {
@@ -377,7 +415,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
             HomeFunc.ABOUT_APP -> startActivity(Intent(this, About::class.java))
             HomeFunc.AUTO_COURSE_ELECT -> {
                 val warningText = "本功能仅可用于选课机制研究与开发测试等必要情景，请勿将其用于任何违规违法活动。\n" +
-                        "违反此忠告着，产生的一切后果自负。本程序设计者及相关研发人员拒绝承担任何责任。"
+                        "违反此忠告者，产生的一切后果自负。本程序设计者及相关研发人员拒绝承担任何责任。"
                 AlertDialog.Builder(this)
                     .setTitle("免责声明")
                     .setMessage(warningText)
@@ -392,8 +430,25 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
             HomeFunc.STU_EXAM_ENQUIRIES -> startActivity(Intent(this, StuExamEnquiries::class.java))
             HomeFunc.CET_SCORE -> startActivity(Intent(this, CetScore::class.java))
             HomeFunc.SPORTS_TEST_DATA -> startActivity(Intent(this, SportsTestData::class.java))
+            HomeFunc.SHARE_APP -> shareApp()
+            HomeFunc.TERM_ARRANGEMENT -> {
+                val intent = Intent(this, TermArrangement::class.java)
+                intent.putExtra("calendarId", schoolCalendar?.calendarId)
+                startActivity(intent)
+            }
             else -> {}
         }
+    }
+
+    private fun shareApp() {
+        val imgView = ImageView(this)
+        imgView.setImageResource(R.drawable.r44download)
+        AlertDialog.Builder(this)
+            .setTitle("分享App")
+            .setPositiveButton("好") { _, _ -> }
+            .setMessage("扫描二维码，使用浏览器打开 🥳\n适用安卓（含鸿蒙、WSA）设备。")
+            .setView(imgView)
+            .show()
     }
 
     private fun funcLogout() {
@@ -428,51 +483,6 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
             startActivity(intent)
         }
 
-        return
-
-        thread {
-            val req = Request.Builder()
-                    .url("https://1.tongji.edu.cn/api/electionservice/reportManagement/findStudentTimetab?calendarId=$termId")
-                    .addHeader("Cookie", "sessionid=$sessionid")
-                    .get()
-                    .build()
-
-            val response = Utils.safeNetworkRequest(req, uniHttpClient)
-
-            if (response == null) {
-                runOnUiThread {
-                    Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
-                }
-                return@thread
-            }
-
-            val resObj = JSONObject(response.body?.string())
-
-            if (!isReqSessionAvailable(this, resObj) { funcLogout() }) {
-                return@thread
-            }
-
-            if (isNotReqResCorrect(this, resObj, "查询课表", REQ_RES_CHECK_NOTI_LEVEL_ALERTDIALOG)) {
-                return@thread
-            }
-
-            val resDataObj = resObj.getJSONArray("data")
-            Log.d("Home.funcShowStudentTimetable", resDataObj.toString())
-
-            runOnUiThread {
-                val intent = Intent()
-                when (type) {
-                    FUNC_TIMETABLE_TERM_COMPLETE -> intent.setClass(this, TermComplete::class.java)
-                    FUNC_TIMETABLE_SINGLE_DAY -> intent.setClass(this, SingleDay::class.java)
-                }
-                intent.putExtra("JsonDataObj", resDataObj.toString())
-                intent.putExtra("TermName", termName)
-                intent.putExtra("TermWeek", termWeek)
-                startActivity(intent)
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-                return@runOnUiThread
-            }
-        }
     }
 
     override fun onDestroy() {

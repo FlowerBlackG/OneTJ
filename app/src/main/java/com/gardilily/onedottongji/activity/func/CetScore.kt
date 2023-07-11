@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MulanPSL-2.0
+
 package com.gardilily.onedottongji.activity.func
 
 import android.graphics.Color
@@ -83,6 +85,10 @@ class CetScore : OneTJActivityBase(
                         .setEndMark(score.split(".")[0])
                         .setTitle(termName)
                         .setSpMultiply(resources.displayMetrics.scaledDensity)
+                        .setOuterMarginTopSp(16f)
+                        .setOuterMarginBottomSp(0f)
+                        .setOuterMarginStartSp(16f)
+                        .setOuterMarginEndSp(16f)
                         .addInfo(InfoCard.Info("准考证", cardNo))
                         .addInfo(InfoCard.Info("学生", "${it.getString("studentId")} ${it.getString("studentName")}"))
                         .addInfo(InfoCard.Info("科目", writtenSubjectName))

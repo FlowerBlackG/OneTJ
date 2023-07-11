@@ -212,9 +212,9 @@ class MyGrades : OneTJActivityBase(
                     .setSpMultiply(resources.displayMetrics.scaledDensity)
                     .setLayoutHeightSp(
                         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
-                            128f
+                            140f
                         else
-                            74f
+                            80f
                     )
                     .setIconTextSizeSp(
                         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
@@ -238,8 +238,10 @@ class MyGrades : OneTJActivityBase(
                     .setInnerMarginBetweenSp(12f)
                     .setHasIcon(true)
                     .setHasEndMark(true)
+                    .setStrokeColor(0)
                     .setIcon(gradePoint2gradeIcon(data.getInt("gradePoint")))
                     .setEndMark(gradePoint2gradeEngCh(data.getInt("gradePoint")))
+                    .setEndMarkMarginBottomSp(24f)
                     .setTitle(data.getString("courseName"))
 
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -335,8 +337,6 @@ class MyGrades : OneTJActivityBase(
                 else
                     20f
 
-            //val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (80f * spMultiply).toInt())
-            //params.bottomMargin = (12f * spMultiply).toInt()
             val gradeParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 (80f * spMultiply).toInt()

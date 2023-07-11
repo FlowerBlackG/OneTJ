@@ -4,11 +4,13 @@ package com.gardilily.onedottongji.activity
 import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.tools.GarCloudApi
@@ -16,6 +18,9 @@ import com.google.android.material.elevation.SurfaceColors
 
 /** "关于"页面。 */
 class About : AppCompatActivity() {
+
+    private lateinit var logoDrawableRound: RoundedBitmapDrawable
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_about)
@@ -34,7 +39,7 @@ class About : AppCompatActivity() {
 
         findViewById<TextView>(R.id.about_versionInfo).text = versionInfo
 
-        val logoDrawableRound = RoundedBitmapDrawableFactory.create(resources, BitmapFactory.decodeResource(resources, R.drawable.logo))
+        logoDrawableRound = RoundedBitmapDrawableFactory.create(resources, BitmapFactory.decodeResource(resources, R.drawable.logo))
         logoDrawableRound.cornerRadius = 36f
         findViewById<RelativeLayout>(R.id.about_appLogo).background = logoDrawableRound
 
@@ -52,5 +57,10 @@ class About : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         finish()
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroy() {
+        logoDrawableRound.bitmap?.recycle()
+        super.onDestroy()
     }
 }

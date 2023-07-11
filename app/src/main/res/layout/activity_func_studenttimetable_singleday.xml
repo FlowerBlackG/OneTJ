@@ -17,14 +17,12 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:layout_marginTop="4dp"
             android:orientation="horizontal"
             android:id="@+id/func.studentTimeTable.singleDay.bar.weekInfo">
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="80sp"
+                android:layout_height="80dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="6sp"
                 android:gravity="center"
@@ -64,6 +62,7 @@
                 android:textSize="16sp"
                 android:text="前一天"
                 android:clickable="true"
+                style="?attr/materialButtonOutlinedStyle"
                 android:id="@+id/func.studentTimeTable.singleDay.dir.prevDay"/>
 
             <Button
@@ -76,6 +75,7 @@
                 android:textSize="16sp"
                 android:text="今天"
                 android:clickable="true"
+                style="?attr/materialButtonOutlinedStyle"
                 android:id="@+id/func.studentTimeTable.singleDay.dir.today"/>
 
             <Button
@@ -87,6 +87,7 @@
                 android:textSize="16sp"
                 android:text="后一天"
                 android:clickable="true"
+                style="?attr/materialButtonOutlinedStyle"
                 android:id="@+id/func.studentTimeTable.singleDay.dir.nextDay"/>
 
         </LinearLayout>

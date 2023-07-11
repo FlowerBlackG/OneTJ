@@ -215,10 +215,12 @@ class SingleDay : OneTJActivityBase(
                     )
                     .setTitle(data.getString("courseName"))
                     .setInfoTextSizeSp(16f)
-                    .setLayoutHeightSp(72f)
                     .setIconSize(144)
                     .setTitleTextSizeSp(20f)
-                    .setEndMarkTextSizeSp(32f)
+                    .setEndMarkTextSizeSp(24f)
+                    .setEndMarkMarginEndSp(16f)
+                    .setOuterMarginStartSp(4f)
+                    .setOuterMarginEndSp(4f)
                     .addInfo(
                         InfoCard.Info(
                             "地点", fetchCourseRoom(data)
@@ -226,8 +228,7 @@ class SingleDay : OneTJActivityBase(
                     )
 
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    card.setLayoutHeightSp(132f)
-                        .setTitleTextSizeSp(24f)
+                    card.setTitleTextSizeSp(24f)
                         .setIconTextSizeSp(48f)
                         .setEndMarkTextSizeSp(36f)
                         .addInfo(
