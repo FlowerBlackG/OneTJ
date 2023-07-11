@@ -127,7 +127,7 @@ class TermArrangement : OneTJActivityBase(
         runOnUiThread {
             if (visible) {
                 progressBar.visibility = View.VISIBLE
-                progressBar.visibility = View.VISIBLE
+                progressIndicator.visibility = View.VISIBLE
             } else {
                 progressBar.visibility = View.GONE
                 progressIndicator.visibility = View.GONE
@@ -496,7 +496,7 @@ class TermArrangement : OneTJActivityBase(
         courseCardContainer.removeAllViews()
         for (idx in data.indices) {
 
-            val maxEntriesToShow = 100
+            val maxEntriesToShow = 50
             if (idx > maxEntriesToShow) {
                 Toast.makeText(this, "结果过多，仅显示${maxEntriesToShow}条。请适当设置筛选条件", Toast.LENGTH_SHORT).show()
                 break
