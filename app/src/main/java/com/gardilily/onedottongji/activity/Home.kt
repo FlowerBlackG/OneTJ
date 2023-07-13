@@ -14,14 +14,18 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.animation.AlphaAnimation
 import android.view.animation.DecelerateInterpolator
 import android.widget.AutoCompleteTextView
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.setMargins
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.caverock.androidsvg.SVG
 import com.caverock.androidsvg.SVGImageView
@@ -45,6 +49,7 @@ import com.gardilily.onedottongji.tools.Utils.Companion.isReqSessionAvailable
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import com.gardilily.onedottongji.view.FuncCardShelf
 import com.gardilily.onedottongji.view.HomeMsgPublishCard
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.runBlocking
@@ -203,71 +208,92 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
      */
     private fun initCommonMsgPublish() {
 
-        return // todo
-
         val container = findViewById<LinearLayout>(R.id.home_commonMsgPublishContainer)
 
         thread {
-            val requestFormBody = FormBody.Builder()
-                .add("pageNum_", "1")
-                .add("pageSize_", "9999")
-                .add("total", "0")
-                .build()
 
-            val client = OkHttpClient()
-
-            val req = Request.Builder()
-                    .url("https://1.tongji.edu.cn/api/commonservice/commonMsgPublish/findMyCommonMsgPublish")
-                    .post(requestFormBody)
-                    .addHeader("Cookie", "sessionid=$sessionid")
-                    .build()
-
-            val response = Utils.safeNetworkRequest(req, client)
-
-            if (response == null) {
-                runOnUiThread {
-                    Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
-                }
-                return@thread
-            }
-
-            val resObj = JSONObject(response.body?.string())
-
-            if (!isReqSessionAvailable(this, resObj) { funcLogout() }) {
-                return@thread
-            }
-
-            if (isNotReqResCorrect(this, resObj, "获取消息列表", REQ_RES_CHECK_NOTI_LEVEL_TOAST)) {
-                return@thread
-            }
-
-            val resDataObj = resObj.getJSONObject("data")
-            val dataArr = resDataObj.getJSONArray("list")
+            val dataArr = TongjiApi.instance.getOneTongjiMessageList(this@Home) ?: return@thread
             val len = dataArr.length()
 
-            for (i in 0 until len) {
-                Thread.sleep(56)
-                runOnUiThread {
+            runOnUiThread {
+                for (idx in 0 until len) {
+
+                    val msg = dataArr.getJSONObject(idx)
+
+                    val card = MaterialCardView(this)
+                    val layout = RelativeLayout(card.context)
+                    val title = TextView(layout.context)
+                    val date = TextView(layout.context)
+
+                    var id: Int = -1
+
                     try {
-                        val card = HomeMsgPublishCard(this, dataArr.getJSONObject(i)) { dataObj: JSONObject ->
-                            runOnUiThread {
-                                val intent = Intent(this@Home, MsgPublishShow::class.java)
-                                intent.putExtra("basicDataObj", dataObj.toString())
-                                intent.putExtra("sessionid", sessionid)
-                                startActivity(intent)
-                                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-                            }
-                        }
+                        id = msg.getInt("id")
+                        title.text = msg.getString("title")
+                        date.text = msg.getString("publishTime").split(' ')[0]
+                    } catch (_: Exception) {
 
-                        container.addView(card)
-
-                    } catch (e: Exception) {
-                        return@runOnUiThread
                     }
-                }
-            }
-        }
-    }
+
+                    val cardParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        256
+                    )
+
+                    cardParams.bottomMargin = 36
+                    card.isClickable = true
+
+                    val layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                    )
+
+
+
+                    val titleParams = RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.MATCH_PARENT,
+                        RelativeLayout.LayoutParams.MATCH_PARENT
+                    )
+
+                    titleParams.setMargins(32)
+                    title.textSize = 16f
+                    title.maxLines = 3
+                    title.ellipsize = TextUtils.TruncateAt.END
+
+                    val dateParams = RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.WRAP_CONTENT,
+                        RelativeLayout.LayoutParams.WRAP_CONTENT
+                    )
+
+                    dateParams.setMargins(32)
+                    date.textSize = 16f
+                    dateParams.addRule(RelativeLayout.ALIGN_PARENT_END)
+                    dateParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+
+                    card.layoutParams = cardParams
+                    layout.layoutParams = layoutParams
+                    title.layoutParams = titleParams
+                    date.layoutParams = dateParams
+
+                    card.addView(layout)
+                    layout.addView(title)
+                    layout.addView(date)
+
+                    container.addView(card)
+
+                    card.setOnClickListener {
+                        val intent = Intent(this, MsgPublishShow::class.java)
+                        intent.putExtra("basicDataObj", msg.toString())
+                        startActivity(intent)
+                    }
+
+                } // for (idx in 0 until len)
+
+            } // runOnUiThread
+        } // thread
+    } // private fun initCommonMsgPublish()
+
+
 
     private fun defUrlEnc(str: String?): String {
         return URLEncoder.encode(str, "UTF-8")

@@ -1,3 +1,9 @@
+Version: 3.0.0 (47)
+Build Time: 2023.07.13–16:37
+Update Log:
+重新加入通知功能
+改用WebView完成通知内容渲染
+
 Version: 3.0.0-rc5 (46)
 Build Time: 2023.07.11–22:20
 Update Log:

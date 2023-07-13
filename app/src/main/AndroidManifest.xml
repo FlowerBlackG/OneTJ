@@ -42,7 +42,7 @@
             android:theme="@style/Theme.OneTJ.NoActionBar"/>
 
         <activity android:name=".activity.MsgPublishShow"
-            android:theme="@style/Theme.OneDotTongjiRefresh.MsgPublishShow" />
+            android:theme="@style/Theme.OneTJ.Base" />
 
         <activity android:name=".activity.func.MyGrades"
             android:theme="@style/Theme.OneTJ.Base" />

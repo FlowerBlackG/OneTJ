@@ -51,7 +51,9 @@ class TongjiApi {
             "rt_teaching_info_sports_test_data",
             "rt_teaching_info_sports_test_health",
             "rt_onetongji_manual_arrange",
-            "rt_onetongji_school_calendar_all_term_calendar"
+            "rt_onetongji_school_calendar_all_term_calendar",
+            "rt_onetongji_msg_list",
+            "rt_onetongji_msg_detail",
         )
 
         private var _instance: TongjiApi? = null
@@ -758,6 +760,23 @@ class TongjiApi {
 
     fun getOneTongjiSchoolCalendarAllTermCalendar(activity: Activity): JSONArray? {
         val url = "$BASE_URL/v1/rt/onetongji/school_calendar_all_term_calendar"
+        return basicRequestBuilder(url)
+            .get()
+            .execute(activity)
+    }
+
+
+    fun getOneTongjiMessageList(activity: Activity): JSONArray? {
+        val url = "$BASE_URL/v1/rt/onetongji/msg_list?pageNum_=1&pageSize_=9999&total=0"
+        val res = basicRequestBuilder(url)
+            .get()
+            .execute<JSONObject>(activity) ?: return null
+
+        return res.getJSONArray("list")
+    }
+
+    fun getOneTongjiMessageDetail(activity: Activity, id: Int): JSONObject? {
+        val url = "$BASE_URL/v1/rt/onetongji/msg_detail?id=$id"
         return basicRequestBuilder(url)
             .get()
             .execute(activity)

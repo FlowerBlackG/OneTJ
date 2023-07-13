@@ -3,32 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shape_page_background_gradient"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/msgPublishShow.rootContainer"
     tools:context=".activity.MsgPublishShow">
 
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_marginStart="18sp"
-        android:layout_marginEnd="18sp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
         android:orientation="vertical">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="38sp"
-            android:layout_marginBottom="12sp"
-            android:background="@drawable/shape_login_page_box"
-            android:clickable="true">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="14sp"
-                android:textSize="18sp"
-                android:text=" "
-                android:id="@+id/msgPublishShow.title"/>
-        </RelativeLayout>
-
 
 
         <ScrollView
@@ -40,17 +24,17 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:id="@+id/msgPublishShow.mainLinearLayout">
+
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12sp"
-                    android:background="@drawable/shape_login_page_box"
-                    android:clickable="true">
+                    android:layout_marginTop="12dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="14sp"
-                        android:text=" "
+                        android:layout_margin="14dp"
+                        android:text=""
                         android:textSize="18sp"
                         android:id="@+id/msgPublishShow.createUser"/>
 
@@ -58,8 +42,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:layout_margin="14sp"
-                        android:text=" "
+                        android:layout_margin="14dp"
+                        android:text=""
                         android:textSize="18sp"
                         android:id="@+id/msgPublishShow.publishTime"/>
                 </RelativeLayout>
@@ -67,21 +51,57 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12sp"
-                    android:background="@drawable/shape_login_page_box"
-                    android:clickable="true">
+                    android:layout_marginBottom="12dp">
+
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="14sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
                         android:textSize="16sp"
-                        android:text=" "
-                        android:id="@+id/msgPublishShow.content"/>
+                        android:text="渲染后端" />
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        app:singleSelection="true"
+                        android:layout_alignParentEnd="true"
+                        android:id="@+id/msgPublishShow.renderBackendSelect"
+                        app:checkedButton="@id/msgPublishShow.renderBackendSelect.webView"
+                        app:selectionRequired="true"
+                        android:gravity="center">
+
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TextView"
+                            android:id="@+id/msgPublishShow.renderBackendSelect.textView"
+                            style="?attr/materialButtonOutlinedStyle"/>
+
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="WebView (beta)"
+                            android:id="@+id/msgPublishShow.renderBackendSelect.webView"
+                            style="?attr/materialButtonOutlinedStyle"/>
+
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
                 </RelativeLayout>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone"
+                    android:id="@+id/msgPublishShow.content" />
+
+                <WebView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:id="@+id/msgPublishShow.contentWebView" />
+
             </LinearLayout>
-
-
 
         </ScrollView>
 

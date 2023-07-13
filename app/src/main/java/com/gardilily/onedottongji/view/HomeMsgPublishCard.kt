@@ -6,11 +6,14 @@ import android.view.LayoutInflater
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.gardilily.onedottongji.R
+import com.google.android.material.card.MaterialCardView
 import org.json.JSONObject
 
-class HomeMsgPublishCard(context: Context,
-                         dataObj: JSONObject,
-                         clickProcessor: (dataObj: JSONObject) -> Unit) : RelativeLayout(context) {
+class HomeMsgPublishCard(
+    context: Context,
+    dataObj: JSONObject,
+    clickProcessor: (dataObj: JSONObject) -> Unit
+) : MaterialCardView(context) {
 
     init {
         LayoutInflater

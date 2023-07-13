@@ -8,32 +8,47 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.text.Html
 import android.util.Base64
+import android.view.View
+import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.text.HtmlCompat
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.service.BackgroundDownload
 import com.gardilily.onedottongji.tools.MacroDefines
 import com.gardilily.onedottongji.tools.Utils
 import com.gardilily.onedottongji.tools.Utils.Companion.isReqSessionAvailable
+import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import com.gardilily.onedottongji.view.MsgPublishShowAttachCard
+import com.google.android.material.button.MaterialButtonToggleGroup
 import okhttp3.*
 import org.json.JSONObject
 import java.io.File
 import java.net.URLEncoder
 import kotlin.concurrent.thread
 
-class MsgPublishShow : Activity() {
+class MsgPublishShow : OneTJActivityBase(
+    backOnTitleBar = true,
+    hasTitleBar = true,
+    withSpinning = true
+) {
     private lateinit var basicDataObj: JSONObject
     private lateinit var contentDataJson: JSONObject
+
+    private lateinit var contentWebView: WebView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_msg_publish_show)
 
+        prepareContentWebView()
+
+        stageSpinningProgressBar(findViewById(R.id.msgPublishShow_rootContainer))
+
         basicDataObj = JSONObject(intent.getStringExtra("basicDataObj")!!)
 
-        findViewById<TextView>(R.id.msgPublishShow_title).text =
-                basicDataObj.getString("title")
 
         findViewById<TextView>(R.id.msgPublishShow_createUser).text =
                 basicDataObj.getString("createUser")
@@ -42,52 +57,87 @@ class MsgPublishShow : Activity() {
                 basicDataObj.getString("publishTime")
 
         fetchAndShowContentAndAttach()
+
+        title = basicDataObj.getString("title")
+
+        val renderBackendSelect = findViewById<MaterialButtonToggleGroup>(R.id.msgPublishShow_renderBackendSelect)
+        renderBackendSelect.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (checkedId == R.id.msgPublishShow_renderBackendSelect_textView && isChecked) {
+                switchRenderBackend(useTextView = true)
+            } else if (checkedId == R.id.msgPublishShow_renderBackendSelect_webView && isChecked) {
+                switchRenderBackend(useWebView = true)
+            }
+        }
     }
 
+    private fun prepareContentWebView() {
+        contentWebView = findViewById(R.id.msgPublishShow_contentWebView)
+        val settings = contentWebView.settings
+        settings.setSupportZoom(false)
+        settings.builtInZoomControls = false
+        settings.displayZoomControls = false
+    }
+
+    private fun String.toMobileFriendlyHtml(): String {
+        val head = "<head>" +
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\"> " +
+                "<style>img{max-width: 100%; width:100%; height:auto;}*{margin:0px;}</style>" +
+                "</head>";
+        return "<html>$head<body>$this</body></html>";
+    }
+
+    private fun switchRenderBackend(useWebView: Boolean = false, useTextView: Boolean = false) {
+        if (useWebView) {
+            findViewById<WebView>(R.id.msgPublishShow_contentWebView).visibility = View.VISIBLE
+            findViewById<TextView>(R.id.msgPublishShow_content).visibility = View.GONE
+        } else {
+            findViewById<WebView>(R.id.msgPublishShow_contentWebView).visibility = View.GONE
+            findViewById<TextView>(R.id.msgPublishShow_content).visibility = View.VISIBLE
+        }
+    }
+
+
     private fun fetchAndShowContentAndAttach() {
+        setSpinning(true)
         thread {
-            val client = OkHttpClient()
-            val req = Request.Builder()
-                    .get()
-                    .addHeader("Cookie", "sessionid=${intent.getStringExtra("sessionid")!!}")
-                    .url("https://1.tongji.edu.cn/api/commonservice/commonMsgPublish/findCommonMsgPublishById?id=${basicDataObj.getInt("id")}")
-                    .build()
 
-            val response = Utils.safeNetworkRequest(req, client)
-
-            if (response == null) {
-                runOnUiThread {
-                    Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
-                }
-                return@thread
-            }
-
-            val resObj = JSONObject(response.body?.string())
-
-            if (!isReqSessionAvailable(this, resObj) { finish() }) {
-                return@thread
-            }
-
-            contentDataJson = resObj.getJSONObject("data")
+            contentDataJson = TongjiApi.instance.getOneTongjiMessageDetail(
+                this@MsgPublishShow,
+                basicDataObj.getInt("id")
+            ) ?: return@thread
 
             runOnUiThread {
+                setSpinning(false)
+
+                val web = contentWebView
+
+                web.loadDataWithBaseURL(
+                    null,
+                    contentDataJson.getString("content").toMobileFriendlyHtml(),
+                    "text/html",
+                    "utf-8",
+                    null
+                )
+
                 val tv = findViewById<TextView>(R.id.msgPublishShow_content)
-                tv.text =
-                        Html.fromHtml(contentDataJson.getString("content"), { source ->
-                            val base64str = source.substring(source.indexOf(',') + 1,
-                                    source.length -
-                                            if (source.contains('\n'))
-                                                1
-                                            else
-                                                0)
+                tv.text = HtmlCompat.fromHtml(
+                    contentDataJson.getString("content"),
+                    HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS or HtmlCompat.FROM_HTML_MODE_COMPACT,
+                    { source ->
+                        val base64str = source.substring(
+                            source.indexOf(',') + 1,
+                            source.length - (if (source.contains('\n')) 1 else 0)
+                        )
 
-                            val data = Base64.decode(base64str, Base64.DEFAULT)
-                            val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
-                            val drawable = BitmapDrawable(resources, bitmap)
-                            drawable.setBounds(0, 0, tv.measuredWidth, drawable.intrinsicHeight)
+                        val data = Base64.decode(base64str, Base64.DEFAULT)
+                        val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
+                        val drawable = BitmapDrawable(resources, bitmap)
+                        drawable.setBounds(0, 0, tv.measuredWidth, drawable.intrinsicHeight)
 
-                            drawable
-                        }, null)
+                        drawable
+                    },
+                    null
+                )
             }
 
             val attachmentList = contentDataJson.getJSONArray("commonAttachmentList")
@@ -124,6 +174,10 @@ class MsgPublishShow : Activity() {
     }
 
     private fun downloadAttachment(fileLocation: String, fileName: String) {
+
+        Toast.makeText(this, "暂不支持，等待信息办提供相应能力...", Toast.LENGTH_SHORT).show()
+        return
+
         val tarUrl = "https://1.tongji.edu.cn/api/commonservice/obsfile/downloadfile?" +
                 "objectkey=$fileLocation" +
                 "&realName=${URLEncoder.encode(fileName, "UTF-8")}"
