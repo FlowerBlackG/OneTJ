@@ -4,10 +4,8 @@ package com.gardilily.onedottongji.tools.tongjiapi
 
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
-import android.media.session.MediaSession.Token
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -17,8 +15,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import okhttp3.FormBody
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttp
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -29,6 +25,19 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
+/**
+ * 同济数据开放平台封装。
+ * 以单例模式运行。
+ *
+ * 使用本工具前，应先初始化。一次初始化后，应用生命期内持续有效。
+ * 初始化见 [TongjiApi.init]
+ *
+ * 使用时，请通过内部对象访问：
+ *
+ * ```kotlin
+ * TongjiApi.instance.someMethod()
+ * ```
+ */
 class TongjiApi {
 
     companion object {
@@ -135,15 +144,25 @@ class TongjiApi {
 
     }
 
+    /**
+     * accessToken 是否过期。
+     */
     fun tokenAvailable(): Boolean {
         val tokenData = getTokenData()
         return tokenData.expireTimeSec > System.currentTimeMillis() / 1000 + 10
     }
 
+    /**
+     * 删除本地缓存的 access token。
+     */
     fun clearCache() {
         sp.edit().remove(SP_KEY_TOKEN_DATA).apply()
     }
 
+    /**
+     * 是否请求切换账号。
+     * 如果请求切换账号，统一认证登录页面的浏览器将不加载 cookie。
+     */
     var switchAccountRequired: Boolean
         get() {
             return sp.getBoolean(SP_KEY_SWITCH_ACCOUNT_REQUIRED, false)
@@ -162,6 +181,12 @@ class TongjiApi {
         else null
     }
 
+    /**
+     * 读取本地存储的 token 信息。
+     * 如果本地没有存，将会返回一个已经过期的假 token 信息。
+     *
+     * @return TokenData
+     */
     private fun getTokenData(): TokenData {
         return try {
             sp.getStringOrNull(SP_KEY_TOKEN_DATA)?.let {
@@ -172,6 +197,10 @@ class TongjiApi {
         }
     }
 
+    /**
+     * 向网络请求加入鉴权信息。
+     * 将在 header 里面加入 authorization 信息，携带 access token。
+     */
     fun Request.Builder.addAuthorization(): Request.Builder {
         val token = getTokenData().token
         return this.addHeader("Authorization", "Bearer ${getTokenData().token}")
@@ -306,11 +335,17 @@ class TongjiApi {
 
     private val netErrorDialogOnSemaphore = Semaphore(1, 0)
 
-    private fun<T> Request.Builder.execute(activity: Activity): T? {
-        return this.build().execute<T>(activity)
+    private fun<T> Request.Builder.execute(
+        activity: Activity,
+        apiFailureCriticalLevel: ApiFailureCriticalLevel = ApiFailureCriticalLevel.CRITICAL
+    ): T? {
+        return this.build().execute<T>(activity, apiFailureCriticalLevel)
     }
 
-    private fun<T> Request.execute(activity: Activity): T? {
+    private fun<T> Request.execute(
+        activity: Activity,
+        apiFailureCriticalLevel: ApiFailureCriticalLevel = ApiFailureCriticalLevel.CRITICAL
+    ): T? {
         val response = try {
             client.newCall(this).execute()
         } catch (e: IOException) {
@@ -340,35 +375,76 @@ class TongjiApi {
 
         }
 
-        return response.checkErrorAndGetData<T>(activity)
+        return response.checkErrorAndGetData<T>(activity, apiFailureCriticalLevel)
+    }
+
+    enum class ApiFailureCriticalLevel {
+        CRITICAL,
+        WARNING
     }
 
     /**
      *
      * @return JSONObject or JSONArray
      */
-    private fun<T> Response?.checkErrorAndGetData(activity: Activity): T? {
+    private fun<T> Response?.checkErrorAndGetData(
+        activity: Activity,
+        criticalLevel: ApiFailureCriticalLevel = ApiFailureCriticalLevel.CRITICAL
+    ): T? {
+
+        val requestDetailMessageBuilder = StringBuilder()
+        requestDetailMessageBuilder.append("地址\n${this?.request?.url}\n")
+            .append("状态\n${this?.code}\n")
+            .append("信息\n${this?.message}\n")
 
         fun solveError(msg: String = "无") {
 
-            clearCache()
+            when (criticalLevel) {
+                ApiFailureCriticalLevel.CRITICAL -> {
+                    clearCache()
 
-            val msgBuilder = StringBuilder()
-            msgBuilder.append("请重新登录。\n\n")
-                .append("错误信息: \n")
-                .append(msg)
+                    val msgBuilder = StringBuilder()
+                    msgBuilder.append("请重新登录。\n\n")
+                        .append("错误信息: \n")
+                        .append(msg)
+                        .append("\n\n详细信息：\n")
+                        .append(requestDetailMessageBuilder)
 
-            activity.runOnUiThread {
-                AlertDialog.Builder(activity)
-                    .setTitle("登录状态异常")
-                    .setMessage(msgBuilder)
-                    .setPositiveButton("OK") { _, _ ->
-                        activity.startActivity(Intent(activity, Login::class.java))
-                        activity.finish()
+                    activity.runOnUiThread {
+                        AlertDialog.Builder(activity)
+                            .setTitle("登录状态异常")
+                            .setMessage(msgBuilder)
+                            .setPositiveButton("OK") { _, _ ->
+                                activity.startActivity(Intent(activity, Login::class.java))
+                                activity.finish()
+                            }
+                            .setCancelable(false)
+                            .show()
                     }
-                    .setCancelable(false)
-                    .show()
-            }
+                }
+
+                ApiFailureCriticalLevel.WARNING -> {
+                    val msgBuilder = StringBuilder()
+                    msgBuilder.append("数据获取失败。\n\n")
+                        .append("错误信息: \n")
+                        .append(msg)
+                        .append("\n\n详细信息：\n")
+                        .append(requestDetailMessageBuilder)
+
+                    activity.runOnUiThread {
+                        AlertDialog.Builder(activity)
+                            .setTitle("数据获取失败")
+                            .setMessage(msgBuilder)
+                            .setPositiveButton("OK") { _, _ ->
+
+                            }
+                            .setCancelable(true)
+                            .show()
+                    }
+                }
+            } // when (criticalLevel)
+
+
         }
 
 
@@ -770,7 +846,7 @@ class TongjiApi {
         val url = "$BASE_URL/v1/rt/onetongji/msg_list?pageNum_=1&pageSize_=9999&total=0"
         val res = basicRequestBuilder(url)
             .get()
-            .execute<JSONObject>(activity) ?: return null
+            .execute<JSONObject>(activity, ApiFailureCriticalLevel.WARNING) ?: return null
 
         return res.getJSONArray("list")
     }
@@ -779,7 +855,7 @@ class TongjiApi {
         val url = "$BASE_URL/v1/rt/onetongji/msg_detail?id=$id"
         return basicRequestBuilder(url)
             .get()
-            .execute(activity)
+            .execute(activity, ApiFailureCriticalLevel.WARNING)
     }
 
 }

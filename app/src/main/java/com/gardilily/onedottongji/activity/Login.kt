@@ -25,6 +25,7 @@ import kotlinx.coroutines.sync.Semaphore
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 /** 首页欢迎页面。 */
@@ -35,11 +36,17 @@ class Login : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val tryLoginSuccess = AtomicBoolean(false)
+
         thread {
             TongjiApi.instance.refreshAccessToken()
+            if (!tryLoginSuccess.get()) {
+                runOnUiThread { tryAutoLogin() }
+            }
         }
 
-        if (tryAutoLogin()) {
+        tryLoginSuccess.set(tryAutoLogin())
+        if (tryLoginSuccess.get()) {
             return
         }
 
