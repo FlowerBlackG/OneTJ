@@ -33,7 +33,7 @@
             android:theme="@style/Theme.OneDotTongjiRefresh.Main" />
 
         <activity android:name=".activity.TongjiOAuth"
-            android:theme="@style/Theme.OneTJ.Base" />
+            android:theme="@style/Theme.OneTJ.NoActionBar.Immersed" />
 
         <activity android:name=".activity.About"
             android:theme="@style/Theme.OneTJ.Base"/>

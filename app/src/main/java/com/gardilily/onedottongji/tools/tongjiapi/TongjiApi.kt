@@ -206,23 +206,32 @@ class TongjiApi {
         return this.addHeader("Authorization", "Bearer ${getTokenData().token}")
     }
 
-    private fun processGetTokenResponse(json: JSONObject) {
-        val accessToken = json.getString("access_token")
-        // 有效期。单位为秒（应该是吧）
-        val expiresIn = json.getLong("expires_in")
-        val currentTime = System.currentTimeMillis() / 1000
-        val expireTime = currentTime + expiresIn - 10
+    private fun processGetTokenResponse(json: JSONObject): Boolean {
+        return try {
+            val accessToken = json.getString("access_token")
+            // 有效期。单位为秒（应该是吧）
+            val expiresIn = json.getLong("expires_in")
+            val currentTime = System.currentTimeMillis() / 1000
+            val expireTime = currentTime + expiresIn - 10
 
-        val refreshToken = json.getString("refresh_token")
-        val refreshTokenExpiresIn = json.getLong("refresh_expires_in")
-        val refreshTokenExpireTime = currentTime + refreshTokenExpiresIn - 10
+            val refreshToken = json.getString("refresh_token")
+            val refreshTokenExpiresIn = json.getLong("refresh_expires_in")
+            val refreshTokenExpireTime = currentTime + refreshTokenExpiresIn - 10
 
-        storeTokenData(TokenData(
-            token = accessToken,
-            expireTimeSec = expireTime,
-            refreshToken = refreshToken,
-            refreshTokenExpireSec = refreshTokenExpireTime
-        ))
+            storeTokenData(
+                TokenData(
+                    token = accessToken,
+                    expireTimeSec = expireTime,
+                    refreshToken = refreshToken,
+                    refreshTokenExpireSec = refreshTokenExpireTime
+                )
+            )
+
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 
     fun code2token(code: String, activity: Activity): Boolean {
@@ -251,9 +260,7 @@ class TongjiApi {
         val bodyString = response.body?.string()
         val responseJson = bodyString?.let { JSONObject(it) } ?: return false
 
-        processGetTokenResponse(responseJson)
-
-        return true
+        return processGetTokenResponse(responseJson)
     }
 
     /**
@@ -292,9 +299,9 @@ class TongjiApi {
             null
         } ?: return false
 
-        processGetTokenResponse(resJson)
 
-        return false
+        return processGetTokenResponse(resJson)
+
     }
 
     data class StudentInfo(
@@ -748,6 +755,8 @@ class TongjiApi {
             allThreadsFiredSemaphore.release()
         }
 
+        val donePages = AtomicInteger(1)
+
         for (page in 2 .. pages step CONCURRENT_SIZE) {
 
             if (apiControl.stop.get()) {
@@ -783,7 +792,7 @@ class TongjiApi {
                             return@thread
                         }
 
-                        val currProgress = thisPage * 100 / pages
+                        val currProgress = donePages.incrementAndGet() * 100 / pages
                         if (currProgress > progress.get()) {
                             progress.set(currProgress)
                             onProgressUpdate?.let { it(currProgress) }

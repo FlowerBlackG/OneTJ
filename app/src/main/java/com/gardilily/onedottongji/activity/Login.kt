@@ -64,7 +64,7 @@ class Login : Activity() {
                 Intent(this@Login, TongjiOAuth::class.java),
                 MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID
             )
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
         }
 
         GarCloudApi.checkUpdate(this, false)
@@ -233,33 +233,13 @@ class Login : Activity() {
         when (requestCode) {
             MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID -> {
 
-                val resultData = data?.getStringArrayExtra(TongjiOAuth.RESULT_KEY)
-                if (resultData == null) {
+                data ?: return
 
-                    Toast.makeText(this, "授权失败 qwq", Toast.LENGTH_SHORT).show()
-                    return
-                }
+                val error = data.getStringExtra(TongjiOAuth.RESULT_ERROR)
 
-                if (resultData[0] != null || resultData[1] == null) {
-
-                    Toast.makeText(this, "授权失败 qwq (${resultData[0]})", Toast.LENGTH_SHORT).show()
-                    return
-                }
-
-                val code = resultData[1]
-                setUISpinning(true)
-
-                thread {
-
-                    if (TongjiApi.instance.code2token(code, this@Login)) {
-                        runOnUiThread {
-                            startActivity(Intent(this@Login, Home::class.java))
-                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-                            finish()
-                        }
-                    }
-                    runOnUiThread { setUISpinning(false) }
-
+                if (error == null) {
+                    startActivity(Intent(this@Login, Home::class.java))
+                    finish()
                 }
 
             } // MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID ->

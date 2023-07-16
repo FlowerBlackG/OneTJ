@@ -1,3 +1,9 @@
+Version: 3.0.2 (49)
+Build Time: 2023.07.16–17:06
+Update Log:
+* 修复登录页可能会闪退的问题（增加对refresh token接口的错误处理）。
+* 统一身份认证登录页面改为全屏显示。
+
 Version: 3.0.1 (48)
 Build Time: 2023.07.14–14:31
 Update Log:

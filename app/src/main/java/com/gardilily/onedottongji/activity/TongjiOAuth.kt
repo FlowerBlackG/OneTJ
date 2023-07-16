@@ -9,39 +9,61 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import com.google.android.material.elevation.SurfaceColors
+import kotlin.concurrent.thread
 
 /**
  *
+ * Intent 传入：
+ *   scope: String 需要授权的项目。之间用空格分开。
  *
  * activity 信息返回格式：
  *   oauthResult: Array<String?>(error, code)
  *     err 非空，表示登录失败。
  *     code 非空，可用 code 换结果。
  */
-class TongjiOAuth : AppCompatActivity() {
+class TongjiOAuth : OneTJActivityBase(
+    hasTitleBar = false,
+    withSpinning = true
+) {
 
     companion object {
-        const val RESULT_KEY = "oauthResult"
+        /**
+         * 需要授权的选项。
+         * String
+         */
+        const val INTENT_PARAM_SCOPE = "scope"
+
+        /**
+         * 授权错误信息。
+         * String
+         */
+        const val RESULT_ERROR = "oauthError"
+
+        /**
+         * 授权得到的 code。
+         * String
+         */
+        const val RESULT_AUTH_CODE = "oauthCode"
+
     }
 
     private lateinit var webView : WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_tongji_oauth)
 
-        val color = SurfaceColors.SURFACE_2.getColor(this)
-        window.navigationBarColor = color
-        window.statusBarColor = color
-        title = "同济大学开放平台 - 身份认证"
+        stageSpinningProgressBar(findViewById(R.id.tongjiOAuth_rootContainer))
+
+        val scope = intent.getStringExtra(INTENT_PARAM_SCOPE)
 
         initWebView()
-        loadOAuthPage()
+        loadOAuthPage(scope)
 
     }
 
@@ -79,8 +101,34 @@ class TongjiOAuth : AppCompatActivity() {
                     val code = uri.getQueryParameter("code")
                     val error = uri.getQueryParameter("error")
 
-                    setResult(0, Intent().putExtra(RESULT_KEY, arrayOf(error, code)))
-                    finish()
+                    val resIntent = Intent()
+                    resIntent.putExtra(RESULT_AUTH_CODE, code)
+                    resIntent.putExtra(RESULT_ERROR, error)
+
+                    code?.let {
+
+                        thread {
+                            val res = TongjiApi.instance.code2token(it, this@TongjiOAuth)
+
+
+                            runOnUiThread {
+                                if (!res) {
+
+                                    Toast.makeText(
+                                        this@TongjiOAuth,
+                                        "授权失败（code2token）",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    resIntent.putExtra(RESULT_ERROR, "code2token returns false")
+                                }
+
+                                setResult(0, resIntent)
+                                finish()
+
+                            } // runOnUiThread {
+                        } // thread {
+                    } // code?.let {
 
                     return true // 防止白屏。
                 }
@@ -92,7 +140,7 @@ class TongjiOAuth : AppCompatActivity() {
         webView.webChromeClient = object : WebChromeClient() {}
     }
 
-    private fun loadOAuthPage() {
+    private fun loadOAuthPage(scope: String?) {
         // https://api.tongji.edu.cn/docs/#/architecture/authentication
         val urlBuilder = StringBuilder("${TongjiApi.BASE_URL}/keycloak/realms/OpenPlatform/protocol/openid-connect/auth")
 
@@ -101,15 +149,17 @@ class TongjiOAuth : AppCompatActivity() {
         urlBuilder.append("&response_type=code")
 
         val scopeBuilder = StringBuilder()
-        TongjiApi.SCOPE_LIST.forEach {
-            if (it != TongjiApi.SCOPE_LIST.first()) {
-                scopeBuilder.append(' ')
-            }
+        if (scope == null) {
+            TongjiApi.SCOPE_LIST.forEach {
+                if (it != TongjiApi.SCOPE_LIST.first()) {
+                    scopeBuilder.append(' ')
+                }
 
-            scopeBuilder.append(it)
+                scopeBuilder.append(it)
+            }
         }
 
-        urlBuilder.append("&scope=$scopeBuilder")
+        urlBuilder.append("&scope=${scope ?: scopeBuilder}")
 
         webView.loadUrl(urlBuilder.toString())
 
