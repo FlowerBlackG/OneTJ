@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:name=".OneTJApplication"
         android:allowBackup="true"
@@ -60,7 +67,7 @@
             android:theme="@style/Theme.OneDotTongjiRefresh.func.LocalAttachments"/>
 
         <activity android:name=".activity.func.autocourseelect.AutoCourseElect"
-            android:theme="@style/Theme.OneDotTongjiRefresh.func.AutoCourseElect" />
+            android:theme="@style/Theme.OneTJ.Base" />
 
         <activity android:name=".activity.func.CetScore"
             android:theme="@style/Theme.OneTJ.Base" />
@@ -74,13 +81,5 @@
         <service android:name=".service.BackgroundDownload" />
         <service android:name=".service.BackgroundAutoCourseElect" />
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 </manifest>

@@ -3,33 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/shape_page_background_gradient"
     tools:context=".activity.func.autocourseelect.AutoCourseElect">
 
-    <TextView
-        android:id="@+id/func.autoCourseElect.titleTag"
-        android:layout_width="match_parent"
-        android:layout_height="80sp"
-        android:layout_marginStart="18sp"
-        android:layout_marginTop="38sp"
-        android:layout_marginEnd="18sp"
-        android:layout_marginBottom="12sp"
-        android:background="@drawable/shape_login_page_box"
-        android:clickable="true"
-        android:gravity="center"
-        android:text="自动抢课"
-        android:textSize="24sp" />
-
-    <TextView
+    <Button
         android:id="@+id/func.autoCourseElect.courseCodeField.search"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:layout_below="@id/func.autoCourseElect.titleTag"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="18dp"
         android:layout_marginBottom="12dp"
-        android:background="@drawable/shape_login_page_box"
+        android:layout_marginTop="12dp"
         android:clickable="true"
         android:gravity="center"
         android:text="🔍"
@@ -40,17 +24,17 @@
         android:id="@+id/func.autoCourseElect.courseCodeField.input"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_below="@id/func.autoCourseElect.titleTag"
         android:layout_marginStart="18dp"
         android:layout_marginBottom="12dp"
         android:layout_toStartOf="@id/func.autoCourseElect.courseCodeField.search"
-        android:background="@drawable/shape_login_page_box"
         android:gravity="center"
         android:hint="在此输入课号"
+        android:layout_marginTop="12dp"
         android:maxLength="16"
         android:maxLines="1"
-        android:inputType="textMultiLine"
-        android:textColor="?attr/colorAccent"
+        android:singleLine="true"
+        android:lines="1"
+        android:inputType="text"
         android:textSize="24sp" />
 
     <ScrollView
@@ -78,10 +62,9 @@
         android:gravity="center"
         android:id="@+id/func.autoCourseElect.funcBtnRow">
 
-        <TextView
+        <Button
             android:layout_width="80sp"
             android:layout_height="80sp"
-            android:background="@drawable/shape_login_page_box"
             android:clickable="true"
             android:gravity="center"
             android:text="✋"

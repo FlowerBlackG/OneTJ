@@ -1,15 +1,24 @@
 // SPDX-License-Identifier: MulanPSL-2.0
 package com.gardilily.onedottongji.activity.func.autocourseelect
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import android.widget.*
+import androidx.core.content.getSystemService
 import com.gardilily.common.view.card.InfoCard
 import com.gardilily.onedottongji.R
+import com.gardilily.onedottongji.activity.OneTJActivityBase
 import com.gardilily.onedottongji.activity.WebViewUniLogin
 import com.gardilily.onedottongji.service.BackgroundAutoCourseElect
 import com.gardilily.onedottongji.tools.MacroDefines
@@ -27,7 +36,10 @@ import kotlin.concurrent.thread
  * + sessionid
  * + studentId 学号
  */
-class AutoCourseElect : Activity() {
+class AutoCourseElect : OneTJActivityBase(
+	hasTitleBar = true,
+	backOnTitleBar = true
+) {
 
 	companion object {
 		const val INTENT_PARAM_SERVICE_CONTROL_ACTION = "__1"
@@ -37,6 +49,7 @@ class AutoCourseElect : Activity() {
 	}
 
 	private lateinit var linearLayout: LinearLayout
+	private lateinit var sp: SharedPreferences
 
 	private var roundId = ""
 	private var calendarId = 0
@@ -50,9 +63,71 @@ class AutoCourseElect : Activity() {
 		setContentView(R.layout.activity_autocourseelect)
 		linearLayout = findViewById(R.id.func_autoCourseElect_linearLayout)
 
+		sp = getSharedPreferences("onetj.autocourseelect", MODE_PRIVATE)
+
 		uniHttpClient = OkHttpClient()
 
+		requestPermissions()
+
+		title = "自动抢课"
+
 		startActivityForResult(Intent(this, WebViewUniLogin::class.java), MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID)
+	}
+
+	// https://github.com/FlowerBlackG/FakeRun/blob/master/app/src/main/java/com/fakerun/fakerun/activity/Auth.kt
+	private fun isIgnoringBatteryOptimizations() : Boolean {
+		var isIgnoring = false
+		val powerManager = getSystemService<PowerManager>()
+		if (powerManager != null) {
+			isIgnoring = powerManager.isIgnoringBatteryOptimizations(packageName)
+		}
+		Log.d("Auth.isIgnoringBatteryOptimizations", "res=" + if (isIgnoring) "true" else "false")
+		return isIgnoring
+	}
+
+	private fun requestIgnoreBatteryOptimizations() {
+		try {
+			val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+			intent.data = Uri.parse("package:$packageName")
+			startActivity(intent)
+		} catch (e: Exception) {
+
+		}
+	}
+
+	private fun requestPermissions() {
+		if (!isIgnoringBatteryOptimizations()) {
+			requestIgnoreBatteryOptimizations()
+		}
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+			fun requirePostNotificationPermission() = requestPermissions(arrayOf(
+				Manifest.permission.POST_NOTIFICATIONS
+			), 0)
+
+			val POST_MSG_FIRED_KEY = "___post msg request fired"
+
+			if ( ! sp.getBoolean(POST_MSG_FIRED_KEY, false)) {
+
+				// 发送通知权限。
+				AlertDialog.Builder(this)
+					.setTitle("通知权限")
+					.setMessage("抢课需要在后台运行。安卓系统后台需要通知权限。请给我权限~~")
+					.setCancelable(false)
+					.setPositiveButton("好的") { dialog, which ->
+						requirePostNotificationPermission()
+						sp.edit().putBoolean(POST_MSG_FIRED_KEY, true).apply()
+					}
+					.show()
+
+			} else {
+
+				requirePostNotificationPermission()
+
+			}
+
+		}
 	}
 
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
