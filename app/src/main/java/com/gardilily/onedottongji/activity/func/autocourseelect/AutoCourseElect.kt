@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MulanPSL-2.0
 package com.gardilily.onedottongji.activity.func.autocourseelect
 
+
 import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -14,7 +13,11 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
-import android.widget.*
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.getSystemService
 import com.gardilily.common.view.card.InfoCard
 import com.gardilily.onedottongji.R
@@ -23,12 +26,14 @@ import com.gardilily.onedottongji.activity.WebViewUniLogin
 import com.gardilily.onedottongji.service.BackgroundAutoCourseElect
 import com.gardilily.onedottongji.tools.MacroDefines
 import com.gardilily.onedottongji.tools.Utils
+import com.google.android.material.card.MaterialCardView
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.concurrent.thread
+
 
 /**
  *
@@ -38,7 +43,8 @@ import kotlin.concurrent.thread
  */
 class AutoCourseElect : OneTJActivityBase(
 	hasTitleBar = true,
-	backOnTitleBar = true
+	backOnTitleBar = true,
+	withSpinning = true
 ) {
 
 	companion object {
@@ -54,9 +60,10 @@ class AutoCourseElect : OneTJActivityBase(
 	private var roundId = ""
 	private var calendarId = 0
 
-	private lateinit var uniHttpClient: OkHttpClient
+	private val uniHttpClient = OkHttpClient()
 
 	private var sessionid: String? = null
+
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -65,11 +72,11 @@ class AutoCourseElect : OneTJActivityBase(
 
 		sp = getSharedPreferences("onetj.autocourseelect", MODE_PRIVATE)
 
-		uniHttpClient = OkHttpClient()
+		title = "自动抢课"
+
+		stageSpinningProgressBar(findViewById(R.id.func_autoCourseElect_rootContainer))
 
 		requestPermissions()
-
-		title = "自动抢课"
 
 		startActivityForResult(Intent(this, WebViewUniLogin::class.java), MacroDefines.UNILOGIN_WEBVIEW_FOR_1SESSIONID)
 	}
@@ -90,7 +97,7 @@ class AutoCourseElect : OneTJActivityBase(
 			val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
 			intent.data = Uri.parse("package:$packageName")
 			startActivity(intent)
-		} catch (e: Exception) {
+		} catch (_: Exception) {
 
 		}
 	}
@@ -140,6 +147,7 @@ class AutoCourseElect : OneTJActivityBase(
 				if (resultCode == MacroDefines.ACTIVITY_RESULT_SUCCESS) {
 
 					sessionid = data?.getStringExtra("sessionid")
+					Log.d("AutoCourseElect", "sessionid is [$sessionid]")
 					prepare()
 				}
 
@@ -192,11 +200,12 @@ class AutoCourseElect : OneTJActivityBase(
 			if (rounds.length() > 1) {
 				val items = Array(rounds.length()) { idx -> rounds.getJSONObject(idx).getString("name") }
 				runOnUiThread {
-					val alertBuilder = AlertDialog.Builder(this)
+					AlertDialog.Builder(this)
 						.setTitle("选择轮次")
 						.setItems(items) { dialog, idx ->
 							roundId = rounds.getJSONObject(idx).getString("id")
 							calendarId = rounds.getJSONObject(idx).getInt("calendarId")
+							runOnUiThread { title = "抢课：${rounds.getJSONObject(idx).getString("name")}" }
 							dialog.dismiss()
 						}
 						.setCancelable(false)
@@ -212,14 +221,21 @@ class AutoCourseElect : OneTJActivityBase(
 			} else {
 				roundId = rounds.getJSONObject(0).getString("id")
 				calendarId = rounds.getJSONObject(0).getInt("calendarId")
+				runOnUiThread {
+					title = "抢课：${rounds.getJSONObject(0).getString("name")}"
+				}
 			}
 		}
 	}
 
 	private fun initSearchButton() {
-		findViewById<TextView>(R.id.func_autoCourseElect_courseCodeField_search).setOnClickListener {
+
+		findViewById<MaterialCardView>(R.id.func_autoCourseElect_search_button).setOnClickListener {
+
+			setSpinning(true)
+
 			val courseCode =
-				findViewById<EditText>(R.id.func_autoCourseElect_courseCodeField_input)
+				findViewById<EditText>(R.id.func_autoCourseElect_search_input)
 					.text
 					.toString()
 					.uppercase()
@@ -254,6 +270,7 @@ class AutoCourseElect : OneTJActivityBase(
 				if (courseInfoResponse == null) {
 					runOnUiThread {
 						Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
+						setSpinning(false)
 					}
 					return@thread
 				}
@@ -293,8 +310,8 @@ class AutoCourseElect : OneTJActivityBase(
 
 				fun getTimeTableListAndRoom(arr: JSONArray): String {
 					var res = ""
-					val len = arr.length()
-					for (i in 0 until len) {
+
+					for (i in 0 until arr.length()) {
 						if (res.isNotEmpty()) {
 							res += '\n'
 						}
@@ -314,8 +331,30 @@ class AutoCourseElect : OneTJActivityBase(
 						.addInfo(InfoCard.Info("校区", singleObj.getString("campusI18n")))
 						.addInfo(InfoCard.Info("课号", singleObj.getString("teachClassCode")))
 						.addInfo(InfoCard.Info("备注", singleObj.getString("remark")))
-						.setCardBackground(getDrawable(R.drawable.shape_login_page_box))
-						.setIcon(listOf("🍓", "🍊", "🫐", "🍏", "🍍", "🥥", "🥝", "🍋", "🍒", "🍈", "🍎", "🍑", "🍉").random())
+						.setIcon("fluentemoji/" + listOf(
+							"green_apple",
+							"red_apple",
+							"pear",
+							"tangerine",
+							"lemon",
+							"watermelon",
+							"grapes",
+							"strawberry",
+							"blueberries",
+							"melon",
+							"cherries",
+							"peach",
+							"pineapple",
+							"kiwi_fruit",
+							"avocado",
+							"coconut",
+							"banana",
+							"eggplant",
+							"carrot",
+							"bell_pepper",
+							"olive",
+							"onion"
+						).random() + "_color.svg")
 						.setOuterMarginBottomSp(18f)
 						.build()
 
@@ -352,17 +391,20 @@ class AutoCourseElect : OneTJActivityBase(
 						linearLayout.addView(card)
 					}
 				}
+
+				runOnUiThread { setSpinning(false) }
 			}
 		}
 
 		// 全部停止
-		findViewById<TextView>(R.id.func_autoCourseElect_funcBtnRow_stopAll).setOnClickListener {
+		findViewById<MaterialCardView>(R.id.func_autoCourseElect_funcBtnRow_stopAll).setOnClickListener {
 			val intent = Intent(this, BackgroundAutoCourseElect::class.java)
 			intent.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_ACTION, BackgroundAutoCourseElect.ACTION_STOP_ALL)
 			startService(intent)
 
 			Toast.makeText(this, "正在停止选课...", Toast.LENGTH_SHORT).show()
 		}
+
 	}
 
 }

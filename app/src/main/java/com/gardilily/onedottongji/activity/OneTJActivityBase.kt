@@ -9,8 +9,6 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
-import com.google.android.material.color.DynamicColors
 import com.google.android.material.elevation.SurfaceColors
 
 open class OneTJActivityBase(

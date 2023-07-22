@@ -1,3 +1,16 @@
+Version: 3.0.4 (51)
+Build Time: 2023.07.22–16:26
+Update Log:
+自动抢课改进：
+* 按钮调整
+  * 使用 FluentUI Emoji 图标
+  * 适配 Material 3 风格
+* 搜索框调整
+* 后台服务优化
+  * 添加“后台事件”通知标记
+* 标题栏显示当前轮次名称
+* 搜索时加入加载进度条（无限进度）
+
 Version: 3.0.3 (50)
 Build Time: 2023.07.16–18:40
 Update Log:

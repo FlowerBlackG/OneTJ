@@ -1,5 +1,5 @@
-package com.gardilily.onedottongji.service
 // SPDX-License-Identifier: MulanPSL-2.0
+package com.gardilily.onedottongji.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import com.gardilily.onedottongji.R
@@ -310,7 +311,7 @@ class BackgroundAutoCourseElect : Service() {
 				}
 			}
 
-			val noti = electThreadNotiBuilder
+			val notiBuilder = electThreadNotiBuilder
 				.setContentTitle("进行中...")
 				.setContentText(textTryCount)
 				//.setContentIntent(pendingIntent)
@@ -318,9 +319,12 @@ class BackgroundAutoCourseElect : Service() {
 					Notification.BigTextStyle()
 						.bigText("$textTryCount\n$outputStr\n尝试列表：$electCourseArrayString")
 				)
-				.build()
 
-			notiManager.notify(Defines.NOTI_ID_BACK_AUTOELECT_SERVICE, noti)
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+				notiBuilder.setFlag(Notification.FLAG_ONGOING_EVENT, true)
+			}
+
+			notiManager.notify(Defines.NOTI_ID_BACK_AUTOELECT_SERVICE, notiBuilder.build())
 			Thread.sleep(1000)
 		}
 
@@ -336,12 +340,16 @@ class BackgroundAutoCourseElect : Service() {
 			electLoopRunning = true
 		}
 
-		val noti = electThreadNotiBuilder
+		val notiBuilder = electThreadNotiBuilder
 			.setContentTitle("自动抢课")
 			.setContentText("就绪")
-			.build()
 
-		notiManager.notify(Defines.NOTI_ID_BACK_AUTOELECT_SERVICE, noti)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			notiBuilder.setFlag(Notification.FLAG_ONGOING_EVENT, true)
+		}
+
+
+		notiManager.notify(Defines.NOTI_ID_BACK_AUTOELECT_SERVICE, notiBuilder.build())
 
 		thread {
 			electLoop()

@@ -3,44 +3,50 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/func.autoCourseElect.rootContainer"
     tools:context=".activity.func.autocourseelect.AutoCourseElect">
 
-    <Button
-        android:id="@+id/func.autoCourseElect.courseCodeField.search"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="12dp"
-        android:clickable="true"
-        android:gravity="center"
-        android:text="🔍"
-        android:textColor="#fff"
-        android:textSize="36sp" />
-
-    <EditText
-        android:id="@+id/func.autoCourseElect.courseCodeField.input"
+    <LinearLayout
+        android:id="@+id/func.autoCourseElect.search.row"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginBottom="12dp"
-        android:layout_toStartOf="@id/func.autoCourseElect.courseCodeField.search"
-        android:gravity="center"
-        android:hint="在此输入课号"
-        android:layout_marginTop="12dp"
-        android:maxLength="16"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:lines="1"
-        android:inputType="text"
-        android:textSize="24sp" />
+        android:layout_height="56dp"
+        android:layout_margin="12dp">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_weight="8"
+            android:layout_height="match_parent"
+            android:hint="在此输入课号"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:inputType="text"
+            android:maxLength="16"
+            android:id="@+id/func.autoCourseElect.search.input"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_marginStart="12dp"
+            android:clickable="true"
+            android:layout_height="match_parent"
+            android:id="@+id/func.autoCourseElect.search.button">
+
+            <com.caverock.androidsvg.SVGImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                app:svg="fluentemoji/magnifying_glass_tilted_left_color.svg" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/func.autoCourseElect.courseCodeField.input"
+        android:layout_below="@id/func.autoCourseElect.search.row"
         android:layout_marginStart="18dp"
         android:layout_marginEnd="18dp"
         android:layout_above="@id/func.autoCourseElect.funcBtnRow">
@@ -62,16 +68,37 @@
         android:gravity="center"
         android:id="@+id/func.autoCourseElect.funcBtnRow">
 
-        <Button
-            android:layout_width="80sp"
-            android:layout_height="80sp"
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
             android:clickable="true"
             android:gravity="center"
-            android:text="✋"
             android:layout_margin="6dp"
-            android:textColor="#fff"
-            android:id="@+id/func.autoCourseElect.funcBtnRow.stopAll"
-            android:textSize="36sp" />
+            android:id="@+id/func.autoCourseElect.funcBtnRow.stopAll">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <com.caverock.androidsvg.SVGImageView
+                    android:layout_width="24dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="8dp"
+                    android:layout_weight="3"
+                    app:svg="fluentemoji/face_holding_back_tears_color.svg" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="7"
+                    android:gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:textSize="16sp"
+                    android:text="停下来" />
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 
