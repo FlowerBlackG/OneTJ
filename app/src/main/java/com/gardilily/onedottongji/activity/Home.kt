@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
@@ -139,6 +140,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         AUTO_COURSE_ELECT,
         LOGOUT,
         SHARE_APP,
+        JOIN_QQ_GROUP,
         ABOUT_APP,
         SPORTS_TEST_DATA,
         TERM_ARRANGEMENT,
@@ -173,6 +175,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
 
         shelf.addFuncCard("fluentemoji/wilted_flower_color.svg", "退出登录", HomeFunc.LOGOUT, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/hatching_chick_color.svg", "分享App", HomeFunc.SHARE_APP, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/zany_face_color.svg", "加讨论群", HomeFunc.JOIN_QQ_GROUP, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/teddy_bear_color.svg", "关于App", HomeFunc.ABOUT_APP, true) { funcButtonClick(it) }
 
         // shelf.addFuncCard("🔧", "提取SessionId", MacroDefines.HOME_FUNC_GET_SESSIONID, true) { funcButtonClick(it) }
@@ -438,6 +441,25 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                 val intent = Intent(this, TermArrangement::class.java)
                 intent.putExtra("calendarId", schoolCalendar?.calendarId)
                 startActivity(intent)
+            }
+            HomeFunc.JOIN_QQ_GROUP -> {
+                val imgView = ImageView(this)
+                imgView.setImageResource(R.drawable.qq_group_qrcode)
+
+                AlertDialog.Builder(this)
+                    .setTitle("加入QQ群")
+                    .setMessage("群号：322324184")
+                    .setPositiveButton("好") { _, _ ->
+
+                    }
+                    .setNeutralButton("链接加群") { _, _ ->
+                        val groupUrl = "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=YIF3M8HCGgW4_q6J4XjOrres3aaLhPsm&authKey=L%2F29m%2Bc8HmnYWupK%2F7dzAlptgdDc3DoBhKZ7p3BJw4NOufa1dAo4QsgCUzBKdJ8C&noverify=0&group_code=322324184"
+                        val uri = Uri.parse(groupUrl)
+                        this@Home.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                    }
+                    .setView(imgView)
+                    .setCancelable(true)
+                    .show()
             }
             else -> {}
         }

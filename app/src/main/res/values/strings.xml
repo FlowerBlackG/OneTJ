@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">一块钱</string>
-    <string name="app_buildTime" translatable="false">2023.07.22–16:26</string>
+    <string name="app_buildTime" translatable="false">2023.07.24–21:09</string>
     <string name="login_to_tongji_university">统一身份认证登录</string>
     <string name="version">版本</string>
     <string name="check_for_update">检查更新</string>
@@ -16,4 +16,5 @@
     <string name="Gym_activities">场馆锻炼</string>
     <string name="Running">健身跑步</string>
     <string name="licensed_under_Mulan_Permissive_Software_License_Version_2">以木兰宽松许可证第2版开源</string>
+    <string name="join_qq_group">加入讨论群</string>
 </resources>

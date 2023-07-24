@@ -1,3 +1,8 @@
+Version: 3.0.5 (52)
+Build Time: 2023.07.24–21:09
+Update Log:
+加入QQ群二维码
+
 Version: 3.0.4 (51)
 Build Time: 2023.07.22–16:26
 Update Log:
