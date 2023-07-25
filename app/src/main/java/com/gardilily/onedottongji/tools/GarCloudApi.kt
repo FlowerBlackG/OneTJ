@@ -16,8 +16,19 @@ import java.util.*
 import kotlin.concurrent.thread
 
 /** 鲤溪云功能接口。与后方服务器通讯，完成检查更新、基础用户信息采集功能。 */
-class GarCloudApi {
+class GarCloudApi private constructor() {
     companion object {
+
+        private var _client: OkHttpClient? = null
+        private val client: OkHttpClient
+            get() {
+                if (_client == null) {
+                    _client = OkHttpClient()
+                }
+
+                return _client!!
+            }
+
 
         /**
          * 检查更新。
@@ -32,7 +43,7 @@ class GarCloudApi {
                 val tarUrl = "https://www.gardilily.com/oneDotTongji/checkUpdate.php?" +
                         "version=" + packageManager.getPackageInfo(packageName, 0).longVersionCode
 
-                val client = OkHttpClient()
+
                 val request = Request.Builder()
                     .url(tarUrl)
                     .build()
@@ -103,13 +114,50 @@ class GarCloudApi {
                             .getPackageInfo(activity.packageName, 0).longVersionCode +
                         "&device_brand=" + Build.BRAND +
                         "&device_model=" + Build.MODEL
-                val client = OkHttpClient()
+
                 val request = Request.Builder()
                     .url(url)
                     .build()
 
                 Utils.safeNetworkRequest(request, client)
             }
+        }
+
+
+        data class CourseElectSecret(
+            var key: String,
+            var iv: String
+        )
+        fun getCourseElectSecret(): CourseElectSecret? {
+            val url = "https://www.gardilily.com/oneDotTongji/courseElectSecret.php"
+
+            val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+
+            try  {
+                client.newCall(request).execute().use { response ->
+
+                    if (response.code != 200) {
+                        return null
+                    }
+
+                    response.body ?: return null
+
+                    val json = JSONObject(response.body!!.string())
+
+                    return CourseElectSecret(
+                        key = json.getString("key"),
+                        iv = json.getString("iv")
+                    )
+
+                }
+
+            } catch (e: Exception) {
+                return null
+            }
+
         }
 
     }

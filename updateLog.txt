@@ -1,3 +1,9 @@
+Version: 3.0.6 (53)
+Build Time: 2023.07.25–11:13
+Update Log:
+* 自动抢课
+  破解一系统新带加密的抢课接口
+
 Version: 3.0.5 (52)
 Build Time: 2023.07.24–21:09
 Update Log:

@@ -370,6 +370,8 @@ class AutoCourseElect : OneTJActivityBase(
 						 * teachClassCode: String
 						 * sessionid: String
 						 * studentId: String 学号
+						 * calendarId: Int
+						 * teacherName: String
 						 ****************/
 						val infoJson = JSONObject()
 						infoJson.put("roundId", roundId)
@@ -379,6 +381,8 @@ class AutoCourseElect : OneTJActivityBase(
 						infoJson.put("teachClassCode", singleObj.getString("teachClassCode"))
 						infoJson.put("studentId", intent.getStringExtra("studentId"))
 						infoJson.put("sessionid", sessionid)
+							.put("calendarId", calendarId)
+							.put("teacherName", singleObj.getString("teacherName"))
 
 						val intent = Intent(this, BackgroundAutoCourseElect::class.java)
 						intent.putExtra(BackgroundAutoCourseElect.INTENT_PARAM_COURSE_INFO_JSON, infoJson.toString())

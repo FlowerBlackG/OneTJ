@@ -9,8 +9,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Base64
 import android.util.Log
 import com.gardilily.onedottongji.R
+import com.gardilily.onedottongji.tools.GarCloudApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -21,6 +23,11 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.URLEncoder
+import java.security.MessageDigest
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import kotlin.concurrent.thread
 
 /**
@@ -48,7 +55,7 @@ class BackgroundAutoCourseElect : Service() {
 		 * teachClassCode: String
 		 * sessionid: String
 		 * studentId: String 学号
-		 *
+		 * calendarId: Int
 		 ****************/
 		const val INTENT_PARAM_COURSE_INFO_JSON = "__3"
 	}
@@ -69,6 +76,10 @@ class BackgroundAutoCourseElect : Service() {
 	private var roundId: String = "0"
 
 	private var sessionid: String = ""
+
+	private var studentId: String = ""
+
+	private var calendarId: Int = 0
 
 	private class Defines {
 		companion object {
@@ -187,6 +198,10 @@ class BackgroundAutoCourseElect : Service() {
 
 				sessionid = infoJson.getString("sessionid")
 
+				studentId = infoJson.getString("studentId")
+
+				calendarId = infoJson.getInt("calendarId")
+
 				// 将选课目标加入映射表。
 				courseMapLock.withLock {
 					courseMap[infoJson.getLong("teachClassId")] = infoJson
@@ -221,10 +236,87 @@ class BackgroundAutoCourseElect : Service() {
 
 	private var electLoopRunning = false
 
+
+	private fun JSONObject.toCourseElectEncrypted(secret: GarCloudApi.Companion.CourseElectSecret): JSONObject {
+		val res = JSONObject()
+
+		val firstCourse = this.getJSONArray("elecClassList").getJSONObject(0)
+
+		val elements = arrayOf(
+			studentId, // a 学号
+			firstCourse.getString("courseCode"), // o 课号
+			firstCourse.getString("teachClassId"), // n 第一门的 teach class id
+			calendarId.toString(), // c 学期 id
+			System.currentTimeMillis().toString(), // u 时间戳
+			this.toString(), // s "{"roundId": xxx, elecClassList: [], withdraw...}"
+		)
+
+		/**
+		 * 连接
+		 * 例如，将 ["a", "b", "c"] 连接成 "a+b+c"
+		 */
+		fun Array<String>.toConnected(connector: String): String {
+			val builder = StringBuilder()
+			this.forEachIndexed { index, s ->
+				if (index > 0) {
+					builder.append(connector)
+				}
+
+				builder.append(s)
+			}
+
+			return builder.toString()
+		}
+
+		val plusConnectedStr = elements.toConnected("+")
+		val andConnectedStr = elements.toConnected("&")
+
+		val checkCodeBytes = MessageDigest.getInstance("MD5").digest(plusConnectedStr.toByteArray())
+		val checkCodeBuilder = StringBuilder()
+
+		checkCodeBytes.forEach { byte: Byte ->
+
+			val iByte = (byte.toUInt() % 0xFFu).toInt()
+			if (iByte < 0x10) {
+				checkCodeBuilder.append('0')
+			}
+
+			checkCodeBuilder.append(Integer.toHexString(iByte))
+		}
+
+		val checkCode = checkCodeBuilder.toString()
+
+		val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
+		val secretKeySpec = SecretKeySpec(secret.key.toByteArray(), "AES")
+		val ivSpec = IvParameterSpec(secret.iv.toByteArray())
+		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec)
+		val cipherBytes = cipher.doFinal(URLEncoder.encode(andConnectedStr, "UTF-8").toByteArray())
+
+		val cipherB64 = Base64.encodeToString(cipherBytes, Base64.NO_WRAP)
+		val cipherUrlEncoded = URLEncoder.encode(cipherB64, "UTF-8")
+
+		res.put("checkCode", checkCode)
+		res.put("ciphertext", cipherUrlEncoded)
+		return res
+	}
+
 	/**
 	 * 选课循环。需要在外部异步调用。内部阻塞式执行。
 	 */
 	private fun electLoop() = runBlocking {
+
+		// fetch secret
+		val secret = GarCloudApi.getCourseElectSecret()
+
+		if (secret == null) {
+			val notiBuilder = electThreadNotiBuilder
+				.setContentTitle("失败")
+				.setContentText("无法获取选课密钥")
+
+			notiManager.notify(Defines.NOTI_ID_BACK_AUTOELECT_SERVICE, notiBuilder.build())
+
+			return@runBlocking
+		}
 
 		var count = 0
 		val electUrl = "https://1.tongji.edu.cn/api/electionservice/student/elect"
@@ -235,6 +327,7 @@ class BackgroundAutoCourseElect : Service() {
 
 			// 登记所有要尝试的选课
 			val electCourseArray = JSONArray()
+			val electCourseKotlinArray = ArrayList<JSONObject>()
 			var electCourseArrayString = ""
 			courseMapLock.withLock {
 				courseMap.forEach { (courseId, courseInfo) ->
@@ -242,9 +335,15 @@ class BackgroundAutoCourseElect : Service() {
 					electCourseObj.put("teachClassId", courseId)
 						.put("teachClassCode", courseInfo.getString("teachClassCode"))
 						.put("courseCode", courseInfo.getString("courseCode"))
-					electCourseArray.put(electCourseObj)
+						.put("courseName", courseInfo.getString("courseName"))
+						.put("teacherName", courseInfo.getString("teacherName"))
+					electCourseKotlinArray.add(electCourseObj)
 					electCourseArrayString += courseInfo.getString("courseName") + " "
 				}
+
+				electCourseKotlinArray.sortByDescending { it.getLong("teachClassId") }
+
+				electCourseKotlinArray.forEach { electCourseArray.put(it) }
 			}
 
 			if (electCourseArray.length() == 0) {
@@ -254,10 +353,14 @@ class BackgroundAutoCourseElect : Service() {
 			count++ // 计数
 
 			val mediaTypeJSON = "application/json; charset=utf-8".toMediaType()
-			val reqJson = JSONObject()
-			reqJson.put("elecClassList", electCourseArray)
-				.put("roundId", roundId.toInt())
+
+
+			val rawReqJson = JSONObject()
+			rawReqJson.put("roundId", roundId.toInt())
+				.put("elecClassList", electCourseArray)
 				.put("withdrawClassList", JSONArray())
+
+			val reqJson = rawReqJson.toCourseElectEncrypted(secret)
 			val reqBody = reqJson.toString().toRequestBody(mediaTypeJSON)
 
 			val request = Request.Builder()
@@ -272,7 +375,8 @@ class BackgroundAutoCourseElect : Service() {
 				.post(FormBody.Builder().build())
 				.build()
 
-			Log.d("抢课请求数据", reqJson.toString())
+			Log.d("抢课请求数据", rawReqJson.toString())
+			Log.d("抢课请求数据（加密）", reqJson.toString())
 
 			val resJson = try {
 				client.newCall(request).execute()
