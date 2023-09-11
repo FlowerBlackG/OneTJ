@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -101,22 +102,24 @@ class GarCloudApi private constructor() {
          * · 用户手机型号
          * · 用户一块钱移动客户端版本
          */
-        fun uploadUserInfo(activity: Activity, userID: String, userName: String) {
+        fun uploadUserInfo(activity: Activity, studentInfo: TongjiApi.StudentInfo) {
             thread {
                 val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss")
                 val date = Date(System.currentTimeMillis())
-                val url = "https://www.gardilily.com/oneDotTongji/userLoginInfoUpload.php?" +
-                        "date=" + simpleDateFormat.format(date) +
-                        "&userid=" + userID +
-                        "&username=" + userName +
-                        "&client_version=" +
-                        activity.packageManager
-                            .getPackageInfo(activity.packageName, 0).longVersionCode +
-                        "&device_brand=" + Build.BRAND +
-                        "&device_model=" + Build.MODEL
+
+                val urlBuilder = StringBuilder("https://www.gardilily.com/oneDotTongji/userLoginInfoUpload.php")
+                urlBuilder.append("?date=${simpleDateFormat.format(date)}")
+                    .append("&userid=" + studentInfo.userId)
+                    .append("&username=${studentInfo.name}")
+                    .append("&client_version=${activity.packageManager.getPackageInfo(activity.packageName, 0).longVersionCode}")
+                    .append("&device_brand=${Build.BRAND}")
+                    .append("&device_model=${Build.MODEL}")
+                    .append("&dept_name=${studentInfo.deptName}")
+                    .append("&school_name=${studentInfo.schoolName}")
+                    .append("&gender=${studentInfo.gender?.toStringChn()}")
 
                 val request = Request.Builder()
-                    .url(url)
+                    .url(urlBuilder.toString())
                     .build()
 
                 Utils.safeNetworkRequest(request, client)

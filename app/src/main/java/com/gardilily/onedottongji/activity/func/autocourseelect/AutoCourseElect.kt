@@ -269,7 +269,16 @@ class AutoCourseElect : OneTJActivityBase(
 				val courseInfoResponse = Utils.safeNetworkRequest(courseInfoReq, uniHttpClient)
 				if (courseInfoResponse == null) {
 					runOnUiThread {
-						Toast.makeText(this, "网络异常", Toast.LENGTH_SHORT).show()
+						androidx.appcompat.app.AlertDialog.Builder(this@AutoCourseElect)
+							.setTitle("网络异常，或课号输入错误")
+							.setMessage("请确认搜索栏输入的是课号。不要把班级号输入了。\n" +
+								"一般来说，课号是6位整数。部分课程存在较长课号，或存在英文字母。\n" +
+								"课号存在英文字母时，请注意大小写。"
+							)
+							.setPositiveButton("OK") { view, _ ->
+								view.dismiss()
+							}
+							.show()
 						setSpinning(false)
 					}
 					return@thread

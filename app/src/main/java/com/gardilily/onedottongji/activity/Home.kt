@@ -108,7 +108,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
             }
 
             if (!userInfoReported) {
-                GarCloudApi.uploadUserInfo(this, studentInfo!!.userId!!, studentInfo!!.name!!)
+                GarCloudApi.uploadUserInfo(this, studentInfo!!)
                 userInfoReported = true
             }
 

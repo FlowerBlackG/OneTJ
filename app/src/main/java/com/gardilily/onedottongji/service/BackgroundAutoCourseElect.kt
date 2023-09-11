@@ -176,6 +176,12 @@ class BackgroundAutoCourseElect : Service() {
 	}
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = runBlocking {
+
+		if (intent == null) {
+			Log.e("[auto course elect (background)]", "onStartCommand received null intent.")
+			return@runBlocking START_STICKY
+		}
+
 		fun safeIntentGetStringExtra(key: String): String {
 			val solidIntent = intent!!
 			val res = solidIntent.getStringExtra(key)

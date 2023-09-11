@@ -333,6 +333,15 @@ class TongjiApi {
                 }
             }
 
+            fun toStringChn(): String {
+                return when(this) {
+                    UNTOLD -> "保密"
+                    FEMALE -> "女"
+                    MALE -> "男"
+                    UNKNOWN -> "未知"
+                }
+            }
+
         }
     }
 
@@ -361,7 +370,7 @@ class TongjiApi {
                 netErrorDialogOnSemaphore.tryAcquire()
             }
 
-            if (semaphoreAcquired) {
+            if (semaphoreAcquired && !activity.isDestroyed && !activity.isFinishing) {
                 val msg = "请检查网络连接，然后重新打开此页面。\n\n" +
                         "详细信息：\n" + e.message
 
