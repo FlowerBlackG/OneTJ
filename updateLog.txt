@@ -1,3 +1,9 @@
+Version: 3.0.8 (55)
+Build Time: 2023.09.11–15:20
+Update Log:
+* 修复首页前往抢课功能时，存在的竞争冒险问题。
+  注：个人信息未加载完成时，立即进入抢课，app会崩溃。
+
 Version: 3.0.7 (54)
 Build Time: 2023.09.11–13:21
 Update Log:

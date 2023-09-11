@@ -246,6 +246,16 @@ class AutoCourseElect : OneTJActivityBase(
 
 			linearLayout.removeAllViews()
 
+			if (intent.getStringExtra("studentId") == null) {
+				androidx.appcompat.app.AlertDialog.Builder(this@AutoCourseElect)
+					.setTitle("用户信息加载失败")
+					.setMessage("请关闭app然后重新打开。")
+					.setPositiveButton("OK") { view, _ -> view.dismiss(); }
+					.show()
+
+				return@setOnClickListener
+			}
+
 			val getCourseInfoUrl =
 				"https://1.tongji.edu.cn/api/electionservice/student/getTeachClass4Limit" +
 						"?roundId=$roundId&courseCode=$courseCode" +

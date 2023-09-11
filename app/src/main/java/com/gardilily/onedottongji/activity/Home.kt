@@ -312,6 +312,17 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                     }
                 } else if (resInt > 0) {
                     runOnUiThread {
+
+                        if (studentInfo?.userId == null) {
+                            androidx.appcompat.app.AlertDialog.Builder(this@Home)
+                                .setPositiveButton("OK") { view, _ -> view.dismiss() }
+                                .setTitle("慢一点咯")
+                                .setMessage("请等待页面上方姓名正确加载后再点开此功能。")
+                                .show()
+
+                            return@runOnUiThread
+                        }
+
                         val intent = Intent(this, AutoCourseElect::class.java)
                         intent.putExtra("studentId", studentInfo?.userId)
                         startActivity(intent)
