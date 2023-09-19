@@ -511,8 +511,26 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
     private val FUNC_TIMETABLE_SINGLE_DAY = 2
     private fun funcShowStudentTimetable(type: Int) {
 
+        if (schoolCalendar == null) {
+            androidx.appcompat.app.AlertDialog.Builder(this@Home)
+                .setPositiveButton("OK") { view, _ -> view.dismiss() }
+                .setTitle("慢一点咯")
+                .setMessage("请等待页面上方学期信息正确加载后再点开此功能。")
+                .show()
+
+            return
+        }
+
         if (type == FUNC_TIMETABLE_SINGLE_DAY) {
-            startActivity(Intent(this, SingleDay::class.java))
+            val intent = Intent(this, SingleDay::class.java)
+            val iSchoolWeek = try {
+                schoolCalendar?.schoolWeek?.toInt()
+            } catch (_: Exception) {
+                null
+            }
+
+            intent.putExtra("TermWeek", iSchoolWeek ?: 1)
+            startActivity(intent)
         } else {
             val intent = Intent(this, TermComplete::class.java)
             intent.putExtra("TermName", schoolCalendar?.simpleName)
