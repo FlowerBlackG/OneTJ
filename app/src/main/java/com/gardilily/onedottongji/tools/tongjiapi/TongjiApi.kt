@@ -187,7 +187,7 @@ class TongjiApi {
      *
      * @return TokenData
      */
-    private fun getTokenData(): TokenData {
+    fun getTokenData(): TokenData {
         return try {
             sp.getStringOrNull(SP_KEY_TOKEN_DATA)?.let {
                 TokenData.from(it)
@@ -202,7 +202,6 @@ class TongjiApi {
      * 将在 header 里面加入 authorization 信息，携带 access token。
      */
     fun Request.Builder.addAuthorization(): Request.Builder {
-        val token = getTokenData().token
         return this.addHeader("Authorization", "Bearer ${getTokenData().token}")
     }
 

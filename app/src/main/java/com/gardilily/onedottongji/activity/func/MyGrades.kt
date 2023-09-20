@@ -57,7 +57,15 @@ class MyGrades : OneTJActivityBase(
                 gradeInfoContainer = findViewById(R.id.func_myGrades_gradeInfoContainer)
 
                 showBasicGradeInfo()
-                showAllTermGradeInfo(dataObj.getJSONArray("term"))
+
+                val termDataArray = try {
+                    dataObj.getJSONArray("term")
+                } catch (_: Exception) {
+                    null
+                }
+
+                termDataArray?.let{ showAllTermGradeInfo(it) }
+
             }
         }
     }
@@ -84,7 +92,7 @@ class MyGrades : OneTJActivityBase(
 
         var cardCount = 0
 
-        fun createAndShowInfoCard(title: String, content: String, tarRow: LinearLayout) {
+        fun createAndShowInfoCard(title: String, content: String?, tarRow: LinearLayout) {
             val layout = RelativeLayout(this)
 
             val params = LinearLayout.LayoutParams(0, (90f * spMultiply).toInt())
@@ -115,7 +123,7 @@ class MyGrades : OneTJActivityBase(
             layout.addView(titleView)
 
             val contentView = TextView(this)
-            contentView.text = content
+            contentView.text = content ?: "无"
             contentView.textSize = 24f
             //  contentView.setTextColor(Color.parseColor("#000000"))
             val contentParams = RelativeLayout.LayoutParams(
@@ -139,6 +147,12 @@ class MyGrades : OneTJActivityBase(
             return String.format("%.2f", f)
         }
 
+        fun stringFloat2doublePrecStringFloatOrNull(str: String) = try {
+            stringFloat2doublePrecStringFloat(str)
+        } catch (_: Exception) {
+            null
+        }
+
         val row1 = createRowLayout(true)
         val row2 = createRowLayout()
 
@@ -146,12 +160,12 @@ class MyGrades : OneTJActivityBase(
         generalInfoContainer.addView(row2)
 
         createAndShowInfoCard("总均绩点",
-            stringFloat2doublePrecStringFloat(dataObj.getString("totalGradePoint")), row1)
+            stringFloat2doublePrecStringFloatOrNull(dataObj.getString("totalGradePoint")), row1)
         createAndShowInfoCard("总修学分",
-            stringFloat2doublePrecStringFloat(dataObj.getString("actualCredit")), row1)
+            stringFloat2doublePrecStringFloatOrNull(dataObj.getString("actualCredit")), row1)
 
         createAndShowInfoCard("失利学分",
-            stringFloat2doublePrecStringFloat(dataObj.getString("failingCredits")), row2)
+            stringFloat2doublePrecStringFloatOrNull(dataObj.getString("failingCredits")), row2)
         createAndShowInfoCard("失利门数", dataObj.getString("failingCourseCount"), row2)
     }
 

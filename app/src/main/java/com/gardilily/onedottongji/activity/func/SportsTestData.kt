@@ -52,13 +52,19 @@ class SportsTestData : OneTJActivityBase(
         }
     }
 
+    private fun JSONObject.getStringOrNull(key: String) = try {
+        this.getString(key)
+    } catch (_: Exception) {
+        null
+    }
+
     private fun loadSportsData() {
         thread {
             val sportsData = TongjiApi.instance.getOneTongjiSportsTestData(this@SportsTestData)
             sportsData ?: return@thread
 
-            val runCount = sportsData.getString("stRun")
-            val gymCount = sportsData.getString("stSport")
+            val runCount = sportsData.getStringOrNull("stRun")
+            val gymCount = sportsData.getStringOrNull("stSport")
             runOnUiThread {
                 releaseSemaphoreAndTryHideSpinning()
                 findViewById<TextView>(R.id.func_sportsTestData_runCount).text = runCount
@@ -126,7 +132,7 @@ class SportsTestData : OneTJActivityBase(
     private fun processThisTermHealthData(infoObj: JSONObject) {
         val container = findViewById<LinearLayout>(R.id.func_sportsTestData_thisTermDetailLinearContainer)
 
-        fun addData(title: String, data: String, isFinalOne: Boolean = false) {
+        fun addData(title: String, isFinalOne: Boolean = false, data: () -> String) {
 
             val view = RelativeLayout(this)
             val viewParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 128)
@@ -150,7 +156,13 @@ class SportsTestData : OneTJActivityBase(
             val dataParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.MATCH_PARENT)
             dataParams.addRule(RelativeLayout.ALIGN_PARENT_END)
             dataView.layoutParams = dataParams
-            dataView.text = data
+
+            dataView.text = try {
+                data()
+            } catch (_: Exception) {
+                "无数据"
+            }
+
             dataView.textSize = 24f
             dataView.gravity = Gravity.CENTER
 
@@ -158,27 +170,33 @@ class SportsTestData : OneTJActivityBase(
 
         }
 
-        val heightCentimeter = (infoObj.getString("height").toDoubleOrNull() ?: 0.0) + 0.01
-        val heightMeter = heightCentimeter / 100
-        
-        // segment 的两个元素分别是小数点前后的数字。小数点后有2位。
-        val heightMeterSegments = "%.2f".format(heightMeter).split(".")
+        addData("身高") {
+            val heightCentimeter = (infoObj.getString("height").toDoubleOrNull() ?: 0.0) + 0.01
+            val heightMeter = heightCentimeter / 100
 
-        addData("身高", "${heightMeterSegments[0]} 米 ${heightMeterSegments[1]}")
-        addData("体重", "${infoObj.getString("weight")} 千克")
-        val enduranceRunData = infoObj.getString("enduranceRunning").split(".")
-        addData("长跑", "${enduranceRunData[0]} 分 ${enduranceRunData[1]} 秒")
-        addData("50米", "${infoObj.getString("fiftyMeters")} 秒")
-
-        if (infoObj.getString("sexName") == "女") {
-            addData("仰卧起坐", "${infoObj.getString("sitUp")} 个")
-        } else {
-            addData("引体向上", "${infoObj.getString("pullUp")} 个")
+            // segment 的两个元素分别是小数点前后的数字。小数点后有2位。
+            val heightMeterSegments = "%.2f".format(heightMeter).split(".")
+            "${heightMeterSegments[0]} 米 ${heightMeterSegments[1]}"
         }
 
-        addData("立定跳远", "${infoObj.getString("standingLongJump").toFloat() / 100} 米", true)
-        addData("体前屈", "${infoObj.getString("sitForward")} 厘米", true)
-        addData("肺活量", "${infoObj.getString("vitalCapacity")} 毫升", true)
+        addData("体重") { "${infoObj.getString("weight")} 千克" }
+
+        addData("长跑") {
+            val enduranceRunData = infoObj.getString("enduranceRunning").split(".")
+            "${enduranceRunData[0]} 分 ${enduranceRunData[1]} 秒"
+        }
+
+        addData("50米") { "${infoObj.getString("fiftyMeters")} 秒" }
+
+        if (infoObj.getString("sexName") == "女") {
+            addData("仰卧起坐") { "${infoObj.getString("sitUp")} 个" }
+        } else {
+            addData("引体向上") { "${infoObj.getString("pullUp")} 个" }
+        }
+
+        addData("立定跳远") { "${infoObj.getString("standingLongJump").toFloat() / 100} 米" }
+        addData("体前屈") { "${infoObj.getString("sitForward")} 厘米" }
+        addData("肺活量", true) { "${infoObj.getString("vitalCapacity")} 毫升" }
 
     }
 
