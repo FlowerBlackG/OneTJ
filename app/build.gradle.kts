@@ -12,8 +12,8 @@ android {
         applicationId = "com.gardilily.onedottongji"
         minSdk = 29
         targetSdk = 34
-        versionCode = 56
-        versionName = "3.0.9"
+        versionCode = 57
+        versionName = "3.0.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

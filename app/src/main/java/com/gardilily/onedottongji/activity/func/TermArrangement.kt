@@ -63,7 +63,7 @@ class TermArrangement : OneTJActivityBase(
     private lateinit var searchEditText: TextInputEditText
     private lateinit var centerHintTextView: TextView
 
-    private lateinit var termData: List<TongjiApi.CourseArrangement>
+    private var termData: List<TongjiApi.CourseArrangement> = listOf() // 空列表。
 
     data class FilterInfo(
         val key: String,
@@ -344,7 +344,7 @@ class TermArrangement : OneTJActivityBase(
         }
     }
 
-    private fun processRawCourseData() {
+    private fun processRawCourseDataAndStage() {
 
         filterInfoList.forEach { info ->
             val set = HashSet<String>()
@@ -540,8 +540,17 @@ class TermArrangement : OneTJActivityBase(
         }
     }
 
+    /**
+     * TongjiAPI 请求控制。用于给正在并发执行的请求发布控制信息，如要求停止数据加载。
+     */
     private var fetchDataApiControl = TongjiApi.GetOneTongjiTermArrangementApiControl()
     private var targetCalendarId: AtomicInteger = AtomicInteger(0)
+
+    /**
+     * 考虑到数据加载过程中，用户可能会切换不同的学期，即会导致多个请求同步运行。
+     * 我们为每个请求编号，每次发出请求都生成一个新id，这样可以让正在运行的旧请求自己发现自己是旧的，然后停下来。
+     * 该变量记录的是最新一次请求正在使用的请求id.
+     */
     private val fetchDataRequestId = AtomicInteger(0)
 
     private fun loadData(calendarId: String = intent.getStringExtra("calendarId") ?: "0", forceLoad: Boolean = false) {
@@ -550,11 +559,14 @@ class TermArrangement : OneTJActivityBase(
             return
         }
 
+        /** 本次请求的请求编号。 */
         val requestTicket = fetchDataRequestId.incrementAndGet()
-        fun ticketAvailabel() = requestTicket == fetchDataRequestId.get()
+
+        /** 判断本请求是否仍被需要。如果最新请求 id 和本请求的不一样，说明本请求已经不被需要了。 */
+        fun ticketAvailable() = requestTicket == fetchDataRequestId.get()
 
         targetCalendarId.set(calendarId.toInt())
-        fetchDataApiControl.stop.set(true)
+        fetchDataApiControl.stop.set(true) // 让上一次的请求停下来。
         fetchDataApiControl = TongjiApi.GetOneTongjiTermArrangementApiControl()
 
         setProgress(true, true, "preparing...")
@@ -575,12 +587,13 @@ class TermArrangement : OneTJActivityBase(
                 this@TermArrangement,
                 fetchDataApiControl
             ) {
+                // 更新进度条。
 
                 if (it < 5) {
                     return@getOneTongjiTermArrangement
                 }
 
-                if (!ticketAvailabel()) {
+                if (!ticketAvailable()) {
                     return@getOneTongjiTermArrangement
                 }
 
@@ -588,7 +601,7 @@ class TermArrangement : OneTJActivityBase(
 
             } ?: return@thread
 
-            if (!ticketAvailabel()) {
+            if (!ticketAvailable()) {
                 return@thread
             }
 
@@ -596,7 +609,7 @@ class TermArrangement : OneTJActivityBase(
                 setProgress(true, true, "processing...")
 
                 thread {
-                    processRawCourseData()
+                    processRawCourseDataAndStage()
                 }
             }
         }

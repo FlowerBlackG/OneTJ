@@ -18,6 +18,8 @@ import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.sync.Semaphore
 import org.json.JSONObject
 import kotlin.concurrent.thread
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 class SportsTestData : OneTJActivityBase(
     hasTitleBar = true,
@@ -156,7 +158,13 @@ class SportsTestData : OneTJActivityBase(
 
         }
 
-        addData("身高", "${infoObj.getString("height")} 米")
+        val heightCentimeter = (infoObj.getString("height").toDoubleOrNull() ?: 0.0) + 0.01
+        val heightMeter = heightCentimeter / 100
+        
+        // segment 的两个元素分别是小数点前后的数字。小数点后有2位。
+        val heightMeterSegments = "%.2f".format(heightMeter).split(".")
+
+        addData("身高", "${heightMeterSegments[0]} 米 ${heightMeterSegments[1]}")
         addData("体重", "${infoObj.getString("weight")} 千克")
         val enduranceRunData = infoObj.getString("enduranceRunning").split(".")
         addData("长跑", "${enduranceRunData[0]} 分 ${enduranceRunData[1]} 秒")

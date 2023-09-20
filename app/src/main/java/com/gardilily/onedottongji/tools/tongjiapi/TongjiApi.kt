@@ -703,6 +703,9 @@ class TongjiApi {
 
             for (idx in 0 until jsonArr.length()) {
                 val courseObj = jsonArr.getJSONObject(idx)
+
+                val assessmentMode = courseObj.getString("assessmentMode").toIntOrNull()
+
                 result.add(CourseArrangement(
                     code = courseObj.getString("code"),
                     courseName = courseObj.getString("courseName"),
@@ -715,7 +718,7 @@ class TongjiApi {
                     courseCode = courseObj.getString("courseCode"),
                     arrangeInfo = courseObj.getString("arrangeInfo"),
                     assessmentModeI18n = courseObj.getString("assessmentModeI18n"),
-                    assessmentMode = CourseArrangement.AssessmentMode.make(courseObj.getString("assessmentMode").toInt()),
+                    assessmentMode = assessmentMode?.let{ CourseArrangement.AssessmentMode.make(assessmentMode) },
                     campusI18n = courseObj.getString("campusI18n"),
                     campus = courseObj.getString("campus")
                 ))
