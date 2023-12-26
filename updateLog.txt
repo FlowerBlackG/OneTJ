@@ -1,3 +1,8 @@
+Version: 3.0.12 (59)
+Build Time: 2023.12.26–13:10
+Update Log:
+* 以移动设备的身份加载同济统一身份认证页面（影响范围：抢课）
+
 Version: 3.0.11 (58)
 Build Time: 2023.09.20–20:51
 Update Log:

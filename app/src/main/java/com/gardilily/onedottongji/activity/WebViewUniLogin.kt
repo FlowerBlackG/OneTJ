@@ -42,8 +42,11 @@ class WebViewUniLogin : Activity() {
         webView.setInitialScale(100)
 
         // 使用电脑页面登录，防止缩放问题。
-        webView.settings.userAgentString =
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+        // 后续：但是好像新的登录页面对手机蛮友好。
+        if (false) {
+            webView.settings.userAgentString =
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"
+        }
 
         webView.webViewClient = object : WebViewClient() {
             override fun onReceivedError(
