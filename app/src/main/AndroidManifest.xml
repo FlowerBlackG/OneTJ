@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+
     <application
         android:name=".OneTJApplication"
         android:allowBackup="true"
@@ -79,7 +82,8 @@
             android:theme="@style/Theme.OneTJ.Base" />
 
         <service android:name=".service.BackgroundDownload" />
-        <service android:name=".service.BackgroundAutoCourseElect" />
+        <service android:name=".service.BackgroundAutoCourseElect"
+            android:foregroundServiceType="specialUse" />
     </application>
 
 </manifest>

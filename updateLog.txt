@@ -1,3 +1,8 @@
+Version: 3.0.13 (60)
+Build Time: 2023.12.28–21:30
+Update Log:
+* 修复安卓14系统抢课页面闪退的问题。
+
 Version: 3.0.12 (59)
 Build Time: 2023.12.26–13:10
 Update Log:
