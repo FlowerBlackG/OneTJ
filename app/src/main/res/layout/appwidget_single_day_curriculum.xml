@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/appwidget_single_day_curriculum_card_container"
+
+        android:numColumns="1"
+        android:gravity="center"
+        android:background="#7777"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="暂不可用 qwq"
+        android:textSize="18sp"
+        android:textColor="#fff"/>
+
+</RelativeLayout>

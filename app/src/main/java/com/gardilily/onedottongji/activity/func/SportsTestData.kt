@@ -61,7 +61,10 @@ class SportsTestData : OneTJActivityBase(
     private fun loadSportsData() {
         thread {
             val sportsData = TongjiApi.instance.getOneTongjiSportsTestData(this@SportsTestData)
-            sportsData ?: return@thread
+            if (sportsData == null) {
+                releaseSemaphoreAndTryHideSpinning()
+                return@thread
+            }
 
             val runCount = sportsData.getStringOrNull("stRun")
             val gymCount = sportsData.getStringOrNull("stSport")
@@ -203,7 +206,10 @@ class SportsTestData : OneTJActivityBase(
     private fun loadSportsHealthData() {
         thread {
             val healthData = TongjiApi.instance.getOneTongjiSportsTestHealthData(this@SportsTestData)
-            healthData ?: return@thread
+            if (healthData == null) {
+                releaseSemaphoreAndTryHideSpinning()
+                return@thread
+            }
 
             runOnUiThread {
                 releaseSemaphoreAndTryHideSpinning()

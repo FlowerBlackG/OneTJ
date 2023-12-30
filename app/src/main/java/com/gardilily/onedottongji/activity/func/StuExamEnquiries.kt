@@ -62,18 +62,33 @@ class StuExamEnquiries : OneTJActivityBase(
 						.setInnerMarginBetweenSp(12f)
 						.addInfo(InfoCard.Info("课号", it.getString("courseCode")))
 
-					var examSituation: Int? = null
-					try {
-						examSituation = it.getInt("examSituation")
-					} catch (e: Exception) {}
+					val examSituation: Int? = try {
+						it.getInt("examSituation")
+					} catch (_: Exception) {
+						null
+					}
 
-					if (examSituation == 1) {
-						card.addInfo(InfoCard.Info("地点", it.getString("examSite")))
+					val roomName = try {
+						val value = it.getString("roomName")
+
+						if (value == "null") {
+							null
+						} else {
+							value
+						}
+
+					} catch (_: Exception) {
+						null
+					}
+
+					if (examSituation == 1 || roomName != null) {
+						card.addInfo(InfoCard.Info("地点", it.getString("roomName")))
 							.addInfo(InfoCard.Info("时间", it.getString("examTime")))
-							.setIcon("fluentemoji/desktop_computer_color.svg")
+							.addInfo(InfoCard.Info("备注", it.getString("remark")))
+							.setIcon("fluentemoji/black_nib_color.svg")
 					} else {
 						card.addInfo(InfoCard.Info("备注", it.getString("remark")))
-							.setIcon("fluentemoji/black_nib_color.svg")
+							.setIcon("fluentemoji/desktop_computer_color.svg")
 					}
 
 					findViewById<LinearLayout>(R.id.func_studentTimeTable_termComplete_linearLayout)

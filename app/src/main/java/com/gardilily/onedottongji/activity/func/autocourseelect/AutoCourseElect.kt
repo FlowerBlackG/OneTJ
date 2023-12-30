@@ -149,6 +149,9 @@ class AutoCourseElect : OneTJActivityBase(
 					sessionid = data?.getStringExtra("sessionid")
 					Log.d("AutoCourseElect", "sessionid is [$sessionid]")
 					prepare()
+				} else {
+					Toast.makeText(this, "登录失败", Toast.LENGTH_SHORT).show()
+					finish()
 				}
 
 			}

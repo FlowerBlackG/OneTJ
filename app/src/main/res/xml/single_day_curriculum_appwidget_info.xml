@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="16dp"
+    android:minHeight="16dp"
+    android:updatePeriodMillis="1000"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:initialLayout="@layout/appwidget_single_day_curriculum">
+
+</appwidget-provider>

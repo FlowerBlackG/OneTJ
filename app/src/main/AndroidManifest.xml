@@ -40,7 +40,7 @@
         </activity>
 
         <activity android:name=".activity.WebViewUniLogin"
-            android:theme="@style/Theme.OneDotTongjiRefresh.Main" />
+            android:theme="@style/Theme.OneTJ.NoActionBar.Immersed" />
 
         <activity android:name=".activity.TongjiOAuth"
             android:theme="@style/Theme.OneTJ.NoActionBar.Immersed" />
@@ -67,7 +67,7 @@
             android:theme="@style/Theme.OneTJ.Base" />
 
         <activity android:name=".activity.func.LocalAttachments"
-            android:theme="@style/Theme.OneDotTongjiRefresh.func.LocalAttachments"/>
+            android:theme="@style/Theme.OneTJ.Base"/>
 
         <activity android:name=".activity.func.autocourseelect.AutoCourseElect"
             android:theme="@style/Theme.OneTJ.Base" />
@@ -81,9 +81,30 @@
         <activity android:name=".activity.func.TermArrangement"
             android:theme="@style/Theme.OneTJ.Base" />
 
+        <!-- 后台服务。 -->
+
         <service android:name=".service.BackgroundDownload" />
         <service android:name=".service.BackgroundAutoCourseElect"
             android:foregroundServiceType="specialUse" />
+        
+        <!-- 小组件。 -->
+
+        <receiver android:name=".appwidget.SingleDayCurriculumAppWidgetProvider"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/single_day_curriculum_appwidget_info" />
+
+        </receiver>
+        
+        <service android:name=".service.SingleDayCurriculumAppWidgetGridContainerService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
