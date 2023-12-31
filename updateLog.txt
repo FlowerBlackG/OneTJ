@@ -1,3 +1,8 @@
+Version: 3.0.15 (62)
+Build Time: 2023.12.31–15:35
+Update Log:
+改进：按照时间顺序显示考试信息
+
 Version: 3.0.14 (61)
 Build Time: 2023.12.30–20:14
 Update Log:

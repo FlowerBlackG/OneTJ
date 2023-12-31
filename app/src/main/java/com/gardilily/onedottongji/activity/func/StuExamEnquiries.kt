@@ -44,15 +44,45 @@ class StuExamEnquiries : OneTJActivityBase(
 			runOnUiThread {
 				setSpinning(false)
 
-				val dataList = examData.getJSONArray("list")
+				val dataListJsonArray = examData.getJSONArray("list")
 
 				findViewById<TextView>(R.id.func_studentTimeTable_termComplete_termName)
-					.text = dataList.getJSONObject(0).getString("calendar")
+					.text = dataListJsonArray.getJSONObject(0).getString("calendar")
 
-				val len = dataList.length()
+				val len = dataListJsonArray.length()
 
+				val dataList = ArrayList<JSONObject>()
 				for (i in 0 until len) {
-					val it = dataList.getJSONObject(i)
+					dataList.add(dataListJsonArray.getJSONObject(i))
+				}
+
+				fun getRoomName(it: JSONObject) = try {
+					val value = it.getString("roomName")
+
+					if (value == "null") {
+						null
+					} else {
+						value
+					}
+				} catch (_: Exception) {
+					null
+				}
+
+				fun getExamSituation(it: JSONObject) = try {
+					it.getInt("examSituation")
+				} catch (_: Exception) {
+					null
+				}
+
+				dataList.sortBy {
+					if (getExamSituation(it) == 1 || getRoomName(it) != null) {
+						it.getString("examTime")
+					} else {
+						"9" // 让交大作业的科目排在靠后。前面的位置留给要考试的科目。
+					}
+				}
+
+				dataList.forEach {
 
 					val card = InfoCard.Builder(this)
 						.setHasIcon(true)
@@ -62,26 +92,7 @@ class StuExamEnquiries : OneTJActivityBase(
 						.setInnerMarginBetweenSp(12f)
 						.addInfo(InfoCard.Info("课号", it.getString("courseCode")))
 
-					val examSituation: Int? = try {
-						it.getInt("examSituation")
-					} catch (_: Exception) {
-						null
-					}
-
-					val roomName = try {
-						val value = it.getString("roomName")
-
-						if (value == "null") {
-							null
-						} else {
-							value
-						}
-
-					} catch (_: Exception) {
-						null
-					}
-
-					if (examSituation == 1 || roomName != null) {
+					if (getExamSituation(it) == 1 || getRoomName(it) != null) {
 						card.addInfo(InfoCard.Info("地点", it.getString("roomName")))
 							.addInfo(InfoCard.Info("时间", it.getString("examTime")))
 							.addInfo(InfoCard.Info("备注", it.getString("remark")))
