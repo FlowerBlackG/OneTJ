@@ -128,6 +128,8 @@ class Login : Activity() {
     private val switchBackgroundLock = Semaphore(1, 0)
     private val spBackgroundLock = Semaphore(1, 0)
 
+    private val newBackgroundReady = AtomicBoolean(false)
+
     private fun stageBackground(bitmap: Bitmap?) {
 
         if (bitmap == null) {
@@ -152,7 +154,7 @@ class Login : Activity() {
 
     private fun fetchNewBackground() {
         thread {
-            val url = "https://bing.icodeq.com/"
+            val url = GarCloudApi.getBackgroundImgUrl() ?: return@thread
             val client = OkHttpClient()
             val request = Request.Builder()
                 .url(url)
@@ -169,6 +171,8 @@ class Login : Activity() {
             backgroundImageBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
             val base64 = Base64.encode(bytes, Base64.DEFAULT)
             val base64Str = String(base64)
+
+            newBackgroundReady.set(true)
 
             runBlocking {
                 spBackgroundLock.acquire()
@@ -201,7 +205,8 @@ class Login : Activity() {
             val decoded = Base64.decode(base64, Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeByteArray(decoded, 0, decoded.size)
 
-            stageBackground(bitmap)
+            if (newBackgroundReady.get() == false)
+                stageBackground(bitmap)
 
         }
     }

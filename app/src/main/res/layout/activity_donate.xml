@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.Donate">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical"
+            android:visibility="visible"
+            android:id="@+id/auth.form">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="16dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="一块钱App是同济教务1系统的第三方移动客户端，着力解决1系统在手机上不好用的问题。该App由信息办扶持并提供数据支持。\n
+\n
+该App暂无官方渠道宣传。如果大家觉得好用，恳请大家帮助我们，向身边的同学推荐本App（安卓客户端或网页），亦可邀请同学加入QQ讨论群。\n
+\n
+如果你愿意提供资金帮助，可扫描图片二维码向我们捐款。\n
+\n
+我们向所有为本App提供帮助的同学致以最诚挚的谢意！"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:src="@drawable/combinedpay"
+                android:scaleType="centerInside"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="截图保存，使用微信或支付宝扫码即可。\n点击下方按钮可查看二维码独立大图。"
+                android:textSize="18sp" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp"
+                android:gravity="center" >
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="微信支付"
+                    android:textSize="14sp"
+                    android:id="@+id/donate.qrcode.wxpay" />
+
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="支付宝"
+                    android:textSize="14sp"
+                    android:id="@+id/donate.qrcode.alipay"
+                    android:layout_marginStart="8dp"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="微信赞赏码"
+                    android:textSize="14sp"
+                    android:id="@+id/donate.qrcode.wxreward"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="16dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

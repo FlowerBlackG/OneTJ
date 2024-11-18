@@ -81,6 +81,10 @@
         <activity android:name=".activity.func.TermArrangement"
             android:theme="@style/Theme.OneTJ.Base" />
 
+
+        <activity android:name=".activity.Donate"
+            android:theme="@style/Theme.OneTJ.Base" />
+
         <!-- 后台服务。 -->
 
         <service android:name=".service.BackgroundDownload" />

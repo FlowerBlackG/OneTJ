@@ -140,6 +140,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         AUTO_COURSE_ELECT,
         LOGOUT,
         SHARE_APP,
+        DONATE,
         JOIN_QQ_GROUP,
         ABOUT_APP,
         SPORTS_TEST_DATA,
@@ -167,15 +168,14 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         shelf.addFuncCard("fluentemoji/badminton_color.svg", "体测体锻", HomeFunc.SPORTS_TEST_DATA, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/speedboat_color.svg", "全校课表", HomeFunc.TERM_ARRANGEMENT, true) { funcButtonClick(it) }
 
-        shelf.addFuncCard("fluentemoji/shushing_face_color.svg", "抢课", HomeFunc.AUTO_COURSE_ELECT, true) { funcButtonClick(it) }
-
+        //shelf.addFuncCard("fluentemoji/shushing_face_color.svg", "抢课", HomeFunc.AUTO_COURSE_ELECT, true) { funcButtonClick(it) }
         //shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "本地文件", HomeFunc.LOCAL_ATTACHMENTS, true) { funcButtonClick(it) }
-
+        shelf.addFuncCard("fluentemoji/zany_face_color.svg", "加讨论群", HomeFunc.JOIN_QQ_GROUP, true) { funcButtonClick(it) }
 
 
         shelf.addFuncCard("fluentemoji/wilted_flower_color.svg", "退出登录", HomeFunc.LOGOUT, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/hatching_chick_color.svg", "分享App", HomeFunc.SHARE_APP, true) { funcButtonClick(it) }
-        shelf.addFuncCard("fluentemoji/zany_face_color.svg", "加讨论群", HomeFunc.JOIN_QQ_GROUP, true) { funcButtonClick(it) }
+        shelf.addFuncCard("fluentemoji/smiling_face_with_hearts_color.svg", "捐助App", HomeFunc.DONATE, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/teddy_bear_color.svg", "关于App", HomeFunc.ABOUT_APP, true) { funcButtonClick(it) }
 
         // shelf.addFuncCard("🔧", "提取SessionId", MacroDefines.HOME_FUNC_GET_SESSIONID, true) { funcButtonClick(it) }
@@ -471,6 +471,10 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                     .setView(imgView)
                     .setCancelable(true)
                     .show()
+            }
+            HomeFunc.DONATE -> {
+                val intent = Intent(this, Donate::class.java)
+                startActivity(intent)
             }
             else -> {}
         }

@@ -22,7 +22,10 @@ import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import com.google.android.material.elevation.SurfaceColors
 
 /** "关于"页面。 */
-class About : AppCompatActivity() {
+class About : OneTJActivityBase(
+    backOnTitleBar = true,
+    hasTitleBar = true,
+) {
 
     private lateinit var logoDrawableRound: RoundedBitmapDrawable
 

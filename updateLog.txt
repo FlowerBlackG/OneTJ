@@ -1,3 +1,11 @@
+Version: 3.0.16 (63)
+Build Time: 2024.11.19–00:47
+Update Log:
+修复登录页背景图片不显示的问题；
+增加赞助入口；
+关闭抢课入口。
+
+
 Version: 3.0.15 (62)
 Build Time: 2023.12.31–15:35
 Update Log:

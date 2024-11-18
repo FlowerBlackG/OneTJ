@@ -163,5 +163,33 @@ class GarCloudApi private constructor() {
 
         }
 
+
+        fun getBackgroundImgUrl(): String? {
+            val url = "https://www.gardilily.com/oneDotTongji/backgroundImgUrl.php"
+            val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+
+            try {
+                client.newCall(request).execute().use { res ->
+                    if (res.code != 200 || res.body == null)
+                        return null
+
+                    val json = JSONObject(res.body!!.string())
+
+                    return if (json.has("url")) {
+                        json.getString("url")
+                    } else {
+                        null
+                    }
+
+                }
+
+            } catch (_: Exception) {
+                return null
+            }
+        }
+
     }
 }
