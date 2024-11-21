@@ -444,7 +444,15 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                     .show()
             }
 
-            HomeFunc.STU_EXAM_ENQUIRIES -> startActivity(Intent(this, StuExamEnquiries::class.java))
+            HomeFunc.STU_EXAM_ENQUIRIES -> {
+                // TODO
+
+                Toast.makeText(this, "功能暂时关闭。请等待信息办恢复。", Toast.LENGTH_SHORT).show()
+                return
+
+                // TODO
+                startActivity(Intent(this, StuExamEnquiries::class.java))
+            }
             HomeFunc.CET_SCORE -> startActivity(Intent(this, CetScore::class.java))
             HomeFunc.SPORTS_TEST_DATA -> startActivity(Intent(this, SportsTestData::class.java))
             HomeFunc.SHARE_APP -> shareApp()

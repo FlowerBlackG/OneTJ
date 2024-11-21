@@ -56,7 +56,7 @@ class TongjiApi {
             "rt_onetongji_undergraduate_score",
             "rt_teaching_info_undergraduate_summarized_grades", // 暂未使用
             "rt_onetongji_student_timetable",
-            "rt_onetongji_student_exams",
+       // TODO:     "rt_onetongji_student_exams",
             "rt_teaching_info_sports_test_data",
             "rt_teaching_info_sports_test_health",
             "rt_onetongji_manual_arrange",
