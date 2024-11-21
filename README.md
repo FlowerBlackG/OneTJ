@@ -1,10 +1,13 @@
-# OneTJ 同济教务第三方客户端
+# OneTJ 同济教务第三方客户端（安卓App）
 
-## 重要信息
+## 姊妹项目：OneTJ Web APP（适用于电脑浏览器、iOS、鸿蒙等设备）
 
-本项目暂时停止维护与更新。
+请见：[onetj-webapp](https://github.com/FlowerBlackG/onetj-webapp)
 
-请转向：[onetj-webapp](https://github.com/FlowerBlackG/onetj-webapp)
+部署版本直达：
+
+- 信息办部署（仅限校园网）：[onetj-webapp-tjnic](http://nic.pages.tongji.edu.cn/nic-tool/onetj-webapp)
+- GitHub Pages部署：[onetj-webapp-github-pages](https://flowerblackg.github.io/onetj-webapp)
 
 ## 功能一览
 
