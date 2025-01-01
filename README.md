@@ -168,3 +168,8 @@ InfoCard 拥有很强的定制能力。可定制部分包括但不限于：
 本项目由个人开发者维护。如果该项目对你有帮助，希望能为本 app 提供宣传。
 
 此外，欢迎体验开发者的另一个项目，一款自动刷锻 app。地址：[跑吗](https://github.com/FlowerBlackG/FakeRun)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=FlowerBlackG/OneTJ&type=Date)](https://star-history.com/#FlowerBlackG/OneTJ&Date)
+
