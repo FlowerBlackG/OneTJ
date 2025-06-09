@@ -1,3 +1,14 @@
+Version: 4.0.0-b1 (65)
+Build Time: 2025.06.09–20:05
+Update Log:
+移除赞助页面入口。
+登录页切换到使用 tjiam（同济统一身份认证登录）
+更新 Gradle、SDK 和依赖的版本
+添加一些 Material 3 和 Jetpack Compose 设施
+用 Compose 重写关于页和新闻展示页
+新闻展示页强制使用 WebView 渲染，不再允许选择
+
+
 Version: 3.0.16 (63)
 Build Time: 2024.11.19–00:47
 Update Log:
