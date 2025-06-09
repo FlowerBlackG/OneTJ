@@ -4,6 +4,7 @@ Update Log:
 更新 InfoCard 结构，支持动态变更已创建的卡片
 用 Compose 重写四六级页面
 用 Compose 重写今日课表页面
+添加跳转到 https://www.tongji.icu/ 的友情链接
 
 
 Version: 4.0.0-b1 (65)
