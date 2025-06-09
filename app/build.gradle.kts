@@ -13,8 +13,8 @@ android {
         applicationId = "com.gardilily.onedottongji"
         minSdk = 29
         targetSdk = 36
-        versionCode = 65
-        versionName = "4.0.0-b1"
+        versionCode = 66
+        versionName = "4.0.0-b2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -54,11 +54,13 @@ dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.1")
 
     // Material Design 3
     implementation("androidx.compose.material3:material3:1.3.2")
@@ -75,6 +77,13 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.8.2")
 
     implementation("com.caverock:androidsvg-aar:1.4")
+
+
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    // Coil extension for SVG support
+    implementation("io.coil-kt:coil-svg:2.6.0")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

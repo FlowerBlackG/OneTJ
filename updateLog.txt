@@ -1,3 +1,11 @@
+Version: 4.0.0-b2 (66)
+Build Time: 2025.06.09–22:20
+Update Log:
+更新 InfoCard 结构，支持动态变更已创建的卡片
+用 Compose 重写四六级页面
+用 Compose 重写今日课表页面
+
+
 Version: 4.0.0-b1 (65)
 Build Time: 2025.06.09–20:05
 Update Log:
