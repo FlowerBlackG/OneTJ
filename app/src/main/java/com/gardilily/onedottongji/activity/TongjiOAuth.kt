@@ -147,6 +147,7 @@ class TongjiOAuth : OneTJActivityBase(
         urlBuilder.append("?redirect_uri=${TongjiApi.OAUTH_REDIRECT_URL}")
         urlBuilder.append("&client_id=${TongjiApi.CLIENT_ID}")
         urlBuilder.append("&response_type=code")
+        urlBuilder.append("&kc_idp_hint=tjiam")
 
         val scopeBuilder = StringBuilder()
         if (scope == null) {
