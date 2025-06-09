@@ -175,7 +175,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
 
         shelf.addFuncCard("fluentemoji/wilted_flower_color.svg", "退出登录", HomeFunc.LOGOUT, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/hatching_chick_color.svg", "分享App", HomeFunc.SHARE_APP, true) { funcButtonClick(it) }
-        shelf.addFuncCard("fluentemoji/smiling_face_with_hearts_color.svg", "捐助App", HomeFunc.DONATE, true) { funcButtonClick(it) }
+    //    shelf.addFuncCard("fluentemoji/smiling_face_with_hearts_color.svg", "捐助App", HomeFunc.DONATE, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/teddy_bear_color.svg", "关于App", HomeFunc.ABOUT_APP, true) { funcButtonClick(it) }
 
         // shelf.addFuncCard("🔧", "提取SessionId", MacroDefines.HOME_FUNC_GET_SESSIONID, true) { funcButtonClick(it) }
