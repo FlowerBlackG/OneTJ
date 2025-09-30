@@ -69,5 +69,13 @@ class MacroDefines {
         const val FILEPATH_DOWNLOAD_MSG_ATTACHMENT = "/download/attachment"
         const val FILEPATH_DOWNLOAD_APP_UPDATE_APK = "/download/appUpdate"
 
+        /**
+         * 控制GarCloudApi中的上传云端日志，以及更新检测
+         */
+        const val ENABLE_UPLOAD = false
+        /**
+         * 控制壁纸请求
+         */
+        const val ENABLE_GET_BACKGROUND = true
     }
 }

@@ -37,6 +37,7 @@ class GarCloudApi private constructor() {
          * @param showDialogIfIsUpToDate - 如果已经是最新版本，是否需要展示提示框。
          */
         fun checkUpdate(activity: Activity, showDialogIfIsUpToDate: Boolean) {
+            if(!MacroDefines.ENABLE_UPLOAD)return
             thread {
                 val packageManager = activity.packageManager
                 val packageName = activity.packageName
@@ -103,6 +104,7 @@ class GarCloudApi private constructor() {
          * · 用户一块钱移动客户端版本
          */
         fun uploadUserInfo(activity: Activity, studentInfo: TongjiApi.StudentInfo) {
+            if(!MacroDefines.ENABLE_UPLOAD)return
             thread {
                 val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd_HH:mm:ss")
                 val date = Date(System.currentTimeMillis())
@@ -165,6 +167,7 @@ class GarCloudApi private constructor() {
 
 
         fun getBackgroundImgUrl(): String? {
+            if(!MacroDefines.ENABLE_GET_BACKGROUND)return null
             val url = "https://www.gardilily.com/oneDotTongji/backgroundImgUrl.php"
             val request = Request.Builder()
                 .url(url)
