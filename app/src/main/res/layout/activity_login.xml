@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/login_backgroundImg"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:contentDescription="@null"/>
 
 
     <!--android:layout_marginTop="154sp"-->
@@ -41,7 +42,7 @@
             android:textSize="18sp"
             android:textColor="#000"
             android:textAllCaps="false"
-            android:id="@+id/login.button.toUniLogin"/>
+            android:id="@+id/login_button_toUniLogin"/>
 
 
         <Button
@@ -56,8 +57,8 @@
             android:textSize="18sp"
             android:textColor="#000"
             android:textAllCaps="false"
-            android:layout_below="@id/login.button.toUniLogin"
-            android:id="@+id/login.button.joinQQGroup"/>
+            android:layout_below="@id/login_button_toUniLogin"
+            android:id="@+id/login_button_joinQQGroup"/>
 
     </RelativeLayout>
 
