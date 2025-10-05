@@ -70,6 +70,11 @@ class MacroDefines {
         const val FILEPATH_DOWNLOAD_APP_UPDATE_APK = "/download/appUpdate"
 
         /**
+         * QQ讨论群链接
+         */
+        const val QQgruopUrl="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=YIF3M8HCGgW4_q6J4XjOrres3aaLhPsm&authKey=L%2F29m%2Bc8HmnYWupK%2F7dzAlptgdDc3DoBhKZ7p3BJw4NOufa1dAo4QsgCUzBKdJ8C&noverify=0&group_code=322324184"
+
+        /**
          * 控制GarCloudApi中的上传云端日志，以及更新检测
          */
         const val ENABLE_UPLOAD = false

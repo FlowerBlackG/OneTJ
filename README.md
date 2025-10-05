@@ -91,7 +91,7 @@
 
 经过官方签名的 apk 可以从以下渠道获取：
 
-* FlowerBlackG/OneDotTongji GitHub 仓库的 Release 栏目
+* FlowerBlackG/OneTJ GitHub 仓库的 Release 栏目
 * app 内自动更新模块检测到更新时，提供的下载地址
 
 ## app 开发信息
@@ -159,7 +159,9 @@ InfoCard 拥有很强的定制能力。可定制部分包括但不限于：
 
 建议关闭 GarCloudApi.kt 内的日志上报功能。开发过程会产生大量无意义日志，它们会干扰对云端日志的分析。
 
-开发完毕，向主仓库 FlowerBlackG/OneDotTongji 提交 pr 即可。
+在MacroDefine.kt中有方便进行开发者调试的相关开关
+
+开发完毕，向主仓库 FlowerBlackG/OneTJ 提交 pr 即可。
 
 由衷期待并感谢你的参与！
 

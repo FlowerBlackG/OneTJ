@@ -9,8 +9,17 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.material.elevation.SurfaceColors
 
+/**
+ * OneTJ基类
+ *
+ * @param hasTitleBar 是否有标题栏。默认为`ture`
+ * @param activityTitle 标题。默认为`null`
+ * @param backOnTitleBar 是否启用返回键。默认为`false`
+ * @param withSpinning 是否准备加载动画。默认为`false`
+ */
 open class OneTJActivityBase(
     protected val hasTitleBar: Boolean = true,
     protected val activityTitle: String? = null,
@@ -29,8 +38,7 @@ open class OneTJActivityBase(
             SurfaceColors.SURFACE_0.getColor(this)
         }
 
-        window.statusBarColor = color
-        window.navigationBarColor = color
+        setSystemBarsColor(window, color, color.isLightColor() )
 
         if (activityTitle != null) {
             title = activityTitle
@@ -67,6 +75,23 @@ open class OneTJActivityBase(
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         finish()
         return super.onOptionsItemSelected(item)
+    }
+    fun setSystemBarsColor(window: android.view.Window, color: Int, isLight: Boolean) {
+        window.statusBarColor = color
+        window.navigationBarColor = color
+
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+
+        controller.isAppearanceLightStatusBars = isLight
+        controller.isAppearanceLightNavigationBars = isLight
+    }
+
+    fun Int.isLightColor(): Boolean {
+        val r = this shr 16 and 0xFF
+        val g = this shr 8 and 0xFF
+        val b = this and 0xFF
+        val luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+        return luminance > 0.5
     }
 
 }
