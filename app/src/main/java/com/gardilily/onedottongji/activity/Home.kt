@@ -62,7 +62,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
     private var schoolCalendar: TongjiApi.SchoolCalendar? = null
 
 
-    private var studentInfoLoadedSemaphore = Semaphore(1, 1)
+    private var studentInfoLoadedSemaphore = Semaphore(1, 0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,19 +93,24 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
 
             studentInfo = TongjiApi.instance.getStudentInfo(this) ?: return@thread
 
+            runBlocking {
+                studentInfoLoadedSemaphore.acquire()
+            }
             runOnUiThread {
-                findViewById<TextView>(R.id.home_userinfobox_username).text = studentInfo!!.name
-                findViewById<TextView>(R.id.home_userinfobox_uid).text = studentInfo!!.userId
-                findViewById<TextView>(R.id.home_userinfobox_facultyName).text = studentInfo!!.deptName
-                findViewById<TextView>(R.id.home_userinfobox_grade).text = "${studentInfo!!.currentGrade}级"
+                try {
+                    findViewById<TextView>(R.id.home_userinfobox_username).text = studentInfo!!.name
+                    findViewById<TextView>(R.id.home_userinfobox_uid).text = studentInfo!!.userId
+                    findViewById<TextView>(R.id.home_userinfobox_facultyName).text = studentInfo!!.deptName
+                    findViewById<TextView>(R.id.home_userinfobox_grade).text = "${studentInfo!!.currentGrade}级"
 
-                if (studentInfo!!.gender == TongjiApi.StudentInfo.Gender.MALE) {
-                    findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/sleeping_face_color.svg")
-                } else {
-                    findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/smiling_face_with_hearts_color.svg")
+                    if (studentInfo!!.gender == TongjiApi.StudentInfo.Gender.MALE) {
+                        findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/sleeping_face_color.svg")
+                    } else {
+                        findViewById<SVGImageView>(R.id.home_userinfobox_avatar).setImageAsset("fluentemoji/smiling_face_with_hearts_color.svg")
+                    }
+                }finally {
+                    studentInfoLoadedSemaphore.release()
                 }
-
-                studentInfoLoadedSemaphore.release()
             }
 
             if (!userInfoReported) {
@@ -154,7 +159,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
      */
     private fun initFuncButtons() {
         val spMultiply = resources.displayMetrics.scaledDensity
-        val screenWidthPx = windowManager.defaultDisplay.width
+        val screenWidthPx = resources.displayMetrics.widthPixels
         val targetCardWidthPx = ((screenWidthPx - (2f * 18f + 2f * 12f) * spMultiply) / 3f).toInt()
 
         shelf = FuncCardShelf(this)
