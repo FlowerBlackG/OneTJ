@@ -160,7 +160,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:animateLayoutChanges="true"
-                    android:id="@+id/home.commonMsgPublishContainer" />
+                    android:id="@+id/home_commonMsgPublishContainer" />
             </LinearLayout>
 
         </ScrollView>
