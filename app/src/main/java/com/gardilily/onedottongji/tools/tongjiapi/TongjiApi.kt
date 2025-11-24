@@ -303,17 +303,6 @@ class TongjiApi {
 
     }
 
-    /**
-     * 学生信息类
-     *
-     * @property userId 学号
-     * @property name 姓名
-     * @property gender 性别
-     * @property deptName 主院系名称
-     * @property secondDeptName 第二院系名称
-     * @property schoolName 学校名称？
-     * @property currentGrade 当前年级
-     */
     data class StudentInfo(
         var userId: String? = null,
         var name: String? = null,
@@ -501,11 +490,6 @@ class TongjiApi {
 
     }
 
-    /**
-     * 联网请求学生信息
-     *
-     * 返回一个 `StudentInfo` 对象，出错时返回 `null`
-     */
     fun getStudentInfo(activity: Activity): StudentInfo? {
         val url = "$BASE_URL/v1/dc/user/student_info"
 
@@ -525,15 +509,6 @@ class TongjiApi {
         )
     }
 
-    /**
-     * 学期信息类
-     *
-     * @property calendarId 学期编号
-     * @property year 学年
-     * @property term 第某学期
-     * @property schoolWeek 第某周
-     * @property simpleName 当前学期简略描述
-     */
     data class SchoolCalendar(
         var calendarId: String? = null,
         var year: String? = null,
@@ -542,9 +517,6 @@ class TongjiApi {
         var simpleName: String? = null
     )
 
-    /**
-     * 联网获取当前学期信息
-     */
     fun getOneTongjiSchoolCalendar(activity: Activity): SchoolCalendar? {
         val url = "$BASE_URL/v1/rt/onetongji/school_calendar_current_term_calendar"
         val request = basicRequestBuilder(url)
