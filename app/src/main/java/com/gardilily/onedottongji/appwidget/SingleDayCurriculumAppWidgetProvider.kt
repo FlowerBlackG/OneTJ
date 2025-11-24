@@ -78,7 +78,7 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
 
         Log.d("single day curriculum app widget", "onUpdate tick")
 
-        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val calendarDeferred = async(Dispatchers.IO) {
                 return@async try {
                     TongjiApi.instance.getOneTongjiSchoolCalendar()
@@ -101,7 +101,7 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
             val timetableData = timetableDeferred.await()
 
             val todayWeek = calendarData?.schoolWeek?.toInt()
-            val todayDayOfWeek = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)-1).let { if (it < 0) 6 else it }
+            val todayDayOfWeek = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)+6)%7
 
 //            Log.d("RemoteViewsFactory", "请求完成。今天是第${todayWeek}周，星期${todayDayOfWeek}")
 
