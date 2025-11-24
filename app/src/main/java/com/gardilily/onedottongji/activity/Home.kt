@@ -62,7 +62,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
     private var schoolCalendar: TongjiApi.SchoolCalendar? = null
 
 
-    private var studentInfoLoadedSemaphore = Semaphore(1, 1)
+    private var studentInfoLoadedSemaphore = Semaphore(1, 0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,6 +93,9 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
 
             studentInfo = TongjiApi.instance.getStudentInfo(this) ?: return@thread
 
+            runBlocking {
+                studentInfoLoadedSemaphore.acquire()
+            }
             runOnUiThread {
                 try {
                     findViewById<TextView>(R.id.home_userinfobox_username).text = studentInfo!!.name
@@ -137,7 +140,6 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         NONE,
         GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY,
         GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE,
-        GRADUATE_STUDENT_TIME_TABLE_WEEK,
         MY_GRADES,
         STU_EXAM_ENQUIRIES,
         CET_SCORE,
@@ -156,12 +158,12 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
      * 初始化主页功能按钮。
      */
     private fun initFuncButtons() {
-//        val spMultiply = resources.displayMetrics.scaledDensity
-//        val screenWidthPx = resources.displayMetrics.widthPixels
-//        val targetCardWidthPx = ((screenWidthPx - (2f * 18f + 2f * 12f) * spMultiply) / 3f).toInt()
+        val spMultiply = resources.displayMetrics.scaledDensity
+        val screenWidthPx = resources.displayMetrics.widthPixels
+        val targetCardWidthPx = ((screenWidthPx - (2f * 18f + 2f * 12f) * spMultiply) / 3f).toInt()
 
         shelf = FuncCardShelf(this)
-//        shelf.targetCardWidthPx = targetCardWidthPx
+        shelf.targetCardWidthPx = targetCardWidthPx
         findViewById<LinearLayout>(R.id.home_funcBtnLinearLayout).addView(shelf)
 
         shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "今日课表", HomeFunc.GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY, true) { funcButtonClick(it) }
@@ -275,11 +277,11 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                         startActivity(intent)
                     }
 
-                }
+                } // for (idx in 0 until len)
 
-            }
-        }
-    }
+            } // runOnUiThread
+        } // thread
+    } // private fun initCommonMsgPublish()
 
 
 
@@ -427,11 +429,6 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         }
     }
 
-    /**
-     * 调度按钮功能的函数
-     *
-     * 传入 HomeFunc 枚举类,进行对应的功能调度
-     */
     private fun funcButtonClick(action: HomeFunc) {
         when (action) {
             HomeFunc.LOGOUT -> funcLogout()
@@ -534,22 +531,10 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
 
     private val FUNC_TIMETABLE_TERM_COMPLETE = 1
     private val FUNC_TIMETABLE_SINGLE_DAY = 2
-    private val FUNC_TIMETABLE_WEEK = 3
-
-    /**
-     * 显示课表
-     *
-     * @param type 课表显示类型
-     *
-     *             FUNC_TIMETABLE_TERM_COMPLETE：显示整学期课表
-     *             FUNC_TIMETABLE_SINGLE_DAY：显示单日课表
-     *             FUNC_TIMETABLE_WEEK：显示周课表
-     *
-     */
     private fun funcShowStudentTimetable(type: Int) {
 
         if (schoolCalendar == null) {
-            AlertDialog.Builder(this@Home)
+            androidx.appcompat.app.AlertDialog.Builder(this@Home)
                 .setPositiveButton("OK") { view, _ -> view.dismiss() }
                 .setTitle("慢一点咯")
                 .setMessage("请等待页面上方学期信息正确加载后再点开此功能。")
@@ -558,25 +543,20 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
             return
         }
 
-        when(type){
-            FUNC_TIMETABLE_TERM_COMPLETE -> {
-                val intent = Intent(this, TermComplete::class.java)
-                intent.putExtra("TermName", schoolCalendar?.simpleName)
-                startActivity(intent)
+        if (type == FUNC_TIMETABLE_SINGLE_DAY) {
+            val intent = Intent(this, SingleDay::class.java)
+            val iSchoolWeek = try {
+                schoolCalendar?.schoolWeek?.toInt()
+            } catch (_: Exception) {
+                null
             }
-            FUNC_TIMETABLE_SINGLE_DAY -> {
-                val intent = Intent(this, SingleDay::class.java)
-                val iSchoolWeek = try {
-                    schoolCalendar?.schoolWeek?.toInt()
-                } catch (_: Exception) {
-                    null
-                }
-                intent.putExtra("TermWeek", iSchoolWeek ?: 1)
-                startActivity(intent)
-            }
-            FUNC_TIMETABLE_WEEK -> {
-                TODO("周课表功能待开发")
-            }
+
+            intent.putExtra("TermWeek", iSchoolWeek ?: 1)
+            startActivity(intent)
+        } else {
+            val intent = Intent(this, TermComplete::class.java)
+            intent.putExtra("TermName", schoolCalendar?.simpleName)
+            startActivity(intent)
         }
 
     }
