@@ -17,7 +17,4 @@
     <string name="Running">Running</string>
     <string name="licensed_under_Mulan_Permissive_Software_License_Version_2">Licensed under Mulan Permissive Software License, Version 2</string>
     <string name="join_qq_group">Join QQ group</string>
-    <string name="qq_group_qrcode">QR code of QQ group</string>
-    <string name="join_qq_group_by_URL">Join QQ Group via Link</string>
-    <string name="OK">OK</string>
 </resources>
