@@ -12,7 +12,6 @@ import android.widget.RemoteViews
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContainerService
 import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContainerService.CourseInfo
-import com.gardilily.onedottongji.tools.ProxyActivity
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,11 +79,9 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
         Log.d("single day curriculum app widget", "onUpdate tick")
 
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
-            val proxyActivity1 = withContext(Dispatchers.Main) { ProxyActivity.create(context) }
-            val proxyActivity2 = withContext(Dispatchers.Main) { ProxyActivity.create(context) }
             val calendarDeferred = async(Dispatchers.IO) {
                 return@async try {
-                    TongjiApi.instance.getOneTongjiSchoolCalendar(proxyActivity1)
+                    TongjiApi.instance.getOneTongjiSchoolCalendar()
                 } catch (e: Exception) {
                     Log.e("RemoteViewsFactory", "校历请求失败：${e.message}")
                     null
@@ -93,7 +90,7 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
 
             val timetableDeferred = async(Dispatchers.IO) {
                 return@async try {
-                    TongjiApi.instance.getOneTongjiStudentTimetable(proxyActivity2)
+                    TongjiApi.instance.getOneTongjiStudentTimetable()
                 } catch (e: Exception) {
                     Log.e("RemoteViewsFactory", "课程表请求失败：${e.message}")
                     null

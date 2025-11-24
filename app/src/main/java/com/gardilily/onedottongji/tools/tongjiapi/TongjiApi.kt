@@ -351,14 +351,14 @@ class TongjiApi {
     private val netErrorDialogOnSemaphore = Semaphore(1, 0)
 
     private fun<T> Request.Builder.execute(
-        activity: Activity,
+        activity: Activity? = null,
         apiFailureCriticalLevel: ApiFailureCriticalLevel = ApiFailureCriticalLevel.CRITICAL
     ): T? {
         return this.build().execute<T>(activity, apiFailureCriticalLevel)
     }
 
     private fun<T> Request.execute(
-        activity: Activity,
+        activity: Activity? = null,
         apiFailureCriticalLevel: ApiFailureCriticalLevel = ApiFailureCriticalLevel.CRITICAL
     ): T? {
         val response = try {
@@ -369,10 +369,9 @@ class TongjiApi {
                 netErrorDialogOnSemaphore.tryAcquire()
             }
 
-            if (semaphoreAcquired && !activity.isDestroyed && !activity.isFinishing) {
-                val msg = "请检查网络连接，然后重新打开此页面。\n\n" +
-                        "详细信息：\n" + e.message
-
+            val msg = "请检查网络连接，然后重新打开此页面。\n\n" +
+                    "详细信息：\n" + e.message
+            if (activity != null && semaphoreAcquired && !activity.isDestroyed && !activity.isFinishing) {
                 activity.runOnUiThread {
                     AlertDialog.Builder(activity)
                         .setTitle("网络错误")
@@ -383,8 +382,8 @@ class TongjiApi {
                         }
                         .show()
                 }
-
             }
+            Log.e("TongjiApi", msg)
 
             return null
 
@@ -403,7 +402,7 @@ class TongjiApi {
      * @return JSONObject or JSONArray
      */
     private fun<T> Response?.checkErrorAndGetData(
-        activity: Activity,
+        activity: Activity? = null,
         criticalLevel: ApiFailureCriticalLevel = ApiFailureCriticalLevel.CRITICAL
     ): T? {
 
@@ -425,7 +424,7 @@ class TongjiApi {
                         .append("\n\n详细信息：\n")
                         .append(requestDetailMessageBuilder)
 
-                    activity.runOnUiThread {
+                    activity?.runOnUiThread {
                         AlertDialog.Builder(activity)
                             .setTitle("登录状态异常")
                             .setMessage(msgBuilder)
@@ -446,7 +445,7 @@ class TongjiApi {
                         .append("\n\n详细信息：\n")
                         .append(requestDetailMessageBuilder)
 
-                    activity.runOnUiThread {
+                    activity?.runOnUiThread {
                         AlertDialog.Builder(activity)
                             .setTitle("数据获取失败")
                             .setMessage(msgBuilder)
@@ -517,7 +516,7 @@ class TongjiApi {
         var simpleName: String? = null
     )
 
-    fun getOneTongjiSchoolCalendar(activity: Activity): SchoolCalendar? {
+    fun getOneTongjiSchoolCalendar(activity: Activity? = null): SchoolCalendar? {
         val url = "$BASE_URL/v1/rt/onetongji/school_calendar_current_term_calendar"
         val request = basicRequestBuilder(url)
             .get()
@@ -546,7 +545,7 @@ class TongjiApi {
 
     }
 
-    fun getOneTongjiStudentTimetable(activity: Activity): JSONArray? {
+    fun getOneTongjiStudentTimetable(activity: Activity? = null): JSONArray? {
         val url = "$BASE_URL/v1/rt/onetongji/student_timetable"
         return basicRequestBuilder(url)
             .get()

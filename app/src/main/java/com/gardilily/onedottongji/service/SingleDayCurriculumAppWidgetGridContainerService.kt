@@ -11,7 +11,6 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.gardilily.onedottongji.R
-import com.gardilily.onedottongji.tools.ProxyActivity
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi.Companion.BASE_URL
 import kotlinx.coroutines.CoroutineScope
