@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.gardilily.onedottongji"
-        minSdk = 29
+        minSdk = 28
         targetSdk = 36
         versionCode = 66
         versionName = "4.0.0-b2"
@@ -39,6 +39,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig=true
         compose = true
     }
 

@@ -26,14 +26,14 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="20sp"
                 android:gravity="center"
-                android:id="@+id/home.userinfobox.avatar" />
+                android:id="@+id/home_userinfobox_avatar" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/home.userinfobox.avatar"
+                android:layout_toEndOf="@id/home_userinfobox_avatar"
                 android:layout_marginStart="16sp"
                 android:layout_marginEnd="20sp">
 
@@ -153,14 +153,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:id="@+id/home.funcBtnLinearLayout" />
+                    android:id="@+id/home_funcBtnLinearLayout" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:animateLayoutChanges="true"
-                    android:id="@+id/home.commonMsgPublishContainer" />
+                    android:id="@+id/home_commonMsgPublishContainer" />
             </LinearLayout>
 
         </ScrollView>

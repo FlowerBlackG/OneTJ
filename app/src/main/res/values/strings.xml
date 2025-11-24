@@ -16,5 +16,8 @@
     <string name="Gym_activities">场馆锻炼</string>
     <string name="Running">健身跑步</string>
     <string name="licensed_under_Mulan_Permissive_Software_License_Version_2">以木兰宽松许可证第2版开源</string>
-    <string name="join_qq_group">加入讨论群</string>
+    <string name="join_qq_group">加入QQ讨论群</string>
+    <string name="qq_group_qrcode">QQ讨论群二维码</string>
+    <string name="join_qq_group_by_URL">链接加群</string>
+    <string name="OK">好</string>
 </resources>

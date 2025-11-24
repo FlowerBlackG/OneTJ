@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.tools.GarCloudApi
 import com.gardilily.onedottongji.tools.MacroDefines
+import com.gardilily.onedottongji.tools.QQGroupDialog
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -58,7 +59,6 @@ class Login : Activity() {
         loadBackgroundImage()
         showVersionInfo()
 
-        initJoinQQGroupButton(findViewById(R.id.login_button_joinQQGroup))
 
         findViewById<Button>(R.id.login_button_toUniLogin).setOnClickListener {
             startActivityForResult(
@@ -67,6 +67,7 @@ class Login : Activity() {
             )
 
         }
+        initJoinQQGroupButton(findViewById(R.id.login_button_joinQQGroup))
 
         GarCloudApi.checkUpdate(this, false)
     }
@@ -78,24 +79,7 @@ class Login : Activity() {
 
     private fun initJoinQQGroupButton(btn: Button) {
         btn.setOnClickListener {
-
-            val imgView = ImageView(this)
-            imgView.setImageResource(R.drawable.qq_group_qrcode)
-
-            AlertDialog.Builder(this)
-                .setTitle("加入QQ群")
-                .setMessage("群号：322324184")
-                .setPositiveButton("好") { _, _ ->
-
-                }
-                .setNeutralButton("链接加群") { _, _ ->
-                    val groupUrl = "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=YIF3M8HCGgW4_q6J4XjOrres3aaLhPsm&authKey=L%2F29m%2Bc8HmnYWupK%2F7dzAlptgdDc3DoBhKZ7p3BJw4NOufa1dAo4QsgCUzBKdJ8C&noverify=0&group_code=322324184"
-                    val uri = Uri.parse(groupUrl)
-                    this@Login.startActivity(Intent(Intent.ACTION_VIEW, uri))
-                }
-                .setView(imgView)
-                .setCancelable(true)
-                .show()
+            QQGroupDialog(this).show()
         }
     }
 
