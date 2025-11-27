@@ -4,6 +4,7 @@ package com.gardilily.onedottongji.appwidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -15,12 +16,14 @@ import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContai
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import kotlin.text.ifEmpty
 
 class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
@@ -111,9 +114,17 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
             SingleDayCurriculumAppWidgetGridContainerService.infoList = infoList
             SingleDayCurriculumAppWidgetGridContainerService.isDataLoaded = true
 
+            val currentTimeMillis = System.currentTimeMillis()
+            val formatTime = SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss",
+                Locale.getDefault()
+            ).format(Date(currentTimeMillis))
+
             withContext(Dispatchers.Main) {
                 appWidgetIds.forEach { appWidgetId ->
                     val views = RemoteViews(context.packageName, R.layout.appwidget_single_day_curriculum)
+
+                    views.setTextViewText(R.id.appwidget_single_day_curriculum_last_refresh_time, "更新时间：${formatTime}")
 
                     val intent = Intent(context, SingleDayCurriculumAppWidgetGridContainerService::class.java)
                     intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -132,7 +143,25 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
 
-        Log.d("single day curri widget provider", "onReceive tick")
+        Log.d("single day curri widget provider", "onReceive tick, action: ${intent?.action}")
+
+        val context = context ?: return
+        val action = intent?.action ?: return
+
+        val targetActions = setOf(
+            AppWidgetManager.ACTION_APPWIDGET_UPDATE,
+            Intent.ACTION_DATE_CHANGED,
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_TIME_TICK
+        )
+
+        if(targetActions.contains(action)) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(
+                ComponentName(context, this::class.java)
+            )
+            onUpdate(context, appWidgetManager, appWidgetIds)
+        }
     }
 
 

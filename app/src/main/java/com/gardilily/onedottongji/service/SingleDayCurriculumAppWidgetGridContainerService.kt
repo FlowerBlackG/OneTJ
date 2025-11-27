@@ -2,26 +2,13 @@
 
 package com.gardilily.onedottongji.service
 
-import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.gardilily.onedottongji.R
-import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
-import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi.Companion.BASE_URL
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import java.util.Calendar
 
 class SingleDayCurriculumAppWidgetGridContainerService : RemoteViewsService() {
 
