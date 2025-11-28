@@ -4,69 +4,31 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.gardilily.onedottongji.R
 import com.gardilily.onedottongji.appwidget.SingleDayCurriculumAppWidgetProvider
-import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContainerService.CourseInfo
 import com.gardilily.onedottongji.tools.tongjiapi.TongjiApi
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import kotlin.text.ifEmpty
 import androidx.core.net.toUri
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.getTodayCourseInfo
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.saveLastUpdateDate
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodUpdateDeviationCheck
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodUpdateExistenceCheck
 
 class WidgetUpdateWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
-    fun getTodayCourseInfo(week: Int, dayOfWeek: Int, json: JSONArray?): List<CourseInfo> {
-        if (json == null) return emptyList()
-        val courses = mutableListOf<CourseInfo>()
-        for (i in 0 until json.length()) {
-            try {
-                /**
-                 * timeTableList包含对应课程的所有节次
-                 */
-                val timeTableList = json.getJSONObject(i).getJSONArray("timeTableList")
-                for (j in 0 until timeTableList.length()) {
-                    /**
-                     * 一周固定的某节课
-                     */
-                    val courseObj = timeTableList.getJSONObject(j)
-                    val weeks = courseObj.getJSONArray("weeks")
-                    if (courseObj.getInt("dayOfWeek") != dayOfWeek) { continue }
 
-                    for (k in 0 until weeks.length()) {
-                        val weekObj = weeks.getInt(k)
-                        if (weekObj == week) {
-                            courses.add(
-                                CourseInfo(
-                                    timeStart = courseObj.getInt("timeStart"),
-                                    timeEnd = courseObj.getInt("timeEnd"),
-                                    name = courseObj.getString("courseName"),
-                                    teacher = courseObj.getString("teacherName"),
-                                    room = courseObj.getString("roomIdI18n").ifEmpty { courseObj.getString("roomLable") }
-                                )
-                            )
-                        }
-                    }
-
-                }
-            } catch (_: Exception) { /* Ignore parsing errors */ }
-        }
-        return courses.sortedBy { it.timeStart }
-    }
 
     override suspend fun doWork(): Result{
         return try {
@@ -134,9 +96,19 @@ class WidgetUpdateWorker(
 
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
-                Log.d("WidgetUpdateWorker", "更新成功 id:${id}")
-                Result.success()
+                Log.d("WidgetUpdateWorker", "更新成功 id:${id}\n更新时间:${formatTime}")
             }
+
+            val isPeriodicTask = tags.contains("WidgetPeriodicCurriculumUpdate")
+
+            if (isPeriodicTask) {
+                widgetPeriodUpdateDeviationCheck(applicationContext)
+            }else{
+                widgetPeriodUpdateExistenceCheck(applicationContext)
+            }
+            saveLastUpdateDate(applicationContext)
+
+            Result.success()
         }catch (e : Exception){
             Log.e("WidgetUpdateWorker", e.toString())
             Result.retry()
