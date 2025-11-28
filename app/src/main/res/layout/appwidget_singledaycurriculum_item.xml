@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:baselineAligned="false"
     android:elevation="2dp"
     android:background="#80FAF8FF"
     android:orientation="horizontal"
@@ -64,14 +65,5 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_course_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="qwq"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        android:visibility="gone" />
 
 </LinearLayout>

@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.view.View
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -32,7 +33,6 @@ class WidgetUpdateWorker(
 
     override suspend fun doWork(): Result{
         return try {
-            Log.d("WidgetUpdateWorker", "Worker开始工作 id:${id}")
             coroutineScope {
                 val calendarDeferred = async(Dispatchers.IO) {
                     return@async try {
@@ -52,11 +52,8 @@ class WidgetUpdateWorker(
                     }
                 }
 
-                Log.d("WidgetUpdateWorker", "等待请求中 id:${id}")
                 val calendarData = calendarDeferred.await()
                 val timetableData = timetableDeferred.await()
-
-                Log.d("WidgetUpdateWorker", "请求成功 id:${id}")
 
                 val todayWeek = calendarData?.schoolWeek?.toInt()
                 val todayDayOfWeek = (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)+6)%7
@@ -86,15 +83,22 @@ class WidgetUpdateWorker(
                     val views = RemoteViews(context.packageName, R.layout.appwidget_single_day_curriculum)
 
                     views.setTextViewText(R.id.appwidget_single_day_curriculum_last_refresh_time, "更新时间：${formatTime}")
+                    if (infoList.isEmpty()) {
+                        Log.d("TEST", "课程表为空")
+                        views.setViewVisibility(R.id.appwidget_single_day_curriculum_tips_text, View.VISIBLE)
+                        views.setTextViewText(R.id.appwidget_single_day_curriculum_tips_text, "今天没有课哦~")
+                    }else{
+                        views.setViewVisibility(R.id.appwidget_single_day_curriculum_tips_text, View.GONE)
+                        val intent = Intent(context, SingleDayCurriculumAppWidgetGridContainerService::class.java)
+                        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
 
-                    val intent = Intent(context, SingleDayCurriculumAppWidgetGridContainerService::class.java)
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        intent.setData(intent.toUri(Intent.URI_INTENT_SCHEME).toUri())
 
-                    intent.setData(intent.toUri(Intent.URI_INTENT_SCHEME).toUri())
+                        views.setRemoteAdapter(R.id.appwidget_single_day_curriculum_card_container, intent)
 
-                    views.setRemoteAdapter(R.id.appwidget_single_day_curriculum_card_container, intent)
+                        appWidgetManager.updateAppWidget(appWidgetId, views)
+                    }
 
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
                 Log.d("WidgetUpdateWorker", "更新成功 id:${id}\n更新时间:${formatTime}")
             }

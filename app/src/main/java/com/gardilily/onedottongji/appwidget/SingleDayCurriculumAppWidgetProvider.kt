@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.work.WorkManager
+import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContainerService.Companion.isDataLoaded
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.isLastUpdateDateExpired
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetImmediatelyUpdate
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodUpdate
@@ -20,7 +21,7 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
 
         widgetPeriodUpdate(context)
 
-        Log.d("OnEnabled", "周期性任务创建")
+        Log.i("SingleDayCurriculumAppWidgetProvider", "周期性任务创建")
     }
 
     override fun onDisabled(context: Context?) {
@@ -41,9 +42,7 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
         appWidgetManager ?: return
         appWidgetIds ?: return
 
-        Log.d("single day curriculum app widget", "onUpdate tick")
-
-        if (isLastUpdateDateExpired(context)) {
+        if (isLastUpdateDateExpired(context) || (!isDataLoaded)) {
             widgetImmediatelyUpdate(context)
 
         }
@@ -51,7 +50,7 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("Provider onReceive", "onReceive tick, action: ${intent?.action}")
+        Log.d("SingleDayCurriculumAppWidgetProvider", "onReceive tick, action: ${intent?.action}")
 
         super.onReceive(context, intent)
 
