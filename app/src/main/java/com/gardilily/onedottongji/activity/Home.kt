@@ -135,6 +135,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         NONE,
         GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY,
         GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE,
+        GRADUATE_STUDENT_TIME_TABLE_WEEK,
         MY_GRADES,
         STU_EXAM_ENQUIRIES,
         CET_SCORE,
@@ -147,6 +148,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         ABOUT_APP,
         SPORTS_TEST_DATA,
         TERM_ARRANGEMENT,
+        SETTINGS,
     }
 
     /**
@@ -162,6 +164,7 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         findViewById<LinearLayout>(R.id.home_funcBtnLinearLayout).addView(shelf)
 
         shelf.addFuncCard("fluentemoji/alarm_clock_color.svg", "今日课表", HomeFunc.GRADUATE_STUDENT_TIME_TABLE_SINGLE_DAY, true) { funcButtonClick(it) }
+//        shelf.addFuncCard("fluentemoji/card_index_color.svg", "周课表", HomeFunc.GRADUATE_STUDENT_TIME_TABLE_WEEK, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/notebook_color.svg", "学期课表", HomeFunc.GRADUATE_STUDENT_TIME_TABLE_TERM_COMPLETE, true) { funcButtonClick(it) }
         shelf.addFuncCard("fluentemoji/anguished_face_color.svg", "我的成绩", HomeFunc.MY_GRADES, true) { funcButtonClick(it) }
 
@@ -184,6 +187,8 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
         shelf.addFuncCard("fluentemoji/teddy_bear_color.svg", "关于App", HomeFunc.ABOUT_APP, true) { funcButtonClick(it) }
 
         // shelf.addFuncCard("🔧", "提取SessionId", MacroDefines.HOME_FUNC_GET_SESSIONID, true) { funcButtonClick(it) }
+
+//        shelf.addFuncCard("fluentemoji/gear_color.svg", "设置", HomeFunc.SETTINGS, true) { funcButtonClick(it) }
 
         shelf.fillBlank()
     }
@@ -489,7 +494,9 @@ class Home : OneTJActivityBase(hasTitleBar = false) {
                 val intent = Intent(this, Donate::class.java)
                 startActivity(intent)
             }
-            else -> {}
+            else -> {
+                Toast.makeText(this, "功能尚未实现", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
