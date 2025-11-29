@@ -89,18 +89,16 @@ class WidgetUpdateWorker(
                         views.setTextViewText(R.id.appwidget_single_day_curriculum_tips_text, "今天没有课哦~")
                     }else{
                         views.setViewVisibility(R.id.appwidget_single_day_curriculum_tips_text, View.GONE)
-                        val intent = Intent(context, SingleDayCurriculumAppWidgetGridContainerService::class.java)
-                        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-
-                        intent.setData(intent.toUri(Intent.URI_INTENT_SCHEME).toUri())
-
-                        views.setRemoteAdapter(R.id.appwidget_single_day_curriculum_card_container, intent)
-
-                        appWidgetManager.updateAppWidget(appWidgetId, views)
                     }
+                    val intent = Intent(context, SingleDayCurriculumAppWidgetGridContainerService::class.java)
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+
+                    intent.setData(intent.toUri(Intent.URI_INTENT_SCHEME).toUri())
+
+                    views.setRemoteAdapter(R.id.appwidget_single_day_curriculum_card_container, intent)
+                    appWidgetManager.updateAppWidget(appWidgetId, views)
 
                 }
-                Log.d("WidgetUpdateWorker", "更新成功 id:${id}\n更新时间:${formatTime}")
             }
 
             val isPeriodicTask = tags.contains("WidgetPeriodicCurriculumUpdate")
