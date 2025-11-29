@@ -22,7 +22,7 @@ import java.util.Locale
 import androidx.core.net.toUri
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.getTodayCourseInfo
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.saveLastUpdateDate
-import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodUpdateDeviationCheck
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodicUpdateDeviationCheck
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodUpdateExistenceCheck
 
 class WidgetUpdateWorker(
@@ -63,7 +63,7 @@ class WidgetUpdateWorker(
                 /* 数据写入服务块 */
                 SingleDayCurriculumAppWidgetGridContainerService.infoList = infoList
                 SingleDayCurriculumAppWidgetGridContainerService.isDataLoaded = true
-//
+
                 val currentTimeMillis = System.currentTimeMillis()
                 val formatTime = SimpleDateFormat(
                     "yyyy-MM-dd HH:mm:ss",
@@ -101,10 +101,10 @@ class WidgetUpdateWorker(
                 }
             }
 
-            val isPeriodicTask = tags.contains("WidgetPeriodicCurriculumUpdate")
+            val isPeriodicTask = tags.contains("Widget_Daily_Update_Tag")
 
             if (isPeriodicTask) {
-                widgetPeriodUpdateDeviationCheck(applicationContext)
+                widgetPeriodicUpdateDeviationCheck(applicationContext)
             }else{
                 widgetPeriodUpdateExistenceCheck(applicationContext)
             }

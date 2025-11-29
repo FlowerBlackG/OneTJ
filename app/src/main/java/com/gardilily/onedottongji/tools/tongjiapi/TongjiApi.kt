@@ -383,7 +383,7 @@ class TongjiApi {
                         .show()
                 }
             }
-            Log.e("TongjiApi", msg)
+            Log.e("TongjiApi", "网络错误：${e.message ?: "未知错误"}")
 
             return null
 

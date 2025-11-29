@@ -53,6 +53,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.10.2")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
     implementation("androidx.core:core-ktx:1.16.0")

@@ -18,9 +18,9 @@ import androidx.work.WorkManager
 import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContainerService.CourseInfo
 import com.gardilily.onedottongji.service.WidgetUpdateWorker
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.guava.asDeferred
 import org.json.JSONArray
 import java.util.Calendar
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.text.ifEmpty
 
@@ -73,18 +73,17 @@ object WidgetUpdateUtils {
     fun calculateInitialDelayToMidnight(): Long {
         val now = Calendar.getInstance()
         val midnight = Calendar.getInstance().apply {
-            // 明天0点30
-            add(Calendar.DAY_OF_YEAR, 1)
+            // 明天0点30，防止零点调度繁忙
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 30)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
 
-        // 计算时间差（毫秒）：midnight - now
+        // 计算时间差（毫秒）
         var delay = midnight.timeInMillis - now.timeInMillis
 
-        // 异常处理：若当前已过次日0点（理论上不会，保险起见），顺延到下一天
+        // 已过0点30分，设置为明天的0点30分
         if (delay < 0) {
             delay += 24 * 60 * 60 * 1000 // +24小时
         }
@@ -92,29 +91,31 @@ object WidgetUpdateUtils {
         return delay
     }
 
-    // 查询每日任务状态
-    fun queryDailyWorkState(context: Context) {
+    /**
+     * 异步查询每日任务状态
+     *
+     * 调试方法，或者在未来作为日志输出的部分
+     */
+    suspend fun queryDailyWorkState(context: Context) {
         val workManager = WorkManager.getInstance(context)
         val workFuture: ListenableFuture<List<WorkInfo>> = workManager
             .getWorkInfosForUniqueWork("WidgetPeriodicCurriculumUpdate")
 
-        workFuture.addListener({
-            try {
-                val workInfos = workFuture.get()
-                if (workInfos.isEmpty()) {
-                    Log.d("DailyUpdateDebug", "每日更新任务：未提交")
-                    return@addListener
-                }
-                val workInfo = workInfos[0]
-                val nextTime = workInfo.nextScheduleTimeMillis.let {
-                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(it))
-                } ?: "未知"
-                Log.d("DailyUpdateDebug", "每日更新任务状态：${workInfo.state.name}")
-                Log.d("DailyUpdateDebug", "下次执行时间：$nextTime") // 应显示次日0点左右
-            } catch (e: Exception) {
-                Log.e("DailyUpdateDebug", "查询每日任务失败", e)
+        try {
+            val workInfos = workFuture.asDeferred().await()
+            if (workInfos.isEmpty()) {
+                Log.d("DailyUpdateDebug", "每日更新任务：未提交")
+                return
             }
-        }, Executors.newSingleThreadExecutor())
+            val workInfo = workInfos[0]
+            val nextTime = workInfo.nextScheduleTimeMillis.let {
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(it))
+            } ?: "未知"
+            Log.d("DailyUpdateDebug", "每日更新任务状态：${workInfo.state.name}")
+            Log.d("DailyUpdateDebug", "下次执行时间：$nextTime")
+        } catch (e: Exception) {
+            Log.e("DailyUpdateDebug", "查询每日任务失败", e)
+        }
     }
 
     fun widgetImmediatelyUpdate(
@@ -162,11 +163,9 @@ object WidgetUpdateUtils {
                 dailyRequest
             )
 
-        // 查询任务状态
-        queryDailyWorkState(context)
     }
 
-    fun widgetPeriodUpdateDeviationCheck(context: Context){
+    fun widgetPeriodicUpdateDeviationCheck(context: Context){
         // 因为各种原因被延后的小时数（相较于0点）
         val deviationHour = calculateDeviationFromMidnight()
         if (deviationHour > 1){
@@ -178,14 +177,13 @@ object WidgetUpdateUtils {
         }
     }
 
-    fun widgetPeriodUpdateExistenceCheck(context: Context){
+    suspend fun widgetPeriodUpdateExistenceCheck(context: Context){
         val workManager = WorkManager.getInstance(context)
         val workFuture: ListenableFuture<List<WorkInfo>> = workManager
             .getWorkInfosForUniqueWork("WidgetPeriodicCurriculumUpdate")
 
-        // TODO: 暂时使用阻塞式
         val isExist = try {
-                val workInfos = workFuture.get()
+                val workInfos = workFuture.asDeferred().await()
                 workInfos.isNotEmpty() && workInfos.any { workInfo ->
                     workInfo.state !in listOf(WorkInfo.State.SUCCEEDED, WorkInfo.State.FAILED)
                 }
