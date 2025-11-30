@@ -1,3 +1,10 @@
+Version: 4.0.0-b3 (67)
+Build Time: 2025.11.30–12:56
+Update Log:
++ 课表小组件
+* 稳定性提升
+
+
 Version: 4.0.0-b2 (66)
 Build Time: 2025.06.09–22:20
 Update Log:
