@@ -6,13 +6,33 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
-import android.widget.RemoteViews
-import com.gardilily.onedottongji.R
-import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContainerService
+import androidx.work.WorkManager
+import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContainerService.Companion.isDataLoaded
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.PERIODIC_WORKER_NAME
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.isLastUpdateDateExpired
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetImmediatelyUpdate
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodUpdate
 
 class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
+
+    override fun onEnabled(context: Context?) {
+        super.onEnabled(context)
+        context ?: return
+
+        widgetPeriodUpdate(context)
+
+        Log.i("SingleDayCurriculumAppWidgetProvider", "周期性任务创建")
+    }
+
+    override fun onDisabled(context: Context?) {
+        super.onDisabled(context)
+        context ?: return
+
+        WorkManager.getInstance(context)
+            .cancelUniqueWork(PERIODIC_WORKER_NAME)
+    }
+
 
     override fun onUpdate(
         context: Context?,
@@ -23,27 +43,19 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
         appWidgetManager ?: return
         appWidgetIds ?: return
 
-        Log.d("single day curriculum app widget", "onUpdate tick")
+        if (isLastUpdateDateExpired(context) || (!isDataLoaded)) {
+            widgetImmediatelyUpdate(context)
 
-        appWidgetIds.forEach { appWidgetId ->
-            val views = RemoteViews(context.packageName, R.layout.appwidget_single_day_curriculum)
-
-            val intent = Intent(context, SingleDayCurriculumAppWidgetGridContainerService::class.java)
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-
-            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)))
-
-            views.setRemoteAdapter(R.id.appwidget_single_day_curriculum_card_container, intent)
-
-            appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d("SingleDayCurriculumAppWidgetProvider", "onReceive tick, action: ${intent?.action}")
+
         super.onReceive(context, intent)
 
-        Log.d("single day curri widget provider", "onReceive tick")
     }
+
 
 }

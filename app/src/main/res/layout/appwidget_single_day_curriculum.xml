@@ -7,17 +7,32 @@
     <GridView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/appwidget_single_day_curriculum_last_refresh_time"
         android:id="@+id/appwidget_single_day_curriculum_card_container"
-
         android:numColumns="1"
         android:gravity="center"
         android:background="#7777"
         />
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="暂不可用 qwq"
+        android:layout_above="@id/appwidget_single_day_curriculum_last_refresh_time"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:text="黄泽华是____"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:visibility="gone"
+        android:id="@+id/appwidget_single_day_curriculum_tips_text"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#40000000"
+        android:id="@+id/appwidget_single_day_curriculum_last_refresh_time"
+        android:gravity="center"
+        android:padding="3dp"
+        android:text="加载中"
         android:textSize="18sp"
         android:textColor="#fff"/>
 
