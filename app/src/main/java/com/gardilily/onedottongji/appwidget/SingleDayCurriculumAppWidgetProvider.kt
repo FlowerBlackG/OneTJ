@@ -9,6 +9,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.work.WorkManager
 import com.gardilily.onedottongji.service.SingleDayCurriculumAppWidgetGridContainerService.Companion.isDataLoaded
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.PERIODIC_WORKER_NAME
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.isLastUpdateDateExpired
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetImmediatelyUpdate
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodUpdate
@@ -29,7 +30,7 @@ class SingleDayCurriculumAppWidgetProvider : AppWidgetProvider() {
         context ?: return
 
         WorkManager.getInstance(context)
-            .cancelUniqueWork("WidgetPeriodicCurriculumUpdate")
+            .cancelUniqueWork(PERIODIC_WORKER_NAME)
     }
 
 

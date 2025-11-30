@@ -31,6 +31,10 @@ object WidgetUpdateUtils {
     private const val SP_KEY_LAST_UPDATE_DATE = "last_update_date"
     private const val SP_NAME = "WidgetUpdateSP"
 
+    const val PERIODIC_WORKER_NAME = "WidgetPeriodicCurriculumUpdate"
+    const val ONE_TIME_WORKER_NAME = "WidgetOneTimeCurriculumUpdate"
+    const val PERIODIC_WORKER_TAG = "Widget_Daily_Update_Tag"
+
     // 存储上次更新成功的日期
     fun saveLastUpdateDate(context: Context) {
         val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -99,7 +103,7 @@ object WidgetUpdateUtils {
     suspend fun queryDailyWorkState(context: Context) {
         val workManager = WorkManager.getInstance(context)
         val workFuture: ListenableFuture<List<WorkInfo>> = workManager
-            .getWorkInfosForUniqueWork("WidgetPeriodicCurriculumUpdate")
+            .getWorkInfosForUniqueWork(PERIODIC_WORKER_NAME)
 
         try {
             val workInfos = workFuture.asDeferred().await()
@@ -133,7 +137,7 @@ object WidgetUpdateUtils {
         Log.d("appWidgetProvider", "Worker加入队列提交")
         WorkManager.getInstance(context)
             .enqueueUniqueWork(
-                "WidgetCurriculumUpdate",
+                ONE_TIME_WORKER_NAME,
                 ExistingWorkPolicy.REPLACE,
                 updateRequest
             )
@@ -153,12 +157,12 @@ object WidgetUpdateUtils {
                     .setRequiresCharging(false)
                     .build()
             )
-            .addTag("Widget_Daily_Update_Tag")
+            .addTag(PERIODIC_WORKER_TAG)
             .build()
 
         WorkManager.getInstance(context)
             .enqueueUniquePeriodicWork(
-                "WidgetPeriodicCurriculumUpdate",
+                PERIODIC_WORKER_NAME,
                 ExistingPeriodicWorkPolicy.REPLACE,
                 dailyRequest
             )
@@ -171,7 +175,7 @@ object WidgetUpdateUtils {
         if (deviationHour > 1){
             Log.d("WidgetUpdateWorker", "延后的小时数：${deviationHour}，重新调度")
             WorkManager.getInstance(context)
-                .cancelUniqueWork("WidgetPeriodicCurriculumUpdate")
+                .cancelUniqueWork(PERIODIC_WORKER_NAME)
 
             widgetPeriodUpdate(context)
         }
@@ -180,7 +184,7 @@ object WidgetUpdateUtils {
     suspend fun widgetPeriodUpdateExistenceCheck(context: Context){
         val workManager = WorkManager.getInstance(context)
         val workFuture: ListenableFuture<List<WorkInfo>> = workManager
-            .getWorkInfosForUniqueWork("WidgetPeriodicCurriculumUpdate")
+            .getWorkInfosForUniqueWork(PERIODIC_WORKER_NAME)
 
         val isExist = try {
                 val workInfos = workFuture.asDeferred().await()

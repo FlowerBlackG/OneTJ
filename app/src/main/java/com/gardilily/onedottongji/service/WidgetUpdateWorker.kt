@@ -20,6 +20,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
+import com.gardilily.onedottongji.tools.WidgetUpdateUtils.PERIODIC_WORKER_TAG
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.getTodayCourseInfo
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.saveLastUpdateDate
 import com.gardilily.onedottongji.tools.WidgetUpdateUtils.widgetPeriodicUpdateDeviationCheck
@@ -101,7 +102,7 @@ class WidgetUpdateWorker(
                 }
             }
 
-            val isPeriodicTask = tags.contains("Widget_Daily_Update_Tag")
+            val isPeriodicTask = tags.contains(PERIODIC_WORKER_TAG)
 
             if (isPeriodicTask) {
                 widgetPeriodicUpdateDeviationCheck(applicationContext)
